@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>КофеР — уютная кофейня в центре Зеленодольска</title>
+<meta name="description" content="Кофейня КофеР, Зеленодольск, ул. Королёва 4А. Классический и авторский кофе, матча, лимонады, бабл ти, чай. Каждый 7-й стаканчик — в подарок.">
+<meta name="theme-color" content="#FFFFFF">
+<meta property="og:title" content="КофеР — уютная кофейня в центре Зеленодольска">
+<meta property="og:description" content="Счастье пахнет тобой и кофе. Ул. Королёва, 4А — на остановке, напротив автовокзала «Мирный».">
+<meta property="og:image" content="img/cup-flower.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23F6EFE4'/%3E%3Cpath d='M31.7 15.6A39 39 0 1 0 68.3 15.6' fill='none' stroke='%231E1A17' stroke-width='21'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=Onest:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   КофеР — фирменный мир
+   Приём страницы: «печать» — повтор логотипа со стаканчика:
+   призрачные строки, из которых проявляется одна плотная.
+   ============================================================ */
+:root{
+  --paper:      #FFFFFF;
+  --cream:      #F7F0E5;
+  --cream-2:    #EFE4D3;
+  --sky:        #E3EEF4;
+  --sky-2:      #CBDFEB;
+  --sky-3:      #A9C8DA;
+  --sky-ink:    #3F6E87;
+  --blush:      #F2DADD;
+  --blush-ink:  #8E5763;
+  --tan:        #9A7A55;
+  --tan-ink:    #77593A;
+  --tan-soft:   #C9B091;
+  --ink:        #1E1A17;
+  --ink-2:      #4C433B;
+  --ink-3:      #6B6055;
+  --line:       rgba(30,26,23,.13);
+  --line-soft:  rgba(30,26,23,.07);
+
+  --shadow-lift: 0 26px 60px -34px rgba(30,26,23,.42), 0 6px 18px -12px rgba(30,26,23,.18);
+  --shadow-soft: 0 14px 34px -22px rgba(30,26,23,.34);
+
+  --display: 'Unbounded', 'Trebuchet MS', sans-serif;
+  --text:    'Onest', 'Segoe UI', system-ui, sans-serif;
+  --accent:  'Cormorant Garamond', Georgia, serif;
+
+  --gutter: clamp(1rem, 4.4vw, 4rem);
+  --max:    1240px;
+  --shot:   25rem;
+  --ease:   cubic-bezier(.16,.84,.3,1);
+}
+@media (min-width:1440px){ :root{ --max:1400px; --shot:30rem; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; overflow-x:clip; }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:clamp(1rem,.96rem + .22vw,1.075rem);
+  line-height:1.62;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* --- поверхности браузера --- */
+::selection{ background:var(--sky-2); color:var(--ink); }
+:root{ caret-color:var(--tan); scrollbar-color:var(--tan-soft) var(--cream); scrollbar-width:thin; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:var(--cream); }
+::-webkit-scrollbar-thumb{ background:var(--tan-soft); border-radius:99px; border:3px solid var(--cream); }
+::-webkit-scrollbar-thumb:hover{ background:var(--tan); }
+:focus-visible{ outline:2.5px solid var(--sky-ink); outline-offset:3px; border-radius:4px; }
+a{ color:inherit; text-decoration-thickness:1px; text-underline-offset:.22em; text-decoration-color:var(--tan-soft); }
+img{ display:block; max-width:100%; height:auto; }
+h1,h2,h3{ margin:0; font-family:var(--display); font-weight:900; letter-spacing:-.045em; line-height:.94; text-wrap:balance; }
+p{ margin:0; text-wrap:pretty; }
+ul,dl{ margin:0; padding:0; list-style:none; }
+button{ font:inherit; color:inherit; }
+
+.wrap{
+  width:100%; max-width:calc(var(--max) + env(safe-area-inset-left) + env(safe-area-inset-right));
+  margin-inline:auto;
+  padding-left:max(var(--gutter), env(safe-area-inset-left));
+  padding-right:max(var(--gutter), env(safe-area-inset-right));
+}
+.skip{
+  position:absolute; left:.6rem; top:-4rem; z-index:200;
+  background:var(--ink); color:var(--cream); padding:.7rem 1.1rem; border-radius:99px;
+  font-size:.9rem; font-weight:600; text-decoration:none; transition:top .2s var(--ease);
+}
+.skip:focus{ top:.6rem; }
+
+/* ============ логотипная «О» ============ */
+.ring{ display:inline-block; width:.78em; height:.78em; vertical-align:-.02em; }
+.ring path{ fill:none; stroke:currentColor; stroke-width:21; }
+
+/* ============ шапка ============ */
+.nav{
+  position:sticky; top:0; z-index:100;
+  padding-top:env(safe-area-inset-top);
+  background:rgba(255,255,255,.82);
+  -webkit-backdrop-filter:saturate(1.5) blur(14px); backdrop-filter:saturate(1.5) blur(14px);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s var(--ease), background .3s var(--ease);
+}
+.nav[data-stuck="true"]{ border-bottom-color:var(--line-soft); background:rgba(255,255,255,.93); }
+.nav__in{ display:flex; align-items:center; gap:.85rem; min-height:4.4rem; }
+.brand{
+  display:inline-flex; align-items:center; gap:.06em;
+  font-family:var(--display); font-weight:800; font-size:1.06rem;
+  letter-spacing:-.03em; text-decoration:none; flex:none;
+}
+.brand .ring{ width:.86em; height:.86em; margin-inline:.02em; }
+.brand__sub{
+  font-family:var(--text); font-weight:500; font-size:.66rem; letter-spacing:.18em;
+  color:var(--ink-3); margin-left:.7rem; padding-left:.7rem; border-left:1px solid var(--line);
+  text-transform:uppercase; white-space:nowrap;
+}
+.nav__links{ display:none; gap:1.7rem; margin-left:auto; font-size:.94rem; font-weight:500; }
+.nav__links a{ text-decoration:none; color:var(--ink-2); position:relative; padding-block:.35rem; }
+.nav__links a::after{
+  content:""; position:absolute; left:0; right:0; bottom:.05rem; height:1.5px;
+  background:var(--tan); transform:scaleX(0); transform-origin:left; transition:transform .34s var(--ease);
+}
+.nav__in .nav__cta{ margin-left:auto; }
+.brand__sub{ display:none; }
+
+/* --- гамбургер и выезжающая панель (до 1024) --- */
+.burger{
+  flex:none; display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; padding:0; border:1.5px solid var(--line);
+  border-radius:99px; background:var(--paper); cursor:pointer;
+  transition:border-color .28s var(--ease), background .28s var(--ease);
+}
+.burger__label{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0;
+}
+.burger__bars{ position:relative; width:1.1rem; height:.7rem; flex:none; }
+.burger__bars i{
+  position:absolute; left:0; right:0; height:1.8px; border-radius:2px; background:var(--ink);
+  transition:transform .34s var(--ease), opacity .2s var(--ease);
+}
+.burger__bars i:nth-child(1){ top:0; }
+.burger__bars i:nth-child(2){ top:calc(50% - .9px); }
+.burger__bars i:nth-child(3){ bottom:0; }
+.burger[aria-expanded="true"] .burger__bars i:nth-child(1){ transform:translateY(.34rem) rotate(45deg); }
+.burger[aria-expanded="true"] .burger__bars i:nth-child(2){ opacity:0; }
+.burger[aria-expanded="true"] .burger__bars i:nth-child(3){ transform:translateY(-.34rem) rotate(-45deg); }
+
+.drawer{
+  position:fixed; inset:0; z-index:99;
+  background:rgba(30,26,23,.34);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  opacity:0; pointer-events:none; transition:opacity .34s var(--ease);
+}
+.drawer[data-open="true"]{ opacity:1; pointer-events:auto; }
+.drawer__sheet{
+  position:absolute; left:0; right:0; top:0;
+  padding:calc(4.4rem + env(safe-area-inset-top)) max(var(--gutter),env(safe-area-inset-left)) 1.6rem;
+  background:var(--paper); border-radius:0 0 1.6rem 1.6rem; box-shadow:var(--shadow-lift);
+  transform:translateY(-101%); transition:transform .42s var(--ease);
+  max-height:100dvh; overflow-y:auto;
+}
+.drawer[data-open="true"] .drawer__sheet{ transform:none; }
+.drawer__links{ display:grid; }
+.drawer__links a{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  min-height:56px; padding-block:.4rem; text-decoration:none;
+  font-family:var(--display); font-weight:800; font-size:1.28rem; letter-spacing:-.04em;
+  border-bottom:1px solid var(--line-soft);
+}
+.drawer__links a svg{ width:1.05rem; height:1.05rem; color:var(--tan); flex:none; }
+.drawer__foot{ margin-top:1.5rem; display:flex; flex-wrap:wrap; gap:.6rem; }
+
+@media (min-width:1024px){
+  .nav__in{ gap:1.5rem; }
+  .nav__links{ display:flex; }
+  .nav__in .nav__cta{ margin-left:.4rem; }
+  .brand__sub{ display:inline; }
+  .burger{ display:none; }
+  .drawer{ display:none; }
+}
+/* на самых узких экранах кнопку меню несёт выезжающая панель */
+@media (max-width:359px){
+  .nav__in .nav__cta{ display:none; }
+  .burger{ margin-left:auto; }
+}
+
+/* ============ кнопки ============ */
+.btn{
+  display:inline-flex; align-items:center; gap:.6rem;
+  padding:.82rem 1.5rem; border-radius:99px;
+  font-family:var(--text); font-weight:600; font-size:.95rem;
+  text-decoration:none; border:1.5px solid transparent; cursor:pointer;
+  transition:background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease), box-shadow .3s var(--ease), transform .3s var(--ease);
+}
+.btn svg{ width:1.05em; height:1.05em; flex:none; transition:transform .34s var(--ease); }
+.btn--solid{ background:var(--ink); color:var(--cream); box-shadow:var(--shadow-soft); }
+.btn--ghost{ border-color:var(--line); color:var(--ink); background:var(--paper); }
+.btn--sm{ padding:.6rem 1.15rem; font-size:.88rem; }
+.acts{ margin-top:2.1rem; display:flex; flex-wrap:wrap; gap:.75rem; }
+
+/* ============ «печатный штабель» ============ */
+.stack{ display:block; }
+.stack__line{ display:block; line-height:.83; letter-spacing:-.05em; color:var(--tan); opacity:0; }
+.stack__line:nth-child(1){ --o:.14; }
+.stack__line:nth-child(2){ --o:.24; }
+.stack__line:nth-child(3){ --o:.4; }
+.stack__solid{ display:block; line-height:.83; letter-spacing:-.05em; color:var(--ink); opacity:0; }
+.stack.reveal .stack__line{ animation:print .8s var(--ease) forwards; }
+.stack.reveal .stack__line:nth-child(1){ animation-delay:.02s; }
+.stack.reveal .stack__line:nth-child(2){ animation-delay:.1s; }
+.stack.reveal .stack__line:nth-child(3){ animation-delay:.18s; }
+.stack.reveal .stack__solid{ animation:print .82s .28s var(--ease) forwards; }
+@keyframes print{ from{ opacity:0; transform:translateY(.46em); } to{ opacity:var(--o,1); transform:none; } }
+
+/* ============ герой ============ */
+.hero{ position:relative; padding-block:clamp(2.4rem,6vw,4.6rem) clamp(3rem,7vw,5.6rem); }
+.hero__in{ display:grid; grid-template-columns:1fr; gap:clamp(1.6rem,4vw,4rem); align-items:center; }
+.hero__title{ font-size:clamp(2.45rem,7.2vw,5rem); letter-spacing:-.052em; }
+.hero__title em{
+  font-family:var(--accent); font-style:italic; font-weight:500;
+  letter-spacing:-.01em; color:var(--tan); font-size:1.16em; padding-right:.04em;
+}
+.hero__lede{ margin-top:1.5rem; max-width:34ch; font-size:clamp(1.02rem,.98rem + .35vw,1.2rem); color:var(--ink-2); }
+.hero__where{ margin-top:1.15rem; display:flex; align-items:flex-start; gap:.55rem; font-size:.95rem; color:var(--ink-2); font-weight:500; max-width:40ch; }
+.hero__where svg{ width:1.05rem; height:1.05rem; color:var(--tan); flex:none; margin-top:.32rem; }
+.hero__rate{ margin-top:2.3rem; }
+
+/* правая колонка: печать за стаканом */
+.shot{ position:relative; }
+.shot__print{
+  position:absolute; inset:auto -14% 4% 6%; z-index:0;
+  font-family:var(--display); font-weight:900; font-size:clamp(2.1rem,5.2vw,3.7rem);
+  letter-spacing:-.055em; line-height:.86; color:var(--tan); pointer-events:none; user-select:none;
+}
+.shot__print span{ display:block; opacity:0; }
+.hero.reveal .shot__print span{ animation:print .9s var(--ease) forwards; }
+.shot__print span:nth-child(1){ --o:.1;  animation-delay:.05s; }
+.shot__print span:nth-child(2){ --o:.14; animation-delay:.11s; }
+.shot__print span:nth-child(3){ --o:.2;  animation-delay:.17s; }
+.shot__print span:nth-child(4){ --o:.9;  animation-delay:.23s; color:var(--ink); }
+.shot__print span:nth-child(5){ --o:.2;  animation-delay:.29s; }
+.shot__print span:nth-child(6){ --o:.14; animation-delay:.35s; }
+.shot__print span:nth-child(7){ --o:.1;  animation-delay:.41s; }
+
+.shot__lift{
+  position:relative; z-index:1; margin-inline:auto; width:min(100%,var(--shot));
+  transform:translateY(1.2rem) scale(.97); opacity:0;
+  transition:transform 1s .34s var(--ease), opacity .9s .34s var(--ease);
+}
+.hero.reveal .shot__lift{ transform:none; opacity:1; }
+.shot__frame{
+  border-radius:15rem 15rem 1.6rem 1.6rem; overflow:hidden;
+  background:var(--sky); box-shadow:var(--shadow-lift);
+  transition:transform .5s var(--ease);
+}
+.shot__frame img{ width:100%; aspect-ratio:533/760; object-fit:cover; object-position:50% 46%; }
+.shot__tag{
+  position:absolute; z-index:2; left:-.6rem; bottom:2.6rem;
+  background:var(--paper); color:var(--ink); border:1px solid var(--line-soft);
+  border-radius:99px; padding:.55rem 1.05rem; box-shadow:var(--shadow-soft);
+  font-size:.83rem; font-weight:600; white-space:nowrap;
+  display:flex; align-items:center; gap:.45rem;
+}
+.shot__tag i{ width:.5rem; height:.5rem; border-radius:99px; background:var(--blush); flex:none; }
+
+/* база — одна колонка, фото под текстом */
+.shot{ order:2; margin-top:1rem; }
+.shot__print{ inset:auto auto 6% -5%; font-size:clamp(1.9rem,8.5vw,3rem); }
+.shot__tag{ left:auto; right:-.4rem; }
+
+@media (min-width:760px){
+  .hero__in{ grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr); }
+  .shot{ order:0; margin-top:0; }
+  .shot__lift{ margin-left:auto; margin-right:0; }
+  .shot__print{ inset:auto -14% 4% 6%; font-size:clamp(2.1rem,5.2vw,3.7rem); }
+  .shot__tag{ left:-.6rem; right:auto; }
+}
+
+/* ============ рейтинг ============ */
+.rate{ display:inline-flex; align-items:center; gap:.85rem; flex-wrap:wrap; text-decoration:none; }
+.rate__score{ display:flex; align-items:baseline; gap:.35rem; font-family:var(--display); font-weight:800; font-size:1.35rem; letter-spacing:-.04em; }
+.rate__stars{ display:flex; gap:.1rem; color:var(--tan); }
+.rate__stars svg{ width:.95rem; height:.95rem; }
+.rate__txt{ font-size:.88rem; color:var(--ink-3); }
+.rate__badge{ font-size:.76rem; font-weight:600; background:var(--cream-2); color:var(--tan-ink); padding:.34rem .7rem; border-radius:99px; }
+
+/* ============ бегущая лента ============ */
+.ribbon{
+  position:relative; width:106vw; margin-left:calc(50% - 53vw);
+  background:var(--sky-2); color:var(--ink);
+  transform:rotate(-1.4deg); overflow:hidden; padding-block:.9rem;
+  border-block:1px solid rgba(30,26,23,.06);
+}
+.ribbon__track{ display:flex; width:max-content; animation:slide 36s linear infinite; }
+.ribbon__seq{ display:flex; align-items:center; flex:none; }
+.ribbon span{ font-family:var(--display); font-weight:800; font-size:clamp(.9rem,1.5vw,1.15rem); letter-spacing:-.02em; padding-inline:1.5rem; white-space:nowrap; }
+.ribbon .ring{ width:.85rem; height:.85rem; opacity:.55; flex:none; }
+@keyframes slide{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+/* ============ секции ============ */
+.sec{ padding-block:clamp(4rem,9vw,7.5rem); position:relative; }
+.sec--cream{ background:var(--cream); }
+.sec--sky{ background:var(--sky); }
+.sec__title{ font-size:clamp(2.1rem,5.6vw,3.9rem); }
+.sec__lede{ margin-top:1.5rem; max-width:52ch; color:var(--ink-2); font-size:clamp(1rem,.97rem + .3vw,1.14rem); }
+
+/* ============ место ============ */
+.place{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,5rem); align-items:center; }
+.place__pics{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(.7rem,1.6vw,1.15rem); }
+.place__pics img{ width:100%; border-radius:1.4rem; box-shadow:var(--shadow-soft); aspect-ratio:449/620; object-fit:cover; }
+.place__pics img:first-child{ margin-top:clamp(1.4rem,4vw,3rem); }
+.quote{
+  margin:2.4rem 0 0; padding-top:2rem; border-top:1px solid var(--line);
+  font-family:var(--accent); font-style:italic; font-weight:400;
+  font-size:clamp(1.5rem,1.1rem + 1.6vw,2.2rem); line-height:1.24;
+}
+.quote small{
+  display:block; margin-top:.9rem; font-family:var(--text); font-style:normal;
+  font-size:.78rem; letter-spacing:.14em; color:var(--ink-3); text-transform:uppercase; font-weight:600;
+}
+.facts{ margin-top:2.4rem; display:grid; gap:1.15rem; }
+.fact{ display:flex; gap:.95rem; align-items:flex-start; }
+.fact svg{ width:1.4rem; height:1.4rem; color:var(--tan); flex:none; margin-top:.2rem; }
+.fact b{ display:block; font-weight:600; font-size:.99rem; }
+.fact span{ color:var(--ink-3); font-size:.92rem; }
+@media (min-width:760px){ .place{ grid-template-columns:minmax(0,1fr) minmax(0,1.08fr); } }
+
+/* ============ весна ============ */
+.spring{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,4.5rem); align-items:center; }
+.spring__pics{ position:relative; padding-bottom:3rem; }
+.spring__pics img:first-child{ width:78%; border-radius:1.6rem; box-shadow:var(--shadow-lift); aspect-ratio:533/700; object-fit:cover; }
+.spring__pics img:last-child{
+  position:absolute; right:0; bottom:0; width:48%;
+  border-radius:1.3rem; box-shadow:var(--shadow-lift); border:5px solid var(--paper);
+  aspect-ratio:3/4; object-fit:cover;
+}
+.credit{
+  margin-top:1.9rem; display:inline-flex; align-items:center; gap:.6rem;
+  font-size:.9rem; color:var(--ink-2); background:var(--paper);
+  padding:.6rem 1.05rem; border-radius:99px; box-shadow:var(--shadow-soft);
+}
+.credit svg{ width:1.25rem; height:1.25rem; color:var(--blush-ink); flex:none; }
+@media (min-width:760px){ .spring{ grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); } }
+
+/* ============ меню ============ */
+.menu__top{ display:flex; align-items:flex-end; justify-content:space-between; gap:2rem 3rem; flex-wrap:wrap; }
+.menu__note{ max-width:28ch; color:var(--ink-2); font-size:1rem; }
+.tabs__rail{ position:relative; margin-top:clamp(2.2rem,4vw,3rem); }
+.tabs{
+  display:flex; gap:.4rem; overflow-x:auto; padding-bottom:.5rem;
+  scrollbar-width:none; border-bottom:1px solid var(--line);
+}
+.tabs::-webkit-scrollbar{ display:none; }
+.tab{
+  flex:none; background:none; border:0; cursor:pointer;
+  padding:.7rem 1.15rem; border-radius:.9rem .9rem 0 0;
+  font-weight:600; font-size:.95rem; color:var(--ink-3); white-space:nowrap;
+  transition:color .28s var(--ease), background .28s var(--ease);
+}
+.tab[aria-selected="true"]{ color:var(--ink); }
+.tabs__ink{ position:absolute; bottom:0; left:0; height:2.5px; background:var(--ink); border-radius:99px; transition:transform .46s var(--ease), width .46s var(--ease); }
+
+.panel[hidden]{ display:none; }
+.panel{ padding-top:clamp(2rem,4vw,3rem); animation:panelIn .5s var(--ease); }
+@keyframes panelIn{ from{ opacity:0; transform:translateY(.7rem); } to{ opacity:1; transform:none; } }
+
+.cols{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:clamp(1.8rem,4vw,3.4rem); align-items:start; }
+.group + .group{ margin-top:2.6rem; }
+.group__name{
+  font-family:var(--display); font-weight:800; font-size:1rem; letter-spacing:-.02em;
+  padding-bottom:.7rem; margin-bottom:.3rem; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+}
+.group__name em{ font-family:var(--text); font-style:normal; font-weight:500; font-size:.78rem; letter-spacing:.03em; color:var(--ink-3); white-space:nowrap; }
+.row{ display:grid; grid-template-columns:1fr auto; gap:.4rem 1.2rem; align-items:baseline; padding-block:.62rem; border-bottom:1px solid var(--line-soft); }
+.row:last-child{ border-bottom:0; }
+.row__name{ font-size:.99rem; }
+.row__name i{ display:block; font-style:normal; font-size:.83rem; color:var(--ink-3); margin-top:.1rem; }
+.row__price{ font-variant-numeric:tabular-nums; font-weight:600; font-size:.95rem; color:var(--ink-2); white-space:nowrap; }
+.row__price s{ color:var(--ink-3); text-decoration:none; font-weight:400; }
+
+.taglist{ display:flex; flex-wrap:wrap; gap:.45rem; margin-top:.9rem; }
+.taglist li{
+  font-size:.9rem; padding:.4rem .82rem; border-radius:99px;
+  background:var(--paper); border:1px solid var(--line-soft); color:var(--ink-2);
+  transition:background .25s var(--ease), color .25s var(--ease), transform .25s var(--ease);
+}
+.note{ margin-top:1.6rem; font-size:.87rem; color:var(--ink-3); }
+.panel__pic{ width:100%; border-radius:1.4rem; box-shadow:var(--shadow-soft); aspect-ratio:4/5; object-fit:cover; }
+
+/* ============ бонус ============ */
+.bonus{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,4.5rem); align-items:center; }
+.card7{ background:var(--paper); border-radius:1.8rem; padding:clamp(1.15rem,3.4vw,2.6rem); box-shadow:var(--shadow-lift); container-type:inline-size; }
+.card7__top{
+  display:flex; align-items:baseline; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  padding-bottom:1.2rem; margin-bottom:1.6rem; border-bottom:1px solid var(--line);
+  font-family:var(--display); font-weight:800; font-size:.95rem; letter-spacing:-.02em;
+}
+.card7__top em{ font-family:var(--text); font-style:normal; font-weight:500; font-size:.78rem; color:var(--ink-3); }
+.punch{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; }
+@container (max-width:360px){ .punch{ grid-template-columns:repeat(4,1fr); gap:.6rem; } }
+.punch li{ aspect-ratio:1; border-radius:99px; display:grid; place-items:center; background:var(--cream); color:var(--tan); opacity:0; transform:scale(.6); }
+.punch li svg{ width:56%; height:56%; }
+.punch li:last-child{ background:var(--ink); color:var(--paper); }
+.card7.reveal .punch li{ animation:stamp .5s var(--ease) forwards; }
+.punch li:nth-child(1){ animation-delay:.05s } .punch li:nth-child(2){ animation-delay:.13s }
+.punch li:nth-child(3){ animation-delay:.21s } .punch li:nth-child(4){ animation-delay:.29s }
+.punch li:nth-child(5){ animation-delay:.37s } .punch li:nth-child(6){ animation-delay:.45s }
+.punch li:nth-child(7){ animation-delay:.62s }
+@keyframes stamp{ 0%{ opacity:0; transform:scale(.55) } 60%{ opacity:1; transform:scale(1.09) } 100%{ opacity:1; transform:scale(1) } }
+.card7__note{ margin-top:1.5rem; font-size:.9rem; color:var(--ink-3); }
+@media (min-width:760px){ .bonus{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+
+/* ============ намёк ============ */
+.hint{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,4.5rem); align-items:center; }
+.hint__card{ position:relative; background:var(--blush); border-radius:1.8rem; padding:clamp(1.9rem,4vw,3rem); overflow:hidden; }
+.hint__card::after{ content:""; position:absolute; right:-3.5rem; top:-3.5rem; width:14rem; height:14rem; border-radius:99px; background:rgba(255,255,255,.42); }
+.hint__card > *{ position:relative; z-index:1; }
+.hint__card svg{ width:1.9rem; height:1.9rem; color:var(--blush-ink); }
+.hint__note{ margin-top:1rem; font-family:var(--accent); font-style:italic; font-size:clamp(1.6rem,1.2rem + 1.2vw,2rem); color:var(--blush-ink); line-height:1.3; }
+@media (min-width:760px){ .hint{ grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); } }
+
+/* ============ контакты ============ */
+.find{ display:grid; grid-template-columns:1fr; gap:clamp(2rem,5vw,4.5rem); }
+.find__addr{ font-family:var(--display); font-weight:900; font-size:clamp(1.5rem,1.1rem + 1.7vw,2.3rem); letter-spacing:-.045em; line-height:1.08; }
+.find__hint{ margin-top:.9rem; color:var(--ink-2); max-width:36ch; }
+.find__list{ margin-top:2.4rem; display:grid; gap:1.4rem; }
+.find__list dt{ font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); font-weight:600; }
+.find__list dd{ margin:.35rem 0 0; font-size:1.02rem; }
+.socials{ display:flex; flex-wrap:wrap; gap:.6rem; }
+.social{
+  display:inline-flex; align-items:center; gap:.55rem; text-decoration:none;
+  padding:.62rem 1.1rem; border-radius:99px; border:1.5px solid var(--line);
+  font-size:.92rem; font-weight:600; background:rgba(255,255,255,.55);
+  transition:background .28s var(--ease), color .28s var(--ease), border-color .28s var(--ease), transform .28s var(--ease);
+}
+.social svg{ width:1.05rem; height:1.05rem; }
+.find__place{ position:relative; border-radius:1.6rem; overflow:hidden; box-shadow:var(--shadow-lift); }
+.find__place img{ width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+.find__place .btn{ position:absolute; left:1.1rem; bottom:1.1rem; z-index:1; }
+.find__place{ min-height:17rem; }
+@media (min-width:760px){ .find{ grid-template-columns:minmax(0,1fr) minmax(0,1fr); } .find__place{ min-height:22rem; } }
+
+/* ============ подвал ============ */
+.foot{ padding-top:clamp(2.5rem,5vw,4rem); padding-bottom:max(2.5rem, env(safe-area-inset-bottom)); border-top:1px solid var(--line); }
+.foot__in{ display:flex; flex-wrap:wrap; gap:1.4rem 2.5rem; align-items:center; justify-content:space-between; }
+.foot__mark{ font-family:var(--display); font-weight:900; font-size:clamp(2.4rem,7vw,4.6rem); letter-spacing:-.055em; display:inline-flex; align-items:center; line-height:.9; }
+.foot__meta{ font-size:.86rem; color:var(--ink-3); text-align:right; }
+.foot__meta a{ color:var(--ink-2); }
+@media (max-width:640px){ .foot__meta{ text-align:left; } }
+
+/* ============ появление ============ */
+.rise{ opacity:0; transform:translateY(1.6rem); transition:opacity .85s var(--ease), transform .85s var(--ease); }
+.rise.reveal{ opacity:1; transform:none; }
+.rise--d1{ transition-delay:.09s } .rise--d2{ transition-delay:.18s }
+
+/* ============================================================
+   Адаптация: узкие экраны, ландшафт, ввод, печать
+   ============================================================ */
+
+/* --- очень узкие телефоны (320–379) --- */
+@media (max-width:379px){
+  .brand__sub{ display:none; }
+  .quote{ font-size:1.35rem; }
+  .taglist{ gap:.4rem; }
+}
+
+/* --- телефон лёжа: первый экран не должен занимать три прокрутки --- */
+@media (orientation:landscape) and (max-height:520px){
+  .nav{ position:static; }
+  .hero{ padding-block:1.1rem 1.6rem; }
+  .hero__in{ grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:1.6rem; align-items:center; }
+  .hero__title{ font-size:clamp(1.9rem,4.6vw,2.8rem); }
+  .hero__lede{ margin-top:.9rem; font-size:.98rem; }
+  .hero__where{ margin-top:.7rem; }
+  .acts{ margin-top:1.1rem; }
+  .hero__rate{ margin-top:1rem; }
+  .hero__lede{ max-width:40ch; }
+  .shot{ order:0; margin-top:0; }
+  .shot__lift{ width:min(100%,15rem); margin-left:auto; margin-right:0; }
+  .shot__frame img{ aspect-ratio:533/470; }
+  .shot__print{ inset:auto -10% 4% 6%; font-size:1.7rem; }
+  .shot__tag{ left:-.4rem; right:auto; bottom:1.4rem; }
+  .sec{ padding-block:clamp(2.4rem,7vw,3.6rem); }
+  .drawer__sheet{ padding-top:calc(1.2rem + env(safe-area-inset-top)); }
+  .drawer__links a{ min-height:48px; font-size:1.1rem; }
+}
+
+/* --- планшет: две колонки уже с 760, но плотнее десктопа --- */
+@media (min-width:760px) and (max-width:1023px) and (min-height:521px){
+  .hero__title{ font-size:clamp(2.6rem,6vw,3.6rem); }
+  .shot__lift{ width:min(100%,20rem); }
+  .place__pics img:first-child{ margin-top:1.6rem; }
+  .find__place{ min-height:19rem; }
+}
+
+/* --- ввод мышью: ховер только там, где он есть --- */
+@media (hover:hover) and (pointer:fine){
+  .nav__links a:hover{ color:var(--ink); }
+  .nav__links a:hover::after{ transform:scaleX(1); }
+  .burger:hover{ border-color:var(--ink); background:var(--cream); }
+  .btn--solid:hover{ background:#2E2822; transform:translateY(-2px); box-shadow:var(--shadow-lift); }
+  .btn--solid:hover svg{ transform:translateX(3px); }
+  .btn--ghost:hover{ border-color:var(--ink); background:var(--cream); transform:translateY(-2px); }
+  .tab:hover{ color:var(--ink); background:rgba(255,255,255,.65); }
+  .taglist li:hover{ background:var(--ink); color:var(--cream); transform:translateY(-2px); }
+  .social:hover{ background:var(--ink); color:var(--cream); border-color:var(--ink); transform:translateY(-2px); }
+  .ribbon:hover .ribbon__track{ animation-play-state:paused; }
+  a:hover{ text-decoration-color:var(--tan); }
+}
+
+/* --- сенсорный ввод: крупнее цели, отклик на нажатие --- */
+@media (pointer:coarse){
+  .tab{ min-height:48px; padding-inline:1.25rem; }
+  .taglist{ gap:.55rem; }
+  .taglist li{ min-height:44px; display:flex; align-items:center; padding-inline:1rem; }
+  .social{ min-height:48px; }
+  .btn{ min-height:48px; }
+  .btn--sm{ min-height:44px; }
+  .nav__links{ gap:2rem; }
+  .find__list dd a{ display:inline-block; padding-block:.35rem; }
+}
+.btn:active{ transform:translateY(0) scale(.975); }
+.taglist li:active{ background:var(--ink); color:var(--cream); }
+.social:active{ background:var(--ink); color:var(--cream); border-color:var(--ink); }
+.tab:active{ color:var(--ink); }
+.burger:active{ background:var(--cream); }
+
+/* --- печать: меню на бумаге --- */
+@media print{
+  @page{ margin:14mm 12mm; }
+  html,body{ background:#fff; color:#000; font-size:10.5pt; }
+  .nav,.drawer,.ribbon,.skip,.acts,.socials,.shot__print,.shot__tag,.hint__card,
+  .find__place,.foot__meta a,.tabs__rail,.card7__note,.credit{ display:none !important; }
+  .sec,.hero{ padding-block:0 0.6rem !important; background:#fff !important; }
+  .sec--cream,.sec--sky{ background:#fff !important; }
+  .rise,.stack__solid,.punch li{ opacity:1 !important; transform:none !important; }
+  .stack__line{ display:none !important; }
+  .panel[hidden]{ display:block !important; }
+  .panel{ padding-top:.4rem !important; animation:none !important; break-inside:auto; }
+  .panel::before{
+    content:attr(data-print-title);
+    display:block; font-family:var(--display); font-weight:800; font-size:13pt;
+    margin:12pt 0 4pt; padding-bottom:3pt; border-bottom:1.5px solid #000;
+  }
+  .group,.row,.taglist li,.card7{ break-inside:avoid; }
+  .cols{ gap:0 1.4rem; }
+  .taglist li{ background:none !important; border:0 !important; padding:0 !important; color:#000 !important; }
+  .taglist{ display:block; }
+  .taglist li::after{ content:" · "; }
+  .taglist li:last-child::after{ content:""; }
+  .sec__title{ font-size:16pt !important; }
+  .hero__title{ font-size:20pt !important; }
+  .shot__lift,.place__pics,.spring__pics,.menu__note,.panel__pic,.quote,.facts{ display:none !important; }
+  .card7{ box-shadow:none !important; border:1px solid #000; }
+  a{ text-decoration:none; color:#000; }
+  #find .find__addr{ font-size:13pt !important; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  .rise{ opacity:1; transform:none; }
+  .stack__line{ opacity:var(--o); } .stack__solid{ opacity:1; }
+  .shot__print span{ opacity:var(--o); }
+  .shot__lift{ opacity:1; transform:none; }
+  .punch li{ opacity:1; transform:none; }
+  .ribbon__track{ animation:none; }
+  .ribbon{ transform:none; }
+}
+</style>
+<noscript><style>
+  .rise,.shot__lift{ opacity:1 !important; transform:none !important; }
+  .stack__line{ opacity:var(--o) !important; } .stack__solid{ opacity:1 !important; }
+  .shot__print span{ opacity:var(--o) !important; }
+  .punch li{ opacity:1 !important; transform:none !important; }
+  .tabs__ink{ display:none; }
+  .panel[hidden]{ display:block !important; }
+  /* без JS выезжающая панель не откроется — показываем обычные ссылки */
+  .burger{ display:none !important; }
+  .drawer{ display:none !important; }
+  .nav__links{ display:flex !important; flex-wrap:wrap; gap:.9rem 1.2rem; font-size:.88rem; }
+  .nav__in{ flex-wrap:wrap; padding-block:.7rem; }
+</style></noscript>
+</head>
+<body>
+
+<a class="skip" href="#menu">Перейти к меню</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-ring" viewBox="0 0 100 100"><path d="M31.7 15.6A39 39 0 1 0 68.3 15.6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.03 7-11a7 7 0 1 0-14 0c0 4.97 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6l2.85 5.9 6.4.9-4.65 4.5 1.12 6.5L12 17.35 6.28 20.4l1.12-6.5L2.75 9.4l6.4-.9z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 7h11.6l-1.1 12.1a2 2 0 0 1-2 1.9H9.3a2 2 0 0 1-2-1.9z"/><path d="M5 7h14"/><path d="M9.4 4.2c.5-.6.5-1.2 0-1.8M14.6 4.2c.5-.6.5-1.2 0-1.8"/></symbol>
+  <symbol id="i-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.6"/><path d="M12 9.4c0-2.5-1-4.4 0-5.9 1 1.5 0 3.4 0 5.9M12 14.6c0 2.5 1 4.4 0 5.9-1-1.5 0-3.4 0-5.9M9.4 12c-2.5 0-4.4 1-5.9 0 1.5-1 3.4 0 5.9 0M14.6 12c2.5 0 4.4-1 5.9 0-1.5 1-3.4 0-5.9 0"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-tg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 4.3 2.9 11.2c-.8.3-.8 1.4 0 1.7l4.6 1.5 1.8 5c.2.7 1.1.8 1.6.3l2.5-2.5 4.5 3.3c.6.4 1.4.1 1.6-.6l3-14.5c.2-.8-.6-1.4-1.2-1.1z"/><path d="M7.5 14.4 19.2 6l-8.3 9.6"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2"/><circle cx="12" cy="12" r="4"/><circle cx="17.1" cy="6.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12.2c0 4-3.8 7.2-8.5 7.2a9.8 9.8 0 0 1-2.7-.4L4 20.5l1.6-3.9a6.9 6.9 0 0 1-2.1-4.9C3.5 8.2 7.3 5 12 5s8.5 3.2 8.5 7.2z"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="#top" aria-label="КофеР — наверх">
+      C<svg class="ring" aria-hidden="true"><use href="#i-ring"/></svg>FFEER
+      <span class="brand__sub">Зеленодольск</span>
+    </a>
+    <nav class="nav__links" aria-label="Разделы сайта">
+      <a href="#place">Место</a>
+      <a href="#spring">Весна</a>
+      <a href="#menu">Меню</a>
+      <a href="#bonus">Бонус</a>
+      <a href="#find">Контакты</a>
+    </nav>
+    <a class="btn btn--solid btn--sm nav__cta" href="#menu">Меню <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="drawer">
+      <span class="burger__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="burger__label">Разделы сайта</span>
+    </button>
+  </div>
+</header>
+
+<div class="drawer" id="drawer" data-open="false" hidden>
+  <div class="drawer__sheet" role="dialog" aria-modal="true" aria-label="Разделы сайта">
+    <nav class="drawer__links">
+      <a href="#place">Место <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#spring">Весна <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#menu">Меню <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#bonus">Бонус <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#hint">Намёк <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <a href="#find">Контакты <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </nav>
+    <div class="drawer__foot">
+      <a class="social" href="https://t.me/coffeer_zd" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-tg"/></svg> Telegram</a>
+      <a class="social" href="https://www.instagram.com/coffeer_zd" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-ig"/></svg> Instagram</a>
+      <a class="social" href="https://yandex.ru/maps/?ll=48.5648125%2C55.8526875&amp;z=18&amp;text=%D1%83%D0%BB.%20%D0%9A%D0%BE%D1%80%D0%BE%D0%BB%D1%91%D0%B2%D0%B0%2C%204%D0%90%2C%20%D0%97%D0%B5%D0%BB%D0%B5%D0%BD%D0%BE%D0%B4%D0%BE%D0%BB%D1%8C%D1%81%D0%BA" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-pin"/></svg> На карте</a>
+    </div>
+  </div>
+</div>
+
+<main id="top">
+
+  <!-- ============ ГЕРОЙ ============ -->
+  <section class="hero" id="hero">
+    <div class="wrap hero__in">
+      <div>
+        <h1 class="hero__title">Счастье пахнет <em>тобой</em> и кофе</h1>
+        <p class="hero__lede">Уютная кофейня в центре города: классика на каждый день, авторские напитки на настроение и зефирный цветок на молочной пенке.</p>
+        <p class="hero__where">
+          <svg aria-hidden="true"><use href="#i-pin"/></svg>
+          Зеленодольск, ул. Королёва, 4А — на остановке, напротив автовокзала «Мирный»
+        </p>
+        <div class="acts">
+          <a class="btn btn--solid" href="#menu">Смотреть меню <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn--ghost" href="#find">Как добраться</a>
+        </div>
+        <a class="rate hero__rate" href="https://yandex.ru/maps/?text=%D0%9A%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D1%8F%20%D0%9A%D0%BE%D1%84%D0%B5%D0%A0%20%D0%97%D0%B5%D0%BB%D0%B5%D0%BD%D0%BE%D0%B4%D0%BE%D0%BB%D1%8C%D1%81%D0%BA" target="_blank" rel="noopener">
+          <span class="rate__score">4,7
+            <span class="rate__stars" aria-hidden="true">
+              <svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg><svg><use href="#i-star"/></svg>
+            </span>
+          </span>
+          <span class="rate__txt">69 отзывов на Яндекс&nbsp;Картах</span>
+          <span class="rate__badge">Хорошее место 2026</span>
+        </a>
+      </div>
+
+      <div class="shot">
+        <div class="shot__print" aria-hidden="true">
+          <span>COFFEER</span><span>COFFEER</span><span>COFFEER</span><span>COFFEER</span><span>COFFEER</span><span>COFFEER</span><span>COFFEER</span>
+        </div>
+        <div class="shot__lift">
+          <div class="shot__frame">
+            <img src="img/cup-flower.jpg" srcset="img/cup-flower-320.jpg 320w, img/cup-flower-480.jpg 480w, img/cup-flower.jpg 533w" sizes="(min-width:1440px) 480px, (min-width:760px) 400px, calc(100vw - 2rem)" width="533" height="760" alt="Стаканчик КофеР с зефирным цветком на молочной пенке" fetchpriority="high">
+          </div>
+        </div>
+        <p class="shot__tag"><i></i> Весенняя коллекция</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="ribbon" aria-hidden="true">
+    <div class="ribbon__track">
+      <div class="ribbon__seq">
+        <span>КОФЕ С СОБОЙ</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>АВТОРСКИЕ НАПИТКИ</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>BUBBLE TEA</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>МАТЧА</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>ЗЕФИРНЫЙ ЦВЕТОК</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>ЗЕЛЕНОДОЛЬСК</span><svg class="ring"><use href="#i-ring"/></svg>
+      </div>
+      <div class="ribbon__seq">
+        <span>КОФЕ С СОБОЙ</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>АВТОРСКИЕ НАПИТКИ</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>BUBBLE TEA</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>МАТЧА</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>ЗЕФИРНЫЙ ЦВЕТОК</span><svg class="ring"><use href="#i-ring"/></svg>
+        <span>ЗЕЛЕНОДОЛЬСК</span><svg class="ring"><use href="#i-ring"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ МЕСТО ============ -->
+  <section class="sec" id="place">
+    <div class="wrap place">
+      <div class="place__pics rise">
+        <img src="img/barista.jpg" srcset="img/barista-320.jpg 320w, img/barista.jpg 449w" sizes="(min-width:1440px) 300px, (min-width:760px) 246px, calc(50vw - 1.5rem)" width="449" height="620" alt="Бариста КофеР в фирменном фартуке готовит кофе" loading="lazy">
+        <img src="img/counter.jpg" srcset="img/counter-320.jpg 320w, img/counter.jpg 449w" sizes="(min-width:1440px) 300px, (min-width:760px) 246px, calc(50vw - 1.5rem)" width="449" height="620" alt="Стаканчик КофеР с фирменной печатью на стойке кофейни" loading="lazy">
+      </div>
+      <div>
+        <h2 class="sec__title stack">
+          <span class="stack__line" aria-hidden="true">Место</span>
+          <span class="stack__line" aria-hidden="true">Место</span>
+          <span class="stack__line" aria-hidden="true">Место</span>
+          <span class="stack__solid">Место</span>
+        </h2>
+        <p class="sec__lede rise">Твой уголок в Зеленодольске, где каждый находит свой ритм. Кто-то забирает стаканчик на остановке за минуту до автобуса, кто-то садится у окна на полчаса — и то и другое здесь нормально.</p>
+
+        <div class="facts rise rise--d1">
+          <div class="fact">
+            <svg aria-hidden="true"><use href="#i-cup"/></svg>
+            <p><b>Кофе с собой и на месте</b><span>Классика в трёх объёмах, авторские напитки, матча, лимонады, бабл ти и чай.</span></p>
+          </div>
+          <div class="fact">
+            <svg aria-hidden="true"><use href="#i-flower"/></svg>
+            <p><b>Зефирный цветок на пенке</b><span>Ручная работа для сезонной коллекции — тот самый напиток, который сначала фотографируют.</span></p>
+          </div>
+          <div class="fact">
+            <svg aria-hidden="true"><use href="#i-heart"/></svg>
+            <p><b>Гороскоп на стаканчике</b><span>Маленькая странность заведения: свой знак можно прочитать прямо на стакане.</span></p>
+          </div>
+        </div>
+
+        <blockquote class="quote rise rise--d2">
+          «Счастье пахнет тобой и кофе»
+          <small>Надпись на стене кофейни</small>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ВЕСНА ============ -->
+  <section class="sec sec--sky" id="spring">
+    <div class="wrap spring">
+      <div class="spring__pics rise">
+        <img src="img/spring-pair.jpg" srcset="img/spring-pair-320.jpg 320w, img/spring-pair-480.jpg 480w, img/spring-pair.jpg 533w" sizes="(min-width:760px) 400px, calc(78vw - 1.5rem)" width="533" height="700" alt="Два стаканчика КофеР с белым и розовым зефирными цветами" loading="lazy">
+        <img src="img/guest.jpg" srcset="img/guest-320.jpg 320w, img/guest-480.jpg 480w, img/guest.jpg 533w" sizes="(min-width:760px) 250px, calc(48vw - 1rem)" width="400" height="533" alt="Гостья кофейни с напитком из весенней коллекции" loading="lazy">
+      </div>
+      <div>
+        <h2 class="sec__title stack">
+          <span class="stack__line" aria-hidden="true">Весна</span>
+          <span class="stack__line" aria-hidden="true">Весна</span>
+          <span class="stack__line" aria-hidden="true">Весна</span>
+          <span class="stack__solid">Весна</span>
+        </h2>
+        <p class="sec__lede rise">Весна — время пробуждаться и расцветать. Мы собрали коллекцию весенних напитков с нежным цветком из зефира, чтобы в каждой чашке чувствовались солнце, свежесть и лёгкое настроение сезона.</p>
+        <p class="credit rise rise--d1"><svg aria-hidden="true"><use href="#i-flower"/></svg> Цветы для коллекции — ручная работа Ирины&nbsp;Софии</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ МЕНЮ ============ -->
+  <section class="sec sec--cream" id="menu">
+    <div class="wrap">
+      <div class="menu__top">
+        <h2 class="sec__title stack">
+          <span class="stack__line" aria-hidden="true">Меню</span>
+          <span class="stack__line" aria-hidden="true">Меню</span>
+          <span class="stack__line" aria-hidden="true">Меню</span>
+          <span class="stack__solid">Меню</span>
+        </h2>
+        <p class="menu__note rise">Полное меню кофейни. Цены — в рублях, объёмы — в миллилитрах.</p>
+      </div>
+
+      <div class="tabs__rail rise">
+        <div class="tabs" role="tablist" aria-label="Разделы меню">
+          <button class="tab" role="tab" id="t-classic" aria-controls="p-classic" aria-selected="true">Классика</button>
+          <button class="tab" role="tab" id="t-author"  aria-controls="p-author"  aria-selected="false" tabindex="-1">Авторские</button>
+          <button class="tab" role="tab" id="t-cold"    aria-controls="p-cold"    aria-selected="false" tabindex="-1">Лимонады</button>
+          <button class="tab" role="tab" id="t-bubble"  aria-controls="p-bubble"  aria-selected="false" tabindex="-1">Bubble tea</button>
+          <button class="tab" role="tab" id="t-tea"     aria-controls="p-tea"     aria-selected="false" tabindex="-1">Чай</button>
+          <button class="tab" role="tab" id="t-kids"    aria-controls="p-kids"    aria-selected="false" tabindex="-1">Малышам</button>
+        </div>
+        <span class="tabs__ink" aria-hidden="true"></span>
+      </div>
+
+      <!-- Классика -->
+      <div class="panel" role="tabpanel" id="p-classic" data-print-title="Классика" aria-labelledby="t-classic" tabindex="0">
+        <div class="cols">
+          <div>
+            <div class="group">
+              <h3 class="group__name">Кофе <em>250 / 350 / 450 мл</em></h3>
+              <div class="row"><span class="row__name">Американо</span><span class="row__price">180 / 220 / 260</span></div>
+              <div class="row"><span class="row__name">Флэт уайт</span><span class="row__price">210 / 250 / 290</span></div>
+              <div class="row"><span class="row__name">Капучино</span><span class="row__price">190 / 230 / 270</span></div>
+              <div class="row"><span class="row__name">Латте</span><span class="row__price">190 / 230 / 270</span></div>
+              <div class="row"><span class="row__name">Моккачино</span><span class="row__price">190 / 230 / 270</span></div>
+              <div class="row"><span class="row__name">Глясе</span><span class="row__price"><s>—</s> / 260 / 300</span></div>
+              <div class="row"><span class="row__name">Раф</span><span class="row__price"><s>—</s> / 250 / 290</span></div>
+            </div>
+            <div class="group">
+              <h3 class="group__name">Эспрессо <em>60 / 90 мл</em></h3>
+              <div class="row"><span class="row__name">Эспрессо</span><span class="row__price">170 / 210</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="group">
+              <h3 class="group__name">Без кофе <em>250 / 350 / 450 мл</em></h3>
+              <div class="row"><span class="row__name">Горячий шоколад</span><span class="row__price">200 / 240 / 290</span></div>
+              <div class="row"><span class="row__name">Какао</span><span class="row__price">200 / 240 / 290</span></div>
+              <div class="row"><span class="row__name">Чай</span><span class="row__price">80 / 90 / 100</span></div>
+            </div>
+            <div class="group">
+              <h3 class="group__name">Добавки</h3>
+              <div class="row"><span class="row__name">Альтернативное молоко<i>250 / 350 / 450 мл</i></span><span class="row__price">70 / 100 / 120</span></div>
+              <div class="row"><span class="row__name">Безлактозное молоко<i>250 / 350 / 450 мл</i></span><span class="row__price">60 / 80 / 100</span></div>
+              <div class="row"><span class="row__name">Сироп / топпинг</span><span class="row__price">20</span></div>
+              <div class="row"><span class="row__name">Маршмеллоу</span><span class="row__price">40</span></div>
+              <div class="row"><span class="row__name">Взбитые сливки</span><span class="row__price">40</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Авторские -->
+      <div class="panel" role="tabpanel" id="p-author" data-print-title="Авторские напитки" aria-labelledby="t-author" tabindex="0" hidden>
+        <div class="cols">
+          <div class="group">
+            <h3 class="group__name">Латте и капучино <em>350 / 450 мл</em></h3>
+            <div class="row"><span class="row__name">Латте вишня-сакура</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Латте банановое мороженое с солёной карамелью</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Латте черничный зефир</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Латте грушевый мусс с французской ванилью</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Капучино эрл грей с малиной</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Капучино земляничный штрудель с инжиром</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Капучино ягодное печенье</span><span class="row__price">270 / 300</span></div>
+            <div class="row"><span class="row__name">Бамбл апельсиновый / вишнёвый / ананасовый</span><span class="row__price">270 / 300</span></div>
+          </div>
+          <div>
+            <div class="group">
+              <h3 class="group__name">Раф <em>350 / 450 мл</em></h3>
+              <div class="row"><span class="row__name">Раф чизкейк со вкусом фисташки</span><span class="row__price">290 / 320</span></div>
+              <div class="row"><span class="row__name">Раф птичье молоко</span><span class="row__price">290 / 320</span></div>
+              <div class="row"><span class="row__name">Раф ананасовый попкорн</span><span class="row__price">290 / 320</span></div>
+              <div class="row"><span class="row__name">Раф грушевый вупи-пай</span><span class="row__price">290 / 320</span></div>
+              <div class="row"><span class="row__name">Раф урбеч кокос / арахис</span><span class="row__price">310 / 340</span></div>
+            </div>
+            <div class="group">
+              <h3 class="group__name">Матча <em>350 / 450 мл</em></h3>
+              <div class="row"><span class="row__name">Зелёная матча — ананас и кокос</span><span class="row__price">270 / 300</span></div>
+              <div class="row"><span class="row__name">Голубая матча со вкусом черники</span><span class="row__price">270 / 300</span></div>
+            </div>
+            <p class="note">Любой напиток из этого раздела можно сделать холодным.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Лимонады -->
+      <div class="panel" role="tabpanel" id="p-cold" data-print-title="Лимонады" aria-labelledby="t-cold" tabindex="0" hidden>
+        <div class="cols">
+          <div class="group">
+            <h3 class="group__name">Лимонады <em>250 / 280 ₽</em></h3>
+            <ul class="taglist">
+              <li>Манго-маракуйя</li><li>Виноград-алоэ</li><li>Черешня-малина</li>
+              <li>Виноград-лаванда</li><li>Мохито классик</li>
+              <li>Мохито клубничный</li><li>Мохито черничный</li><li>Арбуз-гуава</li>
+            </ul>
+            <p class="note">Собираем на льду, с ягодами и мятой — навынос и на месте.</p>
+          </div>
+          <div>
+            <img class="panel__pic" src="img/lemonade.jpg" srcset="img/lemonade-320.jpg 320w, img/lemonade.jpg 450w" sizes="(min-width:760px) 340px, calc(100vw - 2rem)" width="450" height="562" alt="Лимонад манго-маракуйя в фирменном стакане КофеР" loading="lazy">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bubble tea -->
+      <div class="panel" role="tabpanel" id="p-bubble" data-print-title="Bubble tea" aria-labelledby="t-bubble" tabindex="0" hidden>
+        <div class="cols">
+          <div class="group">
+            <h3 class="group__name">Чайная основа <em>500 / 650 мл — 350 / 400 ₽</em></h3>
+            <ul class="taglist">
+              <li>Ананас-маракуйя</li><li>Ананасовый</li><li>Апельсин-маракуйя</li><li>Тропический</li>
+              <li>Кислый ананас</li><li>Киви-яблоко</li><li>Ежевика-виноград</li>
+              <li>Личи-апельсин</li><li>Смородина-саган-дайля</li>
+            </ul>
+          </div>
+          <div class="group">
+            <h3 class="group__name">Смузи <em>500 / 650 мл — 350 / 400 ₽</em></h3>
+            <ul class="taglist">
+              <li>Банан-клубника</li><li>Ягодный</li><li>Персик-вишня</li><li>Клубника с малиной</li>
+              <li>Клубника с сырной пенкой</li><li>Облепиха-малина</li><li>Клубника-голубика</li>
+              <li>Ежевичный</li><li>Малиновый</li><li>Тутти-фрутти</li>
+            </ul>
+          </div>
+          <div class="group">
+            <h3 class="group__name">Молочная основа <em>500 / 650 мл — 350 / 400 ₽</em></h3>
+            <ul class="taglist">
+              <li>Буэно</li><li>Марс</li><li>Милки вей</li><li>Баунти</li><li>Oreo</li>
+              <li>Молочный манго</li><li>Арахис-карамель</li><li>Фисташка-ваниль</li>
+              <li>Малина с шоколадной крошкой</li><li>Молочная вишня с шоколадом</li><li>Голубая пина-колада</li>
+            </ul>
+            <p class="note">Дополнительный джус-болл — 80 / 100 ₽.</p>
+          </div>
+        </div>
+        <div style="margin-top:clamp(1.8rem,3.5vw,2.8rem)">
+          <img class="panel__pic" style="aspect-ratio:16/7" src="img/bubble.jpg" srcset="img/bubble-320.jpg 320w, img/bubble.jpg 450w" sizes="(min-width:760px) 680px, calc(100vw - 2rem)" width="450" height="624" alt="Стаканы бабл ти и авторских напитков КофеР на столе" loading="lazy">
+        </div>
+      </div>
+
+      <!-- Чай -->
+      <div class="panel" role="tabpanel" id="p-tea" data-print-title="Чай" aria-labelledby="t-tea" tabindex="0" hidden>
+        <div class="cols">
+          <div class="group">
+            <h3 class="group__name">Ягодный чай <em>0,3 — 250 ₽ · 0,4 — 270 ₽</em></h3>
+            <ul class="taglist">
+              <li>Иммунный с облепихой</li><li>Малина с мятой</li><li>Клубника-дыня</li>
+              <li>Манго-апельсин</li><li>Яблоко-можжевельник</li><li>Маракуйя тропик</li>
+              <li>Клубника-киви</li><li>Малиновый мохито</li><li>Улун с земляникой</li>
+              <li>Цейлон с клубникой и хризантемой</li><li>Молочный улун с мандарином</li>
+              <li>Гун тин-саган дайля</li><li>Арбуз и клюква</li><li>Спелая смородина</li>
+            </ul>
+          </div>
+          <div class="group">
+            <h3 class="group__name">Классический чай <em>0,3 — 250 ₽ · 0,4 — 270 ₽</em></h3>
+            <ul class="taglist">
+              <li>Ройбуш лимонный</li><li>Тайский чай</li><li>Иван-чай</li><li>Белый пион</li>
+              <li>Чай с корнем валерианы</li><li>Красный чай</li><li>Улун</li><li>Липовый мёд</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Малышам -->
+      <div class="panel" role="tabpanel" id="p-kids" data-print-title="Малышам" aria-labelledby="t-kids" tabindex="0" hidden>
+        <div class="cols">
+          <div class="group">
+            <h3 class="group__name">Для маленьких гостей <em>0,250</em></h3>
+            <div class="row"><span class="row__name">Горячий шоколад с маршмеллоу и взбитыми сливками</span><span class="row__price">280</span></div>
+            <div class="row"><span class="row__name">Латте на банановом молоке «черника-банан»<i>без кофеина</i></span><span class="row__price">280</span></div>
+            <div class="row"><span class="row__name">Какао с маршмеллоу и взбитыми сливками</span><span class="row__price">280</span></div>
+          </div>
+          <div class="group">
+            <h3 class="group__name">Милкшейки <em>0,375 / 0,500</em></h3>
+            <div class="row"><span class="row__name">Милкшейк Oreo с маршмеллоу</span><span class="row__price">270 / 290</span></div>
+            <div class="row"><span class="row__name">Милкшейк с соком и маршмеллоу</span><span class="row__price">270 / 290</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ БОНУС ============ -->
+  <section class="sec" id="bonus">
+    <div class="wrap bonus">
+      <div>
+        <h2 class="sec__title stack">
+          <span class="stack__line" aria-hidden="true">Бонус</span>
+          <span class="stack__line" aria-hidden="true">Бонус</span>
+          <span class="stack__line" aria-hidden="true">Бонус</span>
+          <span class="stack__solid">Бонус</span>
+        </h2>
+        <p class="sec__lede rise">Любовь к кофе должна вознаграждаться. Каждый седьмой стаканчик кофе из классического меню объёмом 250 или 350 мл — в подарок.</p>
+        <div class="acts rise rise--d1">
+          <a class="btn btn--solid" href="https://t.me/coffeer_zd" target="_blank" rel="noopener">Подписаться в Telegram <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+      <div class="card7 rise rise--d1">
+        <p class="card7__top">Твой седьмой кофе <em>250 / 350 мл</em></p>
+        <ul class="punch">
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-cup"/></svg></li>
+          <li><svg aria-hidden="true"><use href="#i-flower"/></svg></li>
+        </ul>
+        <p class="card7__note">Считаем стаканчики на кассе — просто скажи, что копишь.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ НАМЁК ============ -->
+  <section class="sec sec--cream" id="hint">
+    <div class="wrap hint">
+      <div>
+        <h2 class="sec__title stack">
+          <span class="stack__line" aria-hidden="true">Намёк</span>
+          <span class="stack__line" aria-hidden="true">Намёк</span>
+          <span class="stack__line" aria-hidden="true">Намёк</span>
+          <span class="stack__solid">Намёк</span>
+        </h2>
+        <p class="sec__lede rise">Иногда проще не просить, а намекнуть. Заполни короткую форму — и мы передадим твой намёк на кофе и десерт тому, кому он адресован.</p>
+        <div class="acts rise rise--d1">
+          <a class="btn btn--solid" href="https://docs.google.com/forms/d/e/1FAIpQLSdnLONvH69_x2MOBjsUJZvrwozbKSm9TkOels-rhWfMHQS1mw/viewform" target="_blank" rel="noopener">Намекнуть <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+      <div class="hint__card rise rise--d1">
+        <svg aria-hidden="true"><use href="#i-heart"/></svg>
+        <p class="hint__note">«Здесь могло бы быть твоё имя<br>и стаканчик с цветком»</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ КОНТАКТЫ ============ -->
+  <section class="sec sec--sky" id="find">
+    <div class="wrap">
+      <h2 class="sec__title stack" style="margin-bottom:clamp(2rem,4vw,3rem)">
+        <span class="stack__line" aria-hidden="true">Найти</span>
+        <span class="stack__line" aria-hidden="true">Найти</span>
+        <span class="stack__line" aria-hidden="true">Найти</span>
+        <span class="stack__solid">Найти</span>
+      </h2>
+      <div class="find">
+        <div class="rise">
+          <p class="find__addr">Зеленодольск,<br>ул.&nbsp;Королёва,&nbsp;4А</p>
+          <p class="find__hint">На остановке, напротив автовокзала «Мирный». Заметен по чёрному фасаду и белым буквам COFFEER.</p>
+
+          <dl class="find__list">
+            <div>
+              <dt>Часы работы</dt>
+              <!-- TODO для клиента: заменить на реальный график работы -->
+              <dd>Уточняются — актуальное расписание всегда в <a href="https://t.me/coffeer_zd" target="_blank" rel="noopener">Telegram-канале</a></dd>
+            </div>
+            <div>
+              <dt>Мы на связи</dt>
+              <dd>
+                <div class="socials">
+                  <a class="social" href="https://t.me/coffeer_zd" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-tg"/></svg> Telegram</a>
+                  <a class="social" href="https://www.instagram.com/coffeer_zd" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-ig"/></svg> Instagram</a>
+                  <a class="social" href="https://max.ru/u/f9LHodD0cOKsHXIeFGJolT_PzfI4wcCFPkQgIVBz6vImIf8Or3Dx_9LOzT0" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-chat"/></svg> MAX</a>
+                </div>
+              </dd>
+            </div>
+            <div>
+              <dt>Отзывы</dt>
+              <dd><a href="https://yandex.ru/maps/?text=%D0%9A%D0%BE%D1%84%D0%B5%D0%B9%D0%BD%D1%8F%20%D0%9A%D0%BE%D1%84%D0%B5%D0%A0%20%D0%97%D0%B5%D0%BB%D0%B5%D0%BD%D0%BE%D0%B4%D0%BE%D0%BB%D1%8C%D1%81%D0%BA" target="_blank" rel="noopener">4,7 — 69 отзывов на Яндекс Картах</a></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="find__place rise rise--d1">
+          <img src="img/pair-hands.jpg" srcset="img/pair-hands-320.jpg 320w, img/pair-hands-480.jpg 480w, img/pair-hands.jpg 533w" sizes="(min-width:760px) 540px, calc(100vw - 2rem)" alt="Гостья за столиком кофейни КофеР с двумя стаканчиками" loading="lazy">
+          <a class="btn btn--ghost btn--sm" href="https://yandex.ru/maps/?ll=48.5648125%2C55.8526875&amp;z=18&amp;text=%D1%83%D0%BB.%20%D0%9A%D0%BE%D1%80%D0%BE%D0%BB%D1%91%D0%B2%D0%B0%2C%204%D0%90%2C%20%D0%97%D0%B5%D0%BB%D0%B5%D0%BD%D0%BE%D0%B4%D0%BE%D0%BB%D1%8C%D1%81%D0%BA" target="_blank" rel="noopener">
+            <svg aria-hidden="true"><use href="#i-pin"/></svg> Открыть на карте
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <span class="foot__mark">C<svg class="ring" aria-hidden="true"><use href="#i-ring"/></svg>FFEER</span>
+    <p class="foot__meta">
+      Кофейня КофеР · Зеленодольск, ул. Королёва, 4А<br>
+      <a href="https://t.me/coffeer_zd" target="_blank" rel="noopener">Telegram</a> ·
+      <a href="https://www.instagram.com/coffeer_zd" target="_blank" rel="noopener">Instagram</a> ·
+      <a href="#menu">Меню</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* --- появление --- */
+  var targets = document.querySelectorAll('.rise, .stack, .card7');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('reveal'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.06 });
+    Array.prototype.forEach.call(targets, function(t){ io.observe(t); });
+  } else {
+    Array.prototype.forEach.call(targets, function(t){ t.classList.add('reveal'); });
+  }
+
+  /* герой печатается сразу */
+  var hero = document.getElementById('hero');
+  hero.classList.add('reveal');
+
+  /* --- залипшая шапка --- */
+  var nav = document.getElementById('nav');
+  var onScroll = function(){ nav.dataset.stuck = window.scrollY > 12 ? 'true' : 'false'; };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive:true });
+
+  /* --- вкладки меню --- */
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var ink    = document.querySelector('.tabs__ink');
+  var scroller = document.querySelector('.tabs');
+
+  function current(){
+    for (var i=0;i<tabs.length;i++){ if (tabs[i].getAttribute('aria-selected')==='true') return tabs[i]; }
+    return tabs[0];
+  }
+  function moveInk(tab){
+    ink.style.width = tab.offsetWidth + 'px';
+    ink.style.transform = 'translateX(' + (tab.offsetLeft - scroller.scrollLeft) + 'px)';
+  }
+  function select(tab, focus){
+    tabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    moveInk(tab);
+    if (focus) tab.focus();
+  }
+  tabs.forEach(function(tab, i){
+    tab.addEventListener('click', function(){ select(tab, false); });
+    tab.addEventListener('keydown', function(e){
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d){ e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+      else if (e.key === 'Home'){ e.preventDefault(); select(tabs[0], true); }
+      else if (e.key === 'End'){ e.preventDefault(); select(tabs[tabs.length-1], true); }
+    });
+  });
+  scroller.addEventListener('scroll', function(){ moveInk(current()); }, { passive:true });
+  window.addEventListener('resize', function(){ moveInk(current()); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ moveInk(current()); });
+  moveInk(tabs[0]);
+
+  /* --- лёгкий наклон карточки героя за курсором --- */
+  var frame = document.querySelector('.shot__frame');
+  var shot  = document.querySelector('.shot');
+  if (frame && shot && !reduce && window.matchMedia('(hover:hover) and (pointer:fine) and (min-width:1024px)').matches){
+    var raf = null, rx = 0, ry = 0;
+    var apply = function(){
+      raf = null;
+      frame.style.transform = 'perspective(1100px) rotateY(' + ry + 'deg) rotateX(' + rx + 'deg)';
+    };
+    shot.addEventListener('pointermove', function(e){
+      var r = shot.getBoundingClientRect();
+      ry = ((e.clientX - r.left) / r.width  - .5) * 6.5;
+      rx = ((e.clientY - r.top)  / r.height - .5) * -6.5;
+      if (!raf) raf = requestAnimationFrame(apply);
+    });
+    shot.addEventListener('pointerleave', function(){
+      ry = 0; rx = 0; if (!raf) raf = requestAnimationFrame(apply);
+    });
+  }
+
+  /* --- выезжающая панель навигации (до 1024) --- */
+  var burger = document.getElementById('burger');
+  var drawer = document.getElementById('drawer');
+  var sheet  = drawer.querySelector('.drawer__sheet');
+
+  function focusables(){
+    return Array.prototype.slice.call(
+      sheet.querySelectorAll('a[href], button:not([disabled])')
+    ).filter(function(el){ return el.offsetParent !== null; });
+  }
+  function openDrawer(){
+    drawer.hidden = false;
+    /* синхронный reflow: transition стартует от исходного состояния
+       без опоры на rAF, который может быть подавлен */
+    void drawer.offsetHeight;
+    drawer.dataset.open = 'true';
+    burger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    var f = focusables();
+    if (f.length) f[0].focus();
+  }
+  function closeDrawer(giveFocus){
+    drawer.dataset.open = 'false';
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    if (giveFocus) burger.focus();
+    var done = function(){ if (drawer.dataset.open === 'false') drawer.hidden = true; };
+    if (reduce) done(); else setTimeout(done, 420);
+  }
+  function isOpen(){ return burger.getAttribute('aria-expanded') === 'true'; }
+
+  burger.addEventListener('click', function(){ isOpen() ? closeDrawer(false) : openDrawer(); });
+  drawer.addEventListener('click', function(e){ if (e.target === drawer) closeDrawer(true); });
+  sheet.addEventListener('click', function(e){
+    if (e.target.closest('a')) closeDrawer(false);
+  });
+  document.addEventListener('keydown', function(e){
+    if (!isOpen()) return;
+    if (e.key === 'Escape'){ e.preventDefault(); closeDrawer(true); return; }
+    if (e.key !== 'Tab') return;
+    var f = focusables();
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+  /* панель живёт только до 1024 — на десктопе закрываем принудительно */
+  var wide = window.matchMedia('(min-width:1024px)');
+  var onWide = function(m){ if (m.matches && isOpen()) closeDrawer(false); };
+  if (wide.addEventListener) wide.addEventListener('change', onWide);
+  else if (wide.addListener) wide.addListener(onWide);
+})();
+</script>
+</body>
+</html>
