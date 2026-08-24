@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Автомастерская «ОСЬ» — приезжайте, посмотрим и назовём цену</title>
+<meta name="description" content="Автомастерская «ОСЬ». Диагностика, ТО, подвеска, тормоза, шиномонтаж, электрика. Смотрим, называем цену до начала работы, показываем снятое. Приезжайте.">
+<meta name="theme-color" content="#191817">
+<meta property="og:title" content="Автомастерская «ОСЬ» — приезжайте, посмотрим и назовём цену">
+<meta property="og:description" content="Стучит, греется, не едет? Поднимем, найдём причину и назовём цену до начала работы.">
+<meta property="og:type" content="website">
+<!-- ЗАГЛУШКА: при переезде на домен мастерской поменять адрес в og:url и og:image -->
+<meta property="og:url" content="https://nekovvork.ru/auto/">
+<meta property="og:image" content="https://nekovvork.ru/auto/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ремонтный цех автомастерской: подъёмники, стеллажи с инструментом, верстаки">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23191817'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23E4F52C' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.6' fill='%23E4F52C'/%3E%3Cpath d='M16 7.5v4M16 20.5v4M7.5 16h4M20.5 16h4' stroke='%23E4F52C' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preload" as="font" type="font/woff2" href="fonts/oswald-cyrillic.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/golos-cyrillic.woff2" crossorigin>
+
+<style>
+/* Шрифты лежат рядом с файлом, а не на чужом CDN: страница обязана
+   открываться одинаково в любой сети. Обе гарнитуры переменные. */
+@font-face{
+  font-family:'Oswald'; font-style:normal; font-weight:200 700; font-display:swap;
+  src:url('fonts/oswald-cyrillic.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Oswald'; font-style:normal; font-weight:200 700; font-display:swap;
+  src:url('fonts/oswald-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'Golos Text'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/golos-cyrillic.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Golos Text'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/golos-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Автомастерская «ОСЬ» — мир «Разметка»
+   Страница — это дорога, которая заканчивается у ворот мастерской.
+   Асфальт, краска разметки, хайвиз и синие сервисные знаки. Колесо
+   выкатывается в первый экран и красит за собой осевую линию.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root{
+  --asphalt:  #191817;
+  --asphalt-2:#232120;
+  --hiviz:    #E4F52C;
+  --hiviz-dk: #C3D400;
+  --paint:    #F2F0E9;
+  --sign:     #0A50A0;
+
+  /* приглушённый цвет задаётся на каждом покрытии отдельно:
+     серый по жёлтому и по краске читается как брак, а не как иерархия */
+  --ink:  var(--paint);
+  --dim:  #A8A49B;
+  --rule: rgb(242 240 233 / .16);
+
+  --display:'Oswald', 'Arial Narrow', system-ui, sans-serif;
+  --text:   'Golos Text', 'Segoe UI', system-ui, sans-serif;
+
+  --gut: clamp(1.15rem, 4.6vw, 4.5rem);
+  --max: 1320px;
+  --bar: 3.5rem;
+
+
+  --ease: cubic-bezier(.16,.84,.3,1);
+  --roll: cubic-bezier(.11,.66,.13,1);
+
+  /* качение: подставляются скриптом по реальной геометрии.
+     Значения ниже — разумный запас на случай, если скрипт не отработал. */
+  --roll-x: -108vw;
+  --roll-deg: 1500deg;
+  --roll-dur: 1750ms;
+}
+
+@media (min-width:1560px){ :root{ --max:1420px; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:smooth; overflow-x:clip; }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  margin:0;
+  background:var(--asphalt);
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:clamp(1rem, .96rem + .22vw, 1.09rem);
+  line-height:1.6;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* --- поверхности, которые рисует браузер, а не я --- */
+::selection{ background:var(--hiviz); color:var(--asphalt); text-shadow:none; }
+:root{ caret-color:var(--hiviz); scrollbar-color:var(--hiviz-dk) var(--asphalt-2); scrollbar-width:thin; }
+::-webkit-scrollbar{ width:11px; height:11px; }
+::-webkit-scrollbar-track{ background:var(--asphalt-2); }
+::-webkit-scrollbar-thumb{ background:var(--hiviz-dk); border:3px solid var(--asphalt-2); border-radius:0; }
+::-webkit-scrollbar-thumb:hover{ background:var(--hiviz); }
+:focus-visible{ outline:3px solid var(--hiviz); outline-offset:3px; }
+.on-hiviz :focus-visible{ outline-color:var(--asphalt); }
+
+a{ color:inherit; text-underline-offset:.24em; text-decoration-thickness:1px; }
+img{ display:block; max-width:100%; height:auto; }
+h1,h2,h3{
+  margin:0; font-family:var(--display); font-weight:700;
+  text-transform:uppercase; line-height:.92; letter-spacing:-.012em;
+  text-wrap:balance;
+}
+p{ margin:0; text-wrap:pretty; }
+ul,ol,dl{ margin:0; padding:0; list-style:none; }
+button{ font:inherit; color:inherit; }
+
+.wrap{
+  width:100%;
+  max-width:calc(var(--max) + env(safe-area-inset-left) + env(safe-area-inset-right));
+  margin-inline:auto;
+  padding-left:max(var(--gut), env(safe-area-inset-left));
+  padding-right:max(var(--gut), env(safe-area-inset-right));
+}
+.lead{ max-width:58ch; }
+
+.skip{
+  position:absolute; left:.6rem; top:-5rem; z-index:300;
+  background:var(--hiviz); color:var(--asphalt); font-weight:700;
+  padding:.7rem 1.1rem; text-decoration:none;
+}
+.skip:focus{ top:.6rem; }
+
+.vh{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
+
+/* ── заглушка: место, куда мастерская подставит правду ────────────── */
+.blank{
+  display:inline-block; min-width:3.2em;
+  color:var(--dim);
+  border-bottom:2px dashed currentColor;
+  line-height:1.15;
+}
+
+/* ── асфальт: настоящая крупка, а не плоская заливка ──────────────── */
+.grit{ position:relative; isolation:isolate; }
+.grit::before{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.16; mix-blend-mode:overlay;
+}
+
+/* ── шапка ───────────────────────────────────────────────────────── */
+.bar{
+  position:relative; z-index:60;
+  background:var(--asphalt); border-bottom:1px solid var(--rule);
+}
+@media (min-width:960px){ .bar{ position:sticky; top:0; } }
+.bar__in{ display:flex; align-items:center; gap:1.5rem; min-height:var(--bar); }
+.mark{
+  display:flex; align-items:center; gap:.6rem;
+  font-family:var(--display); font-weight:700; text-transform:uppercase;
+  font-size:1.06rem; letter-spacing:.02em; text-decoration:none; white-space:nowrap;
+}
+.mark svg{ width:26px; height:26px; flex:none; }
+.bar nav{ margin-left:auto; display:none; gap:1.3rem; }
+@media (min-width:960px){ .bar nav{ display:flex; } }
+.bar nav a{
+  font-family:var(--display); text-transform:uppercase; font-size:.9rem;
+  font-weight:500; letter-spacing:.03em; text-decoration:none; color:var(--dim);
+  padding-block:.35rem; border-bottom:2px solid transparent;
+  transition:color .18s var(--ease), border-color .18s var(--ease);
+}
+.bar nav a:hover{ color:var(--paint); border-bottom-color:var(--hiviz); }
+.bar .btn{ display:none; }
+@media (min-width:960px){ .bar .btn{ display:inline-flex; margin-left:auto; } }
+
+/* ── кнопки ──────────────────────────────────────────────────────── */
+.btn{
+  --btn-bg:var(--hiviz); --btn-ink:var(--asphalt);
+  display:inline-flex; align-items:center; gap:.55rem;
+  background:var(--btn-bg); color:var(--btn-ink);
+  font-family:var(--display); text-transform:uppercase; font-weight:600;
+  font-size:clamp(.88rem,.84rem + .18vw,1rem); letter-spacing:.03em;
+  padding:.72rem 1.25rem; text-decoration:none; border:2px solid var(--btn-bg);
+  transition:transform .16s var(--ease), background-color .16s var(--ease), color .16s var(--ease);
+}
+.btn:hover{ transform:translateY(-2px); }
+.btn:active{ transform:translateY(0); }
+.btn svg{ width:1.05em; height:1.05em; flex:none; }
+.btn--ghost{ --btn-bg:transparent; --btn-ink:var(--paint); border-color:var(--rule); }
+.btn--ghost:hover{ --btn-bg:var(--paint); --btn-ink:var(--asphalt); border-color:var(--paint); }
+.btn--dark{ --btn-bg:var(--asphalt); --btn-ink:var(--hiviz); }
+
+/* ── первый экран ────────────────────────────────────────────────── */
+.hero{ position:relative; padding-block:clamp(3rem,8vw,6rem) 0; }
+.hero__sign{
+  position:absolute; top:clamp(2.5rem,6vw,5rem); right:var(--gut);
+  display:none; width:clamp(104px,13.5vw,214px); aspect-ratio:1;
+  background:var(--sign); padding:9px;
+  box-shadow:0 34px 64px -40px rgb(0 0 0 / .95);
+}
+@media (min-width:720px){
+  .hero__sign{ display:block; }
+  /* заголовок не должен заезжать под знак: держим за ним полосу
+     шириной со знак плюс воздух */
+  .hero h1{ padding-right:calc(clamp(104px,13.5vw,214px) + 2.5rem); }
+}
+.hero__sign > div{
+  width:100%; height:100%; border:3px solid #fff;
+  display:grid; place-items:center;
+}
+.hero__sign svg{ width:74%; height:74%; display:block; }
+.hero h1{
+  font-size:clamp(3.1rem, 12.5vw, 6rem);
+  line-height:.86; letter-spacing:-.02em;
+  max-width:14ch;
+}
+.hero h1 em{ font-style:normal; color:var(--hiviz); }
+.hero__sub{ margin-top:clamp(1.2rem,2.6vw,1.9rem); font-size:clamp(1.03rem,1rem + .4vw,1.25rem); color:var(--paint); }
+.hero__sub .blank{ color:var(--hiviz); }
+
+/* полотно, по которому катится колесо */
+.track{
+  position:relative;
+  margin-top:clamp(2rem,4.6vw,3.2rem);
+  height:clamp(84px,15vw,150px);
+}
+.track__line{
+  position:absolute; left:calc(var(--gut) * -1); right:calc(var(--gut) * -1); bottom:0;
+  height:9px;
+  background-image:repeating-linear-gradient(90deg,
+    var(--paint) 0 46px, transparent 46px 118px);
+  clip-path:inset(0 0 0 0);
+}
+.track__edge{
+  position:absolute; left:calc(var(--gut) * -1); right:calc(var(--gut) * -1); bottom:-1px;
+  height:1px; background:var(--rule);
+}
+.wheel{
+  position:absolute; bottom:4px; right:2%;
+  width:clamp(84px,15vw,150px); aspect-ratio:1;
+  will-change:transform;
+}
+.wheel__spin{ width:100%; height:100%; will-change:transform; }
+.wheel svg{ width:100%; height:100%; display:block; }
+
+.hero__act{
+  display:flex; flex-wrap:wrap; gap:.75rem;
+  padding-block:clamp(1.5rem,3.4vw,2.2rem);
+}
+.hero__facts{
+  display:flex; flex-wrap:wrap; gap:.5rem 2.4rem;
+  padding-bottom:clamp(2.6rem,6vw,4.4rem);
+  font-size:.97rem; color:var(--dim);
+}
+.hero__facts .val{ color:var(--paint); font-weight:600; }
+
+/* ── полосатая предупредительная лента ───────────────────────────── */
+.hazard{
+  height:14px;
+  background-image:repeating-linear-gradient(-45deg,
+    var(--hiviz) 0 16px, var(--asphalt) 16px 32px);
+}
+
+/* ── секции ──────────────────────────────────────────────────────── */
+.sec{ padding-block:clamp(3.6rem,8.5vw,7rem); }
+.sec h2{
+  font-size:clamp(2.1rem,6.4vw,3.6rem);
+  letter-spacing:-.016em;
+}
+.sec__head{ margin-bottom:clamp(1.8rem,4vw,3rem); }
+.sec__head p{
+  margin-top:1.05rem; color:var(--dim);
+  font-size:clamp(1.02rem,.98rem + .34vw,1.2rem);
+}
+
+.sec--hiviz{
+  background:var(--hiviz); color:var(--asphalt);
+  --ink:var(--asphalt); --dim:#4E5510; --rule:rgb(25 24 23 / .22);
+}
+.sec--hiviz h2{ color:var(--asphalt); }
+.sec--paint{
+  background:var(--paint); color:var(--asphalt);
+  --ink:var(--asphalt); --dim:#5C574E; --rule:rgb(25 24 23 / .16);
+}
+
+/* ── щит: услуги как указатель на трассе ─────────────────────────── */
+.board{
+  background:var(--sign); color:#fff;
+  padding:clamp(.7rem,1.6vw,1rem);
+  box-shadow:0 30px 60px -40px rgb(25 24 23 / .7);
+}
+.board__in{ border:2px solid rgb(255 255 255 / .82); }
+.route{
+  display:grid; grid-template-columns:auto 1fr auto;
+  align-items:center; gap:clamp(.85rem,2.2vw,1.5rem);
+  padding:clamp(.95rem,2.4vw,1.4rem) clamp(.9rem,2.4vw,1.6rem);
+  text-decoration:none; color:inherit;
+  border-bottom:1px solid rgb(255 255 255 / .3);
+  transition:background-color .18s var(--ease);
+}
+.route:last-child{ border-bottom:0; }
+.route:hover{ background:rgb(255 255 255 / .1); }
+.route__ico{ width:clamp(36px,6.2vw,48px); height:clamp(36px,6.2vw,48px); flex:none; }
+.route__ico svg{ width:100%; height:100%; display:block; }
+.route__name{
+  display:block;
+  font-family:var(--display); text-transform:uppercase; font-weight:600;
+  font-size:clamp(1.12rem,3.1vw,1.7rem); line-height:1.02; letter-spacing:-.005em;
+}
+.route__note{ display:block; font-size:clamp(.84rem,.8rem + .3vw,.96rem); color:rgb(255 255 255 / .86); margin-top:.34rem; }
+.route__price{
+  font-family:var(--display); font-weight:500; white-space:nowrap;
+  font-size:clamp(1.05rem,2.6vw,1.55rem); text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.route__price .blank{ color:rgb(255 255 255 / .7); min-width:2.6em; }
+.route__price .from{ display:block; color:rgb(255 255 255 / .62);
+  font-size:.6em; letter-spacing:.12em; margin-bottom:.2rem; }
+@media (max-width:479.98px){
+  .route{ grid-template-columns:auto 1fr; row-gap:.15rem; }
+  .route__price{ grid-column:2; text-align:left; margin-top:.45rem; }
+  .route__price .from{ display:inline; margin:0 .35rem 0 0; }
+}
+.board__foot{
+  margin-top:1.15rem; font-size:.94rem; color:var(--dim);
+  display:flex; flex-wrap:wrap; gap:.4rem 1.4rem;
+}
+
+/* ── маршрут работ: километровые столбы ──────────────────────────── */
+.km{ position:relative; display:grid; gap:0; }
+@media (min-width:1040px){ .km{ grid-template-columns:repeat(5,1fr); } }
+.km li{ position:relative; padding:clamp(1.3rem,2.6vw,1.9rem) 0 clamp(1.3rem,2.6vw,1.9rem) 4.4rem; }
+@media (min-width:1040px){
+  .km li{ padding:3.3rem clamp(1rem,2vw,1.6rem) 0 0; }
+}
+/* дорога, вдоль которой стоят столбы */
+.km::before{
+  content:""; position:absolute; left:1.55rem; top:1.6rem; bottom:1.6rem; width:4px;
+  background-image:repeating-linear-gradient(180deg, var(--asphalt) 0 14px, transparent 14px 30px);
+  opacity:.45;
+}
+@media (min-width:1040px){
+  .km::before{
+    left:0; right:0; top:1.35rem; bottom:auto; width:auto; height:4px;
+    background-image:repeating-linear-gradient(90deg, var(--asphalt) 0 22px, transparent 22px 48px);
+  }
+}
+.km__post{
+  position:absolute; left:0; top:clamp(1.3rem,2.6vw,1.9rem);
+  width:3.1rem; min-height:2.7rem;
+  background:var(--paint); color:var(--asphalt);
+  border:2px solid var(--asphalt);
+  display:grid; place-content:center; text-align:center;
+  font-family:var(--display); font-weight:700; line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+@media (min-width:1040px){ .km__post{ top:0; } }
+.km__post .n{ font-size:1.5rem; display:block; }
+.km__post .u{ font-size:.6rem; letter-spacing:.1em; display:block; margin-top:.12rem; }
+.km h3{ font-size:clamp(1.22rem,3vw,1.55rem); }
+.km p{ margin-top:.55rem; color:var(--dim); font-size:.98rem; max-width:34ch; }
+
+/* ── цех ─────────────────────────────────────────────────────────── */
+.shot{ position:relative; background:var(--asphalt-2); }
+.shot img{ width:100%; object-fit:cover; }
+.bleed{
+  margin-left:calc(var(--gut) * -1); margin-right:calc(var(--gut) * -1);
+}
+.shot--wide img{ aspect-ratio:16/7; }
+.plate{
+  position:absolute; left:0; bottom:0;
+  background:var(--hiviz); color:var(--asphalt);
+  font-family:var(--display); text-transform:uppercase; font-weight:600;
+  font-size:clamp(.82rem,2vw,1rem); letter-spacing:.04em;
+  padding:.6rem 1.1rem;
+}
+.pair{
+  display:grid; gap:clamp(.9rem,2vw,1.4rem); margin-top:clamp(.9rem,2vw,1.4rem);
+  grid-template-columns:1fr;
+}
+@media (min-width:720px){ .pair{ grid-template-columns:1.15fr .85fr; } }
+.pair img{ width:100%; height:100%; object-fit:cover; aspect-ratio:4/5; }
+@media (min-width:720px){ .pair .shot:first-child img{ aspect-ratio:auto; height:100%; } }
+.shop__note{ margin-top:clamp(1.4rem,3vw,2rem); color:var(--dim); max-width:52ch; }
+
+/* ── приехать ────────────────────────────────────────────────────── */
+.dest{ display:grid; gap:clamp(1.6rem,4vw,3rem); }
+@media (min-width:900px){ .dest{ grid-template-columns:1.25fr .75fr; align-items:start; } }
+.sign{
+  background:var(--sign); color:#fff;
+  padding:clamp(1.1rem,2.6vw,1.6rem);
+  box-shadow:0 30px 60px -40px rgb(25 24 23 / .7);
+}
+.sign__in{ border:2px solid rgb(255 255 255 / .82); padding:clamp(1.3rem,3.4vw,2.4rem); }
+.sign__arrow{ width:clamp(38px,7vw,58px); height:auto; display:block; margin-bottom:1rem; }
+.sign__addr{
+  font-family:var(--display); text-transform:uppercase; font-weight:700;
+  font-size:clamp(1.9rem,6.2vw,3.5rem); line-height:.94; letter-spacing:-.015em;
+}
+.sign__addr .blank{ color:rgb(255 255 255 / .72); border-bottom-width:3px; }
+.sign__sub{ margin-top:1.3rem; font-size:1.02rem; }
+.sign__sub div{
+  display:flex; align-items:center; gap:.7rem;
+  padding:.5rem 0; border-top:1px solid rgb(255 255 255 / .3);
+}
+.sign__sub dt{ color:rgb(255 255 255 / .8); }
+.sign__sub dd{ margin:0 0 0 auto; }
+.sign__sub .blank{ color:rgb(255 255 255 / .78); }
+.sign__act{ display:flex; flex-wrap:wrap; gap:.7rem; margin-top:clamp(1.4rem,3vw,2rem); }
+.sign__act .btn--ghost{ --btn-ink:#fff; border-color:rgb(255 255 255 / .5); }
+.sign__act .btn--ghost:hover{ --btn-bg:#fff; --btn-ink:var(--sign); border-color:#fff; }
+
+.hours{ font-variant-numeric:tabular-nums; }
+.hours h3{ font-size:1.28rem; margin-bottom:.9rem; }
+.hours dl div{
+  display:flex; align-items:center; gap:.6rem;
+  padding:.62rem 0; border-bottom:1px solid var(--rule);
+}
+.hours dt{ font-weight:600; }
+.hours dd{ margin:0 0 0 auto; text-align:right; }
+.hours__note{ margin-top:1.1rem; font-size:.94rem; color:var(--dim); }
+
+/* ── подвал ──────────────────────────────────────────────────────── */
+.foot{ padding-block:clamp(2.4rem,5vw,3.6rem); font-size:.95rem; color:var(--dim); }
+.foot__in{ display:grid; gap:.7rem 2.4rem; grid-template-columns:1fr; }
+.foot a{ color:var(--paint); }
+@media (min-width:620px){
+  .foot__in{ grid-template-columns:auto auto 1fr; align-items:baseline; }
+  .foot__sign{ text-align:right; }
+}
+
+/* ── липкая панель действий на телефоне ──────────────────────────── */
+.dock{
+  position:fixed; left:0; right:0; bottom:0; z-index:80;
+  display:grid; grid-template-columns:1fr 1fr;
+  background:var(--asphalt); border-top:1px solid var(--rule);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.dock a{
+  display:flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.95rem .6rem; text-decoration:none;
+  font-family:var(--display); text-transform:uppercase; font-weight:600;
+  font-size:.95rem; letter-spacing:.03em;
+}
+.dock a:first-child{ background:var(--hiviz); color:var(--asphalt); }
+.dock a:last-child{ color:var(--paint); }
+.dock svg{ width:1.05em; height:1.05em; }
+.dock{ transition:transform .3s var(--ease), opacity .3s var(--ease), visibility .3s; }
+.bar .btn{ transition:opacity .3s var(--ease), visibility .3s; }
+:root.lead-on-screen .dock{ transform:translateY(110%); opacity:0; visibility:hidden; pointer-events:none; }
+:root.lead-on-screen .bar .btn{ opacity:0; visibility:hidden; pointer-events:none; }
+@media (prefers-reduced-motion:reduce){ .dock{ transition:none; } }
+@media (min-width:960px){ .dock{ display:none; } }
+@media (max-width:959.98px){ body{ padding-bottom:calc(3.6rem + env(safe-area-inset-bottom)); } }
+
+/* ── качение: перевод и поворот идут по одной кривой, поэтому
+      колесо не проскальзывает ни в одной точке пути ─────────────── */
+.is-armed .wheel{ animation:roll-x var(--roll-dur) var(--roll) both; }
+.is-armed .wheel__spin{ animation:roll-spin var(--roll-dur) var(--roll) both; }
+.is-armed .track__line{ animation:paint var(--roll-dur) var(--roll) both; }
+@keyframes roll-x{ from{ transform:translateX(var(--roll-x)); } to{ transform:translateX(0); } }
+@keyframes roll-spin{ from{ transform:rotate(0); } to{ transform:rotate(var(--roll-deg)); } }
+@keyframes paint{ from{ clip-path:inset(0 100% 0 0); } to{ clip-path:inset(0 0 0 0); } }
+
+@media (prefers-reduced-motion:reduce){
+  .is-armed .wheel,
+  .is-armed .wheel__spin,
+  .is-armed .track__line{ animation:none; }
+  .btn{ transition:none; }
+  .btn:hover{ transform:none; }
+}
+</style>
+</head>
+<body>
+<!--
+  КОНТРАКТ НАПРАВЛЕНИЯ — Автомастерская, мир «Разметка»
+
+  THESIS: мастерская — конец маршрута, а не витрина; страница ведёт по дороге
+  и высаживает у ворот. Отказ от категорийного стандарта: тёмная страница
+  с красным акцентом, карбон, фото спорткара.
+  OWN-WORLD: асфальт #191817 с настоящей крупкой, хайвиз #E4F52C целыми
+  полосами, краска разметки #F2F0E9, синие сервисные щиты #0A50A0. Oswald
+  прописными как на указателе, Golos Text в тексте. Прерывистая осевая линия,
+  косая предупредительная лента, километровые столбы.
+  STORY: водитель приезжает с симптомом, а не с названием услуги; видит, что
+  тут смотрят и называют цену до начала, и едет по адресу.
+  FIRST VIEWPORT: слева вверху заголовок симптомами в три строки, хайвиз на
+  асфальте; ниже во всю ширину осевая линия, по которой слева направо
+  выкатывается колесо и красит её за собой; под линией «Как доехать»,
+  «Позвонить» и адрес с часами.
+  FORM: указатель и дорожная разметка — первое из семи выведенных направлений,
+  выбрано заказчиком. Раунд проведён структурированным вопросом:
+  concept-seed.mjs не запускается, на машине нет Node.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the
+  finish review, the verdict, and DESIGN.md
+-->
+<a class="skip" href="#main">К содержанию</a>
+
+<!-- ЗАГЛУШКА: «ОСЬ» — рабочее название, заказчик подставит своё -->
+<header class="bar">
+  <div class="wrap bar__in">
+    <a class="mark" href="#">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="12.6" fill="none" stroke="#E4F52C" stroke-width="2.6"/>
+        <circle cx="16" cy="16" r="3.1" fill="#E4F52C"/>
+        <path d="M16 5.2v5M16 21.8v5M5.2 16h5M21.8 16h5" stroke="#E4F52C" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      Ось
+    </a>
+    <nav aria-label="Разделы">
+      <a href="#uslugi">Что делаем</a>
+      <a href="#kak">Как это происходит</a>
+      <a href="#cex">Мастерская</a>
+      <a href="#priehat">Приехать</a>
+    </nav>
+    <a class="btn" href="#priehat">Как доехать</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ───────────────────── первый экран ───────────────────── -->
+  <section class="hero grit">
+    <div class="wrap">
+      <div class="hero__sign" aria-hidden="true">
+        <div>
+          <svg viewBox="0 0 64 64">
+            <path fill="#fff" d="M47.6 6.4a9.1 9.1 0 0 0-11.8 11.5l-4.3 4.3 5.9 5.9 4.3-4.3A9.1 9.1 0 0 0 53.2 12l-5 5-3.9-1.1-1.1-3.9 4.4-5.6Z"/>
+            <path fill="#fff" d="M8 47.4v-6.1l5.1-1.7 4.4-9.1a4.7 4.7 0 0 1 4.2-2.7h16.6a4.7 4.7 0 0 1 4.2 2.7l4.4 9.1 5.1 1.7v6.1H8Z"/>
+            <circle cx="18.6" cy="47.4" r="5.6" fill="#0A50A0"/>
+            <circle cx="45.4" cy="47.4" r="5.6" fill="#0A50A0"/>
+            <circle cx="18.6" cy="47.4" r="3.5" fill="#fff"/>
+            <circle cx="45.4" cy="47.4" r="3.5" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+      <h1>Стучит,<br>греется,<br><em>не едет?</em></h1>
+      <p class="hero__sub lead">
+        Автомастерская «Ось» на <span class="blank"><span class="vh">адрес уточняется</span></span>.
+        Приезжайте — поднимем, найдём причину и назовём цену до начала работы.
+      </p>
+    </div>
+
+    <div class="wrap">
+      <div class="track" aria-hidden="true">
+        <div class="track__line"></div>
+        <div class="track__edge"></div>
+        <div class="wheel">
+          <div class="wheel__spin">
+            <svg viewBox="0 0 200 200">
+              <!-- резина: светлее асфальта, иначе колесо тонет в фоне -->
+              <circle cx="100" cy="100" r="96" fill="#37332F"/>
+              <!-- протектор: блоки внутри габарита, а не зубья снаружи -->
+              <circle cx="100" cy="100" r="88" fill="none" stroke="#242120"
+                      stroke-width="13" stroke-dasharray="13 10"/>
+              <circle cx="100" cy="100" r="96" fill="none" stroke="#4B4640" stroke-width="2"/>
+              <!-- боковина -->
+              <circle cx="100" cy="100" r="79" fill="#2B2825"/>
+              <circle cx="100" cy="100" r="79" fill="none" stroke="#565049" stroke-width="2"/>
+              <circle cx="100" cy="100" r="71" fill="none" stroke="#4A443E" stroke-width="1.5"/>
+              <!-- тормозной диск проглядывает между спицами -->
+              <circle cx="100" cy="100" r="57" fill="#443F3A"/>
+              <circle cx="100" cy="100" r="46" fill="none" stroke="#5C554D" stroke-width="1.5"/>
+              <!-- диск -->
+              <circle cx="100" cy="100" r="66" fill="none" stroke="#E4F52C" stroke-width="11"/>
+              <g fill="#E4F52C">
+                <path d="M96 44h8l4.5 44h-17z"/>
+                <path d="M96 44h8l4.5 44h-17z" transform="rotate(72 100 100)"/>
+                <path d="M96 44h8l4.5 44h-17z" transform="rotate(144 100 100)"/>
+                <path d="M96 44h8l4.5 44h-17z" transform="rotate(216 100 100)"/>
+                <path d="M96 44h8l4.5 44h-17z" transform="rotate(288 100 100)"/>
+              </g>
+              <!-- ступица и болты: по ним и видно, что колесо крутится -->
+              <circle cx="100" cy="100" r="26" fill="#E4F52C"/>
+              <circle cx="100" cy="100" r="26" fill="none" stroke="#B9C900" stroke-width="2"/>
+              <g fill="#191817">
+                <circle cx="100" cy="85.5" r="3.8"/>
+                <circle cx="113.8" cy="95.5" r="3.8"/>
+                <circle cx="108.5" cy="111.7" r="3.8"/>
+                <circle cx="91.5" cy="111.7" r="3.8"/>
+                <circle cx="86.2" cy="95.5" r="3.8"/>
+              </g>
+              <circle cx="100" cy="100" r="7.5" fill="#191817"/>
+              <circle cx="100" cy="100" r="3.2" fill="#E4F52C"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="hero__act">
+        <a class="btn" href="#priehat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>
+          </svg>
+          Как доехать
+        </a>
+        <!-- ЗАГЛУШКА: подставить телефон в href и в текст кнопки ниже -->
+        <a class="btn btn--ghost" href="tel:">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6.5 3h3l1.5 4.5-2 1.5a13 13 0 0 0 6 6l1.5-2L21 14.5v3a2.5 2.5 0 0 1-2.7 2.5A16.8 16.8 0 0 1 3.5 5.7 2.5 2.5 0 0 1 6 3Z"/>
+          </svg>
+          Позвонить
+        </a>
+      </div>
+      <p class="hero__facts">
+        <span>Ежедневно <span class="val"><span class="blank"><span class="vh">часы работы уточняются</span></span></span></span>
+        <span>Без записи или по звонку</span>
+        <span>Старые детали отдаём</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="hazard" aria-hidden="true"></div>
+
+  <!-- ───────────────────── что делаем ───────────────────── -->
+  <section class="sec sec--hiviz on-hiviz" id="uslugi">
+    <div class="wrap">
+      <div class="sec__head">
+        <h2>Что делаем</h2>
+        <p class="lead">Приезжайте с тем, что слышите и видите, — название работы подберём сами.</p>
+      </div>
+
+      <div class="board">
+        <div class="board__in">
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 23a11 11 0 1 1 22 0"/><path d="M16 23l6-7.5"/><circle cx="16" cy="23" r="1.6" fill="#fff"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Диагностика</span>
+              <span class="route__note">Ищем причину, а не меняем наугад</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 4c4.6 6.4 7.6 10.2 7.6 13.9A7.6 7.6 0 0 1 8.4 17.9C8.4 14.2 11.4 10.4 16 4Z"/>
+                <path d="M13 18.4a3 3 0 0 0 3 3"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Техобслуживание</span>
+              <span class="route__note">Масло, фильтры, свечи, ремни, жидкости</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 3v5M16 24v5"/><path d="M10 9h12l-12 4.5h12L10 18h12"/><path d="M10 22h12"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Подвеска</span>
+              <span class="route__note">Стуки на кочках, амортизаторы, рычаги, сайлентблоки</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="14" cy="16" r="9.5"/><circle cx="14" cy="16" r="3.2"/>
+                <path d="M22 10.5h3.6a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H22"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Тормоза</span>
+              <span class="route__note">Колодки, диски, суппорты, трубки, прокачка</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="4.4"/>
+                <path d="M16 4v7.6M16 20.4V28M4 16h7.6M20.4 16H28"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Шиномонтаж</span>
+              <span class="route__note">Переобувка, балансировка, ремонт проколов и дисков</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+          <a class="route" href="#priehat">
+            <span class="route__ico">
+              <svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="11" width="24" height="14" rx="2"/>
+                <path d="M9 11V7.5h4.5V11M18.5 11V7.5H23V11"/><path d="M17.5 14.5l-3.6 4.4h4.2l-3.6 4.4"/>
+              </svg>
+            </span>
+            <span>
+              <span class="route__name">Электрика</span>
+              <span class="route__note">Не заводится, не заряжает, не горит, садится аккумулятор</span>
+            </span>
+            <span class="route__price"><span class="from">от</span><span class="blank">&nbsp;</span> ₽</span>
+          </a>
+
+        </div>
+      </div>
+      <!-- ЗАГЛУШКА: список работ и цены подтверждает мастерская -->
+      <p class="board__foot">
+        <span>Цену на конкретную работу называем после осмотра.</span>
+        <span>Чего нет в списке — спросите, скажем честно, беремся или нет.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ───────────────────── как это происходит ───────────────────── -->
+  <section class="sec sec--paint" id="kak">
+    <div class="wrap">
+      <div class="sec__head">
+        <h2>Как это происходит</h2>
+        <p class="lead">Пять остановок от ворот до ворот. Дальше третьей без вашего «да» не едем.</p>
+      </div>
+
+      <ol class="km">
+        <li>
+          <span class="km__post"><span class="n">0</span><span class="u">КМ</span></span>
+          <h3>Приезжайте</h3>
+          <p>Без записи или по звонку — как удобнее. Расскажите, что слышите и когда это началось.</p>
+        </li>
+        <li>
+          <span class="km__post"><span class="n">1</span><span class="u">КМ</span></span>
+          <h3>Смотрим</h3>
+          <p>Поднимаем на подъёмник, проверяем и находим причину, а не ближайший подозрительный узел.</p>
+        </li>
+        <li>
+          <span class="km__post"><span class="n">2</span><span class="u">КМ</span></span>
+          <h3>Называем цену</h3>
+          <p>До начала работы и целиком: детали и работа. Не начинаем, пока не согласуете.</p>
+        </li>
+        <li>
+          <span class="km__post"><span class="n">3</span><span class="u">КМ</span></span>
+          <h3>Чиним</h3>
+          <p>Если по дороге всплывает что-то ещё — звоним и спрашиваем, а не дописываем в счёт.</p>
+        </li>
+        <li>
+          <span class="km__post"><span class="n">4</span><span class="u">КМ</span></span>
+          <h3>Забираете</h3>
+          <p>Показываем снятое, отдаём старые детали и говорим, за чем следить дальше.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ───────────────────── мастерская ───────────────────── -->
+  <section class="sec grit" id="cex">
+    <div class="wrap">
+      <div class="sec__head">
+        <h2>Мастерская</h2>
+        <p class="lead">Заходите в цех и смотрите, что с вашей машиной. Мы не прячем работу за дверью.</p>
+      </div>
+
+      <div class="shot shot--wide bleed">
+        <img src="img/shop-1800.webp"
+             srcset="img/shop-640.webp 640w, img/shop-1100.webp 1100w, img/shop-1800.webp 1800w"
+             sizes="100vw" width="1800" height="1200" loading="lazy" decoding="async"
+             alt="Общий вид ремонтного цеха: подъёмники, стеллажи с инструментом, верстаки">
+        <span class="plate">Наш цех</span>
+      </div>
+
+      <div class="pair">
+        <div class="shot">
+          <img src="img/master-1100.webp"
+               srcset="img/master-640.webp 640w, img/master-1100.webp 1100w"
+               sizes="(min-width:720px) 55vw, 100vw" width="1100" height="1650" loading="lazy" decoding="async"
+               alt="Мастер работает под открытым капотом автомобиля">
+          <span class="plate">Люди, а не приёмщик</span>
+        </div>
+        <div class="shot">
+          <img src="img/wheel-1100.webp"
+               srcset="img/wheel-640.webp 640w, img/wheel-1100.webp 1100w"
+               sizes="(min-width:720px) 40vw, 100vw" width="1100" height="733" loading="lazy" decoding="async"
+               alt="Гайковёрт затягивает болты на колёсном диске">
+          <span class="plate">Колёса — тоже к нам</span>
+        </div>
+      </div>
+
+      <!-- ЗАГЛУШКА: заменить снимки на фотографии вашего цеха и ваших людей -->
+      <p class="shop__note">
+        Пока здесь стоковые снимки. Замените их фотографиями своего цеха —
+        именно по ним человек решает, ехать к вам или нет.
+      </p>
+    </div>
+  </section>
+
+  <!-- ───────────────────── приехать ───────────────────── -->
+  <section class="sec sec--hiviz on-hiviz" id="priehat">
+    <div class="wrap">
+      <div class="sec__head">
+        <h2>Приехать</h2>
+        <p class="lead">Конец маршрута. Загляните в часы работы и выезжайте.</p>
+      </div>
+
+      <div class="dest">
+        <div class="sign">
+          <div class="sign__in">
+            <svg class="sign__arrow" viewBox="0 0 64 40" fill="#fff" aria-hidden="true">
+              <path d="M0 16h40V4l24 16-24 16V24H0z"/>
+            </svg>
+            <!-- ЗАГЛУШКА: адрес мастерской -->
+            <p class="sign__addr">
+              ул. <span class="blank"><span class="vh">улица уточняется</span></span>,
+              <span class="blank"><span class="vh">дом уточняется</span></span>
+            </p>
+            <!-- ЗАГЛУШКА: город, ориентир и заезд -->
+            <dl class="sign__sub">
+              <div><dt>Город</dt><dd><span class="blank"><span class="vh">уточняется</span></span></dd></div>
+              <div><dt>Ориентир</dt><dd><span class="blank"><span class="vh">уточняется</span></span></dd></div>
+              <div><dt>Заезд</dt><dd><span class="blank"><span class="vh">уточняется</span></span></dd></div>
+            </dl>
+            <div class="sign__act">
+              <!-- ЗАГЛУШКА: ссылка на карточку в Яндекс.Картах или 2ГИС -->
+              <a class="btn btn--dark" href="#">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9 3 3 5.4v15.1L9 18l6 3 6-2.4V3.4L15 6Z"/><path d="M9 3v15M15 6v15"/>
+                </svg>
+                Открыть на карте
+              </a>
+              <!-- ЗАГЛУШКА: телефон -->
+              <a class="btn btn--ghost" href="tel:">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6.5 3h3l1.5 4.5-2 1.5a13 13 0 0 0 6 6l1.5-2L21 14.5v3a2.5 2.5 0 0 1-2.7 2.5A16.8 16.8 0 0 1 3.5 5.7 2.5 2.5 0 0 1 6 3Z"/>
+                </svg>
+                Позвонить
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ЗАГЛУШКА: часы работы -->
+        <div class="hours">
+          <h3>Часы работы</h3>
+          <dl>
+            <div><dt>Понедельник — пятница</dt><dd><span class="blank">&nbsp;</span></dd></div>
+            <div><dt>Суббота</dt><dd><span class="blank">&nbsp;</span></dd></div>
+            <div><dt>Воскресенье</dt><dd><span class="blank">&nbsp;</span></dd></div>
+          </dl>
+          <p class="hours__note">
+            Если едете к концу дня — позвоните, скажем, успеем сегодня или лучше завтра с утра.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot grit">
+  <div class="wrap foot__in">
+    <span>Автомастерская «Ось»</span>
+    <!-- ЗАГЛУШКА: телефон -->
+    <span>Телефон: <a href="tel:"><span class="blank">&nbsp;</span></a></span>
+    <span class="foot__sign">Сайт — <a href="https://nekovvork.ru" rel="noopener">nekovvork.ru</a></span>
+  </div>
+</footer>
+
+<!-- ЗАГЛУШКА: телефон в первой ссылке, карта во второй -->
+<nav class="dock" aria-label="Быстрые действия">
+  <a href="tel:">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6.5 3h3l1.5 4.5-2 1.5a13 13 0 0 0 6 6l1.5-2L21 14.5v3a2.5 2.5 0 0 1-2.7 2.5A16.8 16.8 0 0 1 3.5 5.7 2.5 2.5 0 0 1 6 3Z"/>
+    </svg>
+    Позвонить
+  </a>
+  <a href="#priehat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/>
+    </svg>
+    Как доехать
+  </a>
+</nav>
+
+<script>
+/* Качение считается по настоящей геометрии: колесо проезжает ровно тот
+   путь, который укладывается в его длину окружности. Перевод и поворот
+   идут по одной и той же кривой, поэтому проскальзывания нет ни в одной
+   точке. Без скрипта колесо просто стоит на месте — это рабочее
+   состояние страницы, а не поломка. */
+(function () {
+  var hero = document.querySelector('.hero');
+  var wheel = hero && hero.querySelector('.wheel');
+  if (!wheel) return;
+
+  var quiet = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (quiet.matches) return;
+
+  function arm() {
+    var box = wheel.getBoundingClientRect();
+    if (!box.width) return;
+
+    var start = -(box.left + box.width + 32);   // уезжаем за левый край экрана
+    var path = Math.abs(start);                 // пройденный путь, px
+    var turns = path / (Math.PI * box.width);   // длина окружности = πD
+
+    hero.style.setProperty('--roll-x', start.toFixed(1) + 'px');
+    hero.style.setProperty('--roll-deg', (turns * 360).toFixed(1) + 'deg');
+    hero.classList.add('is-armed');
+  }
+
+  // шрифт лежит рядом, но раскладка всё равно устаканивается на кадр позже:
+  // померить раньше — значит запустить колесо не из той точки
+  var ready = (document.fonts && document.fonts.ready) || Promise.resolve();
+  ready.then(function () { requestAnimationFrame(arm); }).catch(function () { arm(); });
+})();
+
+/* Пока кнопки первого экрана на виду, нижняя панель повторяла бы их
+   слово в слово. Она уезжает вниз и возвращается, когда кнопки ушли.
+   Без скрипта панель просто видна всегда — действие остаётся под рукой. */
+(function () {
+  if (!('IntersectionObserver' in window)) return;
+
+  var zones = [document.querySelector('.hero__act'), document.querySelector('#priehat')]
+                .filter(Boolean);
+  if (!zones.length) return;
+
+  var root = document.documentElement, seen = new Set();
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { e.isIntersecting ? seen.add(e.target) : seen.delete(e.target); });
+    root.classList.toggle('lead-on-screen', seen.size > 0);
+  }, { rootMargin: '0px 0px -12% 0px' });
+
+  zones.forEach(function (z) { io.observe(z); });
+})();
+</script>
+</body>
+</html>
