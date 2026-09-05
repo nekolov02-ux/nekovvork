@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<!-- Класс cat включает кошачий декор: ушки на кнопках звонка, лапки в
+     первом экране и след лап у финального призыва. Убрать класс — декор
+     исчезает целиком; ушки и след не занимают места вовсе, лапки в первом
+     экране освобождают свои ~36px, и первый экран становится короче.
+     Ничего не переезжает и не ломается. Форма этих элементов черновая:
+     её дорабатывает отдельный дизайн-раунд. -->
+<html lang="ru" class="cat">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мурмур — кофейня на Ленина, 55 в Альметьевске</title>
+<meta name="description" content="Мурмур — кофейня в центре Альметьевска, ул. Ленина, 55. Зерно обжарщика «Ботаника», своя выпечка, завтраки весь день, можно с питомцами. 5,0 при 528 оценках на Яндекс.Картах.">
+<meta name="theme-color" content="#F6EFE4">
+<meta property="og:title" content="Мурмур — кофейня на Ленина, 55">
+<meta property="og:description" content="528 человек поставили этому месту пятёрку. Зерно «Ботаники», своя выпечка, можно с питомцами. Альметьевск, ул. Ленина, 55.">
+<meta property="og:type" content="restaurant.restaurant">
+<meta property="og:locale" content="ru_RU">
+<!-- ЗАГЛУШКА: когда у кофейни появится свой домен — поменять og:url и og:image.
+     Относительный путь мессенджеры не понимают, здесь нужен полный адрес. -->
+<meta property="og:url" content="https://nekovvork.ru/murmur/">
+<meta property="og:image" content="https://nekovvork.ru/murmur/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Зал кофейни Мурмур: тёплый свет круглого светильника, деревянный стол, цветы">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23A54E34'/%3E%3Cpath d='M8 20.5c0-4 2.2-6.4 4.6-6.4 1.7 0 2.6 1 3.4 1 .8 0 1.7-1 3.4-1 2.4 0 4.6 2.4 4.6 6.4' fill='none' stroke='%23F6EFE4' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+
+<link rel="preload" as="font" type="font/woff2" href="fonts/vollkorn-cyrillic.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/golos-cyrillic.woff2" crossorigin>
+<!-- Условия предзагрузки повторяют <picture> в первом экране слово в слово:
+     иначе браузер скачает один кадр, а покажет другой. -->
+<link rel="preload" as="image" href="img/hall-mob-800.webp" imagesrcset="img/hall-mob-800.webp 800w, img/hall-mob-1200.webp 1200w" imagesizes="100vw" media="(max-width:759px)" fetchpriority="high">
+<link rel="preload" as="image" href="img/hall-1100.webp" imagesrcset="img/hall-1100.webp 1100w, img/hall-1800.webp 1800w, img/hall-2400.webp 2400w" imagesizes="52vw" media="(min-width:760px)" fetchpriority="high">
+
+<style>
+/* Шрифты лежат рядом с файлом, а не на чужом CDN: страница обязана
+   открываться одинаково в любой сети и на любом хостинге. */
+@font-face{
+  font-family:'Vollkorn'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/vollkorn-cyrillic.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Vollkorn'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/vollkorn-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face{
+  font-family:'Golos Text'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/golos-cyrillic.woff2') format('woff2');
+  unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face{
+  font-family:'Golos Text'; font-style:normal; font-weight:400 900; font-display:swap;
+  src:url('fonts/golos-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Мурмур — мир «Доказательство первым», структурная редакция
+
+   Порядок страницы ведёт от дела к чувству: сначала оценка, факты и
+   телефон, затем меню, затем зал, и только потом отзывы. Звонок живёт
+   в одной липкой панели наверху и не повторяется по телу страницы.
+   Терракота — обожжённая глина, крем — бумага, какао — чернила.
+   ══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* Материал */
+  --cream:     #F6EFE4;  /* бумага, основной фон */
+  --cream-2:   #EFE4D3;  /* приподнятая поверхность: меню, отзывы */
+  --milk:      #FCF8F1;  /* поле карточки внутри тёплой зоны */
+  --clay:      #A54E34;  /* терракота — главный акцент */
+  --clay-deep: #8B3F27;  /* терракота под текст на креме */
+  --brick:     #5E2E1E;  /* тёмная обожжённая глина: ground призыва */
+  --cocoa:     #33241C;  /* чернила: весь основной текст */
+  --cocoa-2:   #6A5344;  /* вторичный текст — тёплый, никогда не серый */
+  --cocoa-3:   #7A6250;  /* третичный: даты, подписи, источник */
+  --gold:      #B9832F;  /* звёзды рейтинга */
+  --rule:      #33241C1f;/* линейка на креме */
+
+  /* Ритм */
+  --gutter:    clamp(1.15rem, 4.6vw, 4rem);
+  --container: 1240px;
+  --section:   clamp(3.9rem, 8.4vw, 7.5rem);
+  --bar-h:     clamp(56px, 8vw, 66px);
+
+  /* Скругления в духе дивана: чем крупнее объект, тем мягче угол */
+  --r-sm:  10px;
+  --r-lg:  30px;
+  --r-xl:  clamp(26px, 4vw, 46px);
+  --r-pill: 999px;
+
+  /* Тень всегда со смещением и мягким размытием: подушка лежит,
+     а не светится. */
+  --sh-card: 0 2px 4px -2px rgb(51 36 28 / .10), 0 14px 30px -20px rgb(51 36 28 / .34);
+  --sh-lift: 0 6px 14px -6px rgb(51 36 28 / .16), 0 30px 56px -34px rgb(51 36 28 / .44);
+  --sh-bar:  0 1px 0 rgb(51 36 28 / .10), 0 10px 24px -18px rgb(51 36 28 / .40);
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: light;
+}
+
+/* ── Поверхности, которые рисует браузер ────────────────────────────
+   Выделение, каретка, полоса прокрутки и кольцо фокуса приходят с
+   заводскими цветами, не принадлежащими ни одному дизайну. Здесь они
+   часть мира. */
+::selection{ background:var(--clay); color:var(--cream); text-shadow:none; }
+:root{ scrollbar-color:var(--clay) var(--cream-2); scrollbar-width:thin; }
+::-webkit-scrollbar{ width:12px; height:12px; }
+::-webkit-scrollbar-track{ background:var(--cream-2); }
+::-webkit-scrollbar-thumb{ background:#C2795E; border-radius:var(--r-pill); border:3px solid var(--cream-2); }
+::-webkit-scrollbar-thumb:hover{ background:var(--clay); }
+:focus-visible{ outline:3px solid var(--clay); outline-offset:3px; border-radius:var(--r-sm); }
+input, textarea{ caret-color:var(--clay); }
+
+/* Если гость попросил систему уменьшить движение — страница слушается
+   целиком, а не только там, где нам самим было удобно. */
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+*, *::before, *::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; scroll-padding-top:calc(var(--bar-h) + 1rem); }
+body{
+  margin:0; background:var(--cream); color:var(--cocoa);
+  font-family:'Golos Text','Segoe UI',system-ui,sans-serif;
+  font-size:clamp(1rem, .96rem + .18vw, 1.09rem);
+  line-height:1.62; font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3{ margin:0; font-weight:400; text-wrap:balance; }
+p{ margin:0; text-wrap:pretty; }
+a{ color:inherit; }
+ul,ol{ margin:0; padding:0; list-style:none; }
+img{ display:block; max-width:100%; }
+figure{ margin:0; }
+
+.wrap{ width:100%; max-width:var(--container); margin-inline:auto; padding-inline:var(--gutter); }
+.vh{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+
+/* ── Типографика ──────────────────────────────────────────────────── */
+.display{
+  font-family:'Vollkorn',Georgia,'Times New Roman',serif; font-weight:600;
+  /* Ширина задаёт размер, высота окна его ограничивает: у телефона
+     лёжа всего 390px высоты, и заголовок не должен съедать оценку. */
+  font-size:min(clamp(2.7rem, 10vw, 5rem), 14vh);
+  line-height:.97; letter-spacing:-.021em;
+}
+.h2{
+  font-family:'Vollkorn',Georgia,serif; font-weight:600;
+  font-size:clamp(1.95rem, 1.35rem + 2.5vw, 3.3rem);
+  line-height:1.02; letter-spacing:-.019em;
+}
+.h3{
+  font-family:'Vollkorn',Georgia,serif; font-weight:600;
+  font-size:clamp(1.2rem, 1.05rem + .6vw, 1.5rem);
+  line-height:1.14; letter-spacing:-.014em;
+}
+.lede{
+  font-size:clamp(1.06rem, 1rem + .38vw, 1.28rem);
+  line-height:1.55; color:var(--cocoa-2); max-width:52ch;
+}
+.num{ font-variant-numeric:tabular-nums; }
+
+/* ── Кнопки ─────────────────────────────────────────────────────── */
+.btn{
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:.6rem;
+  font-family:'Golos Text',system-ui,sans-serif; font-weight:600;
+  font-size:clamp(1rem, .96rem + .2vw, 1.09rem); line-height:1;
+  padding:1.02rem 1.55rem; min-height:52px;
+  border:2px solid transparent; border-radius:var(--r-pill);
+  text-decoration:none; cursor:pointer;
+  transition:transform .18s var(--ease), background-color .18s var(--ease),
+             color .18s var(--ease), border-color .18s var(--ease),
+             box-shadow .18s var(--ease);
+}
+.btn svg{ width:1.12em; height:1.12em; flex:none; }
+.btn-primary{ background:var(--clay); color:var(--cream); border-color:var(--clay); box-shadow:var(--sh-card); }
+.btn-ghost{ background:transparent; color:var(--cocoa); border-color:#33241c33; }
+.btn-light{ background:var(--cream); color:var(--brick); border-color:var(--cream); box-shadow:var(--sh-card); }
+.btn-sm{ padding:.66rem 1.05rem; min-height:44px; font-size:.96rem; }
+@media (hover:hover){
+  .btn-primary:hover{ background:var(--clay-deep); border-color:var(--clay-deep); transform:translateY(-2px); box-shadow:var(--sh-lift); }
+  .btn-ghost:hover{ background:var(--cocoa); color:var(--cream); border-color:var(--cocoa); transform:translateY(-2px); }
+  .btn-light:hover{ background:var(--milk); border-color:var(--milk); transform:translateY(-2px); box-shadow:var(--sh-lift); }
+}
+.btn:active{ transform:translateY(0); }
+
+/* ── Кошачий декор ──────────────────────────────────────────────────
+   Всё, что относится к теме «мурмур», собрано здесь и включается одним
+   классом cat на <html>. Черновой уровень: форма ушек и след лап будут
+   переработаны в дизайн-раунде, разметка под них уже стоит. */
+.cat .ears::before, .cat .ears::after{
+  content:""; position:absolute; top:-8px; width:0; height:0;
+  border-left:10px solid transparent; border-right:10px solid transparent;
+  border-bottom:13px solid currentColor; opacity:.9; pointer-events:none;
+}
+.cat .btn-primary.ears::before, .cat .btn-primary.ears::after{ border-bottom-color:var(--clay); }
+.cat .btn-light.ears::before, .cat .btn-light.ears::after{ border-bottom-color:var(--cream); }
+.cat .ears::before{ left:15%; transform:rotate(-15deg); }
+.cat .ears::after{ right:15%; transform:rotate(15deg); }
+.cat .btn-primary.ears:hover::before, .cat .btn-primary.ears:hover::after{ border-bottom-color:var(--clay-deep); }
+
+.paws{ display:none; }
+.cat .paws{
+  display:flex; gap:.55rem; align-items:center;
+  margin-top:1rem; color:var(--clay); opacity:.34;
+}
+.cat .paws svg{ width:20px; height:20px; }
+.cat .paws svg:nth-child(2){ transform:translateY(7px) rotate(9deg); }
+.cat .paws svg:nth-child(3){ transform:translateY(-3px) rotate(-7deg); }
+
+/* ── Липкая панель: единственный звонок, который всегда на экране ────
+   Раньше кнопка «Позвонить» повторялась четыре раза по телу страницы.
+   Теперь она одна и не уезжает при прокрутке, а рядом с ней живёт
+   рабочий статус — он же закрывает требование «часы на первом экране». */
+.bar{
+  position:sticky; top:0; z-index:30;
+  background:#f6efe4f2; backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule); box-shadow:var(--sh-bar);
+}
+.bar-in{
+  display:flex; align-items:center; gap:clamp(.5rem,2vw,1.2rem);
+  min-height:var(--bar-h); padding-block:.5rem;
+}
+.mark{
+  font-family:'Vollkorn',Georgia,serif; font-weight:700;
+  font-size:clamp(1.05rem,3.4vw,1.3rem); letter-spacing:-.02em;
+  text-decoration:none; display:inline-flex; align-items:center; gap:.45rem;
+  flex:none;
+}
+.mark-dot{ width:.58rem; height:.58rem; border-radius:var(--r-pill); background:var(--clay); flex:none; }
+.bar-status{
+  display:inline-flex; align-items:center; gap:.45rem;
+  font-size:clamp(.82rem,2.5vw,.95rem); font-weight:600; color:var(--cocoa-2);
+  font-variant-numeric:tabular-nums; min-width:0;
+}
+.bar-status .dot{ width:.5rem; height:.5rem; border-radius:var(--r-pill); background:var(--cocoa-3); flex:none; }
+.bar-status.is-open .dot{ background:#3F7D4E; }
+.bar-status.is-shut .dot{ background:var(--clay); }
+.bar-status b{ font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar .btn{ margin-left:auto; flex:none; }
+@media (max-width:479px){
+  .bar .btn{ padding-inline:1rem; }
+  .bar .btn span{ display:none; }
+}
+
+/* ── Первый экран ───────────────────────────────────────────────────
+   Порядок на телефоне: адрес → имя → оценка → приметы места → телефон.
+   Оценка стоит выше фотографии намеренно: она, а не снимок, должна
+   выиграть первые три секунды. */
+.hero{ padding:clamp(1.5rem,3.6vw,2.8rem) 0 var(--section); }
+.hero-grid{ display:grid; gap:clamp(1.9rem,4.4vw,3.4rem); align-items:start; }
+@media (min-width:760px){
+  .hero-grid{ grid-template-columns:minmax(0,1fr) minmax(0,.92fr); gap:clamp(2rem,4vw,4rem); align-items:center; }
+}
+.hero-place{ font-size:.95rem; font-weight:600; color:var(--clay-deep); margin-bottom:.8rem; }
+.hero h1{ margin-bottom:clamp(.95rem,2.2vw,1.35rem); }
+.hero h1 .quiet{
+  display:block; font-size:.3em; font-weight:400; color:var(--cocoa-2);
+  letter-spacing:0; line-height:1.5; margin-top:.8rem;
+  font-family:'Golos Text',system-ui,sans-serif; max-width:30ch;
+}
+
+.rate{
+  display:grid; grid-template-columns:auto 1fr; align-items:center;
+  gap:clamp(.9rem,2.6vw,1.4rem);
+  background:var(--cream-2); border-radius:var(--r-xl);
+  padding:clamp(1.05rem,3vw,1.5rem) clamp(1.15rem,3.4vw,1.7rem);
+  box-shadow:var(--sh-card); margin-bottom:clamp(1.1rem,2.6vw,1.5rem);
+}
+.rate-score{
+  font-family:'Vollkorn',Georgia,serif; font-weight:900;
+  font-size:clamp(3.5rem, 3rem + 5.6vw, 5.6rem);
+  line-height:.82; letter-spacing:-.045em; color:var(--clay-deep);
+  font-variant-numeric:tabular-nums;
+}
+.rate-of{ display:block; font-size:.24em; font-weight:600; color:var(--cocoa-3); letter-spacing:.02em; line-height:1; margin-top:.5em; font-family:'Golos Text',system-ui,sans-serif; }
+.rate-stars{ font-size:clamp(1.05rem,3.4vw,1.4rem); display:block; margin-bottom:.5rem; }
+.rate-count{ font-weight:700; font-size:clamp(1.06rem,.98rem + .5vw,1.32rem); line-height:1.24; display:block; }
+.rate-src{ display:block; margin-top:.34rem; font-size:.86rem; line-height:1.4; color:var(--cocoa-3); }
+.rate-src a{ color:inherit; text-decoration:underline; text-underline-offset:.18em; text-decoration-thickness:1px; text-decoration-color:#7a625080; }
+@media (hover:hover){ .rate-src a:hover{ color:var(--clay-deep); text-decoration-color:currentColor; } }
+
+.stars{ display:inline-flex; gap:.16em; color:var(--gold); }
+.stars svg{ width:1em; height:1em; display:block; }
+.stars.sm{ font-size:.92rem; }
+
+/* Приметы места. Раньше эти факты лежали одной таблицей-простынёй в
+   конце страницы, где их никто не читал. Теперь те, что решают «зайти
+   или нет», стоят в первом экране, а остальные — рядом с меню. */
+.flags{ display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:clamp(1.1rem,2.6vw,1.5rem); }
+.flags li{
+  display:inline-flex; align-items:center; gap:.45rem;
+  background:var(--milk); border:1px solid var(--rule);
+  border-radius:var(--r-pill); padding:.46rem .85rem;
+  font-size:.9rem; font-weight:500; line-height:1.25;
+}
+.flags svg{ width:1.05em; height:1.05em; flex:none; color:var(--clay-deep); }
+.flags .lead{ background:var(--clay); border-color:var(--clay); color:var(--cream); font-weight:600; }
+.flags .lead svg{ color:var(--cream); }
+
+.hero-tel{
+  display:inline-flex; align-items:center; gap:.55rem;
+  font-family:'Vollkorn',Georgia,serif; font-weight:700;
+  font-size:clamp(1.5rem, 1.15rem + 1.7vw, 2.05rem);
+  letter-spacing:-.02em; text-decoration:none; color:var(--cocoa);
+  padding:.4rem .1rem; min-height:52px;
+  border-bottom:2px solid var(--clay);
+  transition:color .18s var(--ease), border-color .18s var(--ease);
+  font-variant-numeric:tabular-nums;
+}
+.hero-tel svg{ width:.72em; height:.72em; color:var(--clay); flex:none; }
+@media (hover:hover){ .hero-tel:hover{ color:var(--clay-deep); border-bottom-color:var(--clay-deep); } }
+
+.hero-shot{ position:relative; }
+.hero-shot img{ width:100%; height:auto; border-radius:var(--r-xl); box-shadow:var(--sh-card); }
+.hero-quote{
+  background:var(--milk); border-radius:var(--r-lg);
+  padding:clamp(1rem,2.6vw,1.3rem) clamp(1.1rem,2.8vw,1.45rem);
+  box-shadow:var(--sh-lift); margin:-2.6rem 0 0 0;
+  position:relative; width:min(100%,25rem);
+}
+@media (min-width:760px){
+  .hero-quote{ position:absolute; left:-1.4rem; bottom:-1.7rem; margin:0; width:min(88%,23rem); }
+}
+.hero-quote p{ font-size:1rem; line-height:1.5; }
+.hero-quote footer{ margin-top:.6rem; font-size:.85rem; color:var(--cocoa-3); display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.who{ font-weight:600; color:var(--cocoa-2); }
+
+/* Телефон лёжа — 844px ширины и 390px высоты: по ширине он выглядит как
+   ноутбук и получает двухколоночный первый экран, а по высоте оценка
+   уходит под сгиб. Поэтому первый экран сжимается по высоте окна. */
+@media (max-height:620px){
+  :root{ --bar-h:48px; }
+  .hero{ padding-top:.5rem; padding-bottom:clamp(2rem,5vw,3rem); }
+  .hero-grid{ gap:clamp(1.2rem,3vw,2rem); }
+  .hero-place{ font-size:.84rem; margin-bottom:.35rem; }
+  .display{ font-size:min(clamp(2.1rem, 6vw, 3rem), 11.5vh); }
+  .hero h1{ margin-bottom:.55rem; }
+  .hero h1 .quiet{ margin-top:.4rem; font-size:.88rem; max-width:38ch; }
+  .rate{ gap:.8rem; padding:.6rem .8rem; border-radius:var(--r-lg); margin-bottom:.6rem; }
+  .rate-score{ font-size:min(2.4rem, 10vh); }
+  .rate-of{ font-size:.26em; margin-top:.35em; }
+  .rate-stars{ font-size:.85rem; margin-bottom:.2rem; }
+  /* Перенос строки нужен узкой колонке телефона стоя; лёжа места по
+     ширине хватает, и лишняя строка стоит здесь дороже. */
+  .rate-count{ font-size:.9rem; }
+  .rate-count br{ display:none; }
+  .rate-src{ font-size:.72rem; margin-top:.18rem; }
+  .flags{ gap:.4rem; margin-bottom:.6rem; }
+  .flags li{ padding:.34rem .7rem; font-size:.82rem; }
+  .hero-tel{ font-size:1.22rem; min-height:44px; }
+  .cat .paws{ display:none; }
+}
+
+/* ── Меню ─────────────────────────────────────────────────────────── */
+.menu{ padding:var(--section) 0; background:var(--cream-2); }
+.sec-head{ max-width:52ch; margin-bottom:clamp(1.6rem,3.4vw,2.4rem); }
+.sec-head .h2{ margin-bottom:.7rem; }
+.menu-grid{ display:grid; gap:clamp(1.6rem,4vw,3rem); align-items:start; }
+@media (min-width:900px){ .menu-grid{ grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr); } }
+
+/* Категории не мешаются в одном ряду: у каждой свой заголовок и своя
+   линейка, поэтому «эспрессо» и «круассан» больше не соседи. */
+.group + .group{ margin-top:clamp(1.7rem,3.6vw,2.5rem); }
+.group-h{
+  font-family:'Vollkorn',Georgia,serif; font-weight:600; font-size:1.06rem;
+  letter-spacing:.01em; color:var(--clay-deep); margin-bottom:.5rem;
+}
+.price{ border-top:1px solid var(--rule); }
+.price li{
+  display:grid; grid-template-columns:1fr auto; align-items:baseline;
+  gap:.4rem 1rem; padding:clamp(.78rem,2vw,1rem) 0;
+  border-bottom:1px solid var(--rule);
+}
+.price-name{ font-family:'Vollkorn',Georgia,serif; font-weight:600; font-size:clamp(1.12rem,1.04rem + .45vw,1.34rem); letter-spacing:-.012em; line-height:1.2; }
+.price-note{ display:block; font-family:'Golos Text',system-ui,sans-serif; font-weight:400; font-size:.88rem; color:var(--cocoa-2); letter-spacing:0; margin-top:.26rem; line-height:1.45; }
+.price-val{ font-family:'Vollkorn',Georgia,serif; font-weight:700; font-size:clamp(1.12rem,1.04rem + .45vw,1.34rem); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.price-ask{ font-family:'Golos Text',system-ui,sans-serif; font-weight:500; font-size:.9rem; color:var(--cocoa-3); white-space:nowrap; }
+/* Пояснение к «цене по запросу»: без него строка читается как забытая
+   заглушка, а не как осознанное решение. */
+.group-why{ margin-top:.7rem; font-size:.9rem; color:var(--cocoa-2); max-width:46ch; line-height:1.5; }
+
+.side{ display:grid; gap:clamp(1.2rem,2.6vw,1.6rem); }
+.shelf{ background:var(--milk); border-radius:var(--r-xl); overflow:hidden; box-shadow:var(--sh-card); }
+.shelf img{ width:100%; height:auto; }
+.shelf-in{ padding:clamp(1.2rem,3vw,1.6rem); }
+.shelf .h3{ margin-bottom:.5rem; }
+.shelf p{ font-size:.96rem; color:var(--cocoa-2); line-height:1.55; }
+.shelf-row{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-top:1rem; padding-top:.9rem; border-top:1px solid var(--rule); }
+.shelf-row .price-val{ color:var(--clay-deep); }
+
+/* Оставшиеся приметы места — те, что не попали в первый экран. Стоят
+   рядом с меню, потому что относятся к кухне и к тому, как здесь сидят. */
+.notes{ margin-top:clamp(1.8rem,3.6vw,2.6rem); padding-top:clamp(1.2rem,2.6vw,1.6rem); border-top:1px solid var(--rule); display:grid; gap:.55rem clamp(1.4rem,4vw,3rem); }
+@media (min-width:700px){ .notes{ grid-template-columns:repeat(3,1fr); } }
+.notes div{ display:grid; grid-template-columns:auto 1fr; gap:.55rem; align-items:baseline; }
+.notes dt{ font-family:'Vollkorn',Georgia,serif; font-weight:600; font-size:1rem; white-space:nowrap; }
+.notes dd{ margin:0; color:var(--cocoa-2); font-size:.95rem; line-height:1.45; }
+
+/* ── Зал ──────────────────────────────────────────────────────────── */
+.rooms{ padding:var(--section) 0; }
+.rooms-grid{ display:grid; gap:clamp(.85rem,2vw,1.25rem); grid-template-columns:1fr; }
+@media (min-width:640px){ .rooms-grid{ grid-template-columns:1fr 1fr; } }
+@media (min-width:1040px){ .rooms-grid{ grid-template-columns:repeat(4,1fr); } }
+.shot{ border-radius:var(--r-lg); overflow:hidden; box-shadow:var(--sh-card); background:var(--cream-2); }
+.shot img{ width:100%; height:auto; aspect-ratio:4/3; object-fit:cover; }
+.shot figcaption{ padding:.8rem clamp(1rem,2.4vw,1.15rem) .95rem; font-size:.9rem; color:var(--cocoa-2); line-height:1.45; }
+
+/* ── Отзывы ───────────────────────────────────────────────────────── */
+.voices{ padding:var(--section) 0; background:var(--cream-2); }
+.voices-head{ display:grid; gap:clamp(1rem,2.4vw,1.6rem); margin-bottom:clamp(1.4rem,3vw,2rem); }
+@media (min-width:820px){ .voices-head{ grid-template-columns:minmax(0,1fr) auto; align-items:end; } }
+.voices-head .h2{ margin-bottom:.7rem; }
+.trio{ display:grid; gap:clamp(.85rem,2vw,1.25rem); grid-template-columns:1fr; }
+@media (min-width:700px){ .trio{ grid-template-columns:repeat(3,1fr); } }
+.voice{
+  border-radius:var(--r-lg); background:var(--milk);
+  padding:clamp(1.15rem,2.6vw,1.45rem); box-shadow:var(--sh-card);
+  display:flex; flex-direction:column;
+}
+.voice p{ font-size:1rem; line-height:1.55; }
+.voice footer{
+  margin-top:auto; padding-top:.8rem; border-top:1px solid var(--rule);
+  display:flex; align-items:center; gap:.55rem; flex-wrap:wrap;
+  font-size:.85rem; color:var(--cocoa-3);
+}
+.voice footer .stars{ margin-top:.8rem; }
+
+/* ── Как дойти ────────────────────────────────────────────────────── */
+.find{ padding:var(--section) 0; }
+.find-grid{ display:grid; gap:clamp(1.6rem,4vw,3rem); align-items:start; }
+@media (min-width:820px){ .find-grid{ grid-template-columns:minmax(0,1fr) minmax(0,.8fr); } }
+.find-addr{
+  font-family:'Vollkorn',Georgia,serif; font-weight:700;
+  font-size:clamp(2rem,1.4rem + 2.6vw,3.1rem); line-height:1.03;
+  letter-spacing:-.024em; margin-bottom:.6rem;
+}
+.find-near{ color:var(--cocoa-2); max-width:40ch; margin-bottom:clamp(1.1rem,2.4vw,1.5rem); }
+
+.others{ background:var(--cream-2); border-radius:var(--r-xl); padding:clamp(1.3rem,3vw,1.8rem); box-shadow:var(--sh-card); }
+.others .h3{ margin-bottom:.5rem; }
+.others-lede{ color:var(--cocoa-2); font-size:.94rem; line-height:1.5; margin-bottom:1.1rem; }
+.others-list li{ display:flex; align-items:baseline; gap:.6rem; padding:.6rem 0; border-bottom:1px solid var(--rule); font-size:1rem; }
+.others-list li:last-child{ border-bottom:0; padding-bottom:0; }
+.others-list .this{ font-weight:600; }
+.others-tag{ margin-left:auto; font-size:.8rem; color:var(--clay-deep); font-weight:600; white-space:nowrap; }
+
+/* ── Финальный призыв ───────────────────────────────────────────────
+   Тёмная глина вместо крема: раньше кнопка в этой зоне сливалась с
+   фоном. След лап рядом — черновой уровень кошачьей темы. */
+.call{ padding:clamp(3rem,7vw,5rem) 0; background:var(--brick); color:var(--cream); }
+.call-in{ display:grid; gap:clamp(1.2rem,3vw,2rem); align-items:center; }
+@media (min-width:760px){ .call-in{ grid-template-columns:minmax(0,1fr) auto; } }
+.call .h2{ margin-bottom:.6rem; }
+.call p{ color:#f6efe4cf; max-width:44ch; font-size:clamp(1.02rem,.98rem + .3vw,1.16rem); line-height:1.55; }
+.call-act{ display:flex; flex-direction:column; gap:.9rem; align-items:flex-start; }
+@media (min-width:760px){ .call-act{ align-items:flex-end; } }
+.call-tel{
+  font-family:'Vollkorn',Georgia,serif; font-weight:700;
+  font-size:clamp(1.35rem,1.1rem + 1.2vw,1.8rem); letter-spacing:-.02em;
+  color:#f6efe4cf; text-decoration:none; font-variant-numeric:tabular-nums;
+  border-bottom:2px solid #f6efe440; padding-bottom:.15rem;
+  transition:color .18s var(--ease), border-color .18s var(--ease);
+}
+@media (hover:hover){ .call-tel:hover{ color:var(--cream); border-bottom-color:var(--cream); } }
+
+.paw-trail{ display:none; }
+.cat .paw-trail{
+  display:flex; gap:.85rem; align-items:center; margin-top:1.4rem;
+  color:var(--cream); pointer-events:none;
+}
+.cat .paw-trail svg{ width:22px; height:22px; opacity:.16; animation:pawstep 4.4s var(--ease) infinite; }
+.cat .paw-trail svg:nth-child(even){ transform:translateY(9px) rotate(8deg); }
+@keyframes pawstep{ 0%,68%,100%{ opacity:.14 } 14%{ opacity:.8 } }
+
+/* ── Подвал ───────────────────────────────────────────────────────── */
+.foot{ background:var(--cocoa); color:var(--cream); padding:clamp(2.4rem,5vw,3.6rem) 0 clamp(1.8rem,3.6vw,2.6rem); }
+.foot-grid{ display:grid; gap:clamp(1.4rem,3vw,2.4rem); }
+@media (min-width:700px){ .foot-grid{ grid-template-columns:repeat(3,1fr); } }
+.foot-h{ font-family:'Vollkorn',Georgia,serif; font-weight:600; font-size:1.02rem; margin-bottom:.55rem; color:#f6efe4; }
+.foot p, .foot li{ color:#f6efe4bd; font-size:.97rem; line-height:1.6; }
+.foot-tel{
+  font-family:'Vollkorn',Georgia,serif; font-weight:700;
+  font-size:clamp(1.3rem,1.1rem + .9vw,1.6rem); letter-spacing:-.02em;
+  color:var(--cream); text-decoration:none; font-variant-numeric:tabular-nums;
+  border-bottom:2px solid #f6efe440; display:inline-block; padding-bottom:.12rem;
+  transition:border-color .18s var(--ease);
+}
+@media (hover:hover){ .foot-tel:hover{ border-bottom-color:var(--cream); } }
+.foot-hours li{ display:flex; justify-content:space-between; gap:1rem; font-variant-numeric:tabular-nums; }
+.foot-bar{
+  margin-top:clamp(1.8rem,3.6vw,2.6rem); padding-top:1.2rem; border-top:1px solid #f6efe42e;
+  display:flex; flex-wrap:wrap; gap:.6rem 1.4rem; align-items:center;
+  font-size:.89rem; color:#f6efe4a3;
+}
+.foot-bar a{ color:var(--cream); text-decoration:underline; text-underline-offset:.2em; text-decoration-thickness:1px; text-decoration-color:#f6efe466; }
+@media (hover:hover){ .foot-bar a:hover{ text-decoration-color:currentColor; } }
+.foot-purr{ margin-left:auto; font-family:'Vollkorn',Georgia,serif; font-style:italic; color:#f6efe4a3; }
+
+@media print{ .bar{ position:static; } .paw-trail, .paws{ display:none; } body{ background:#fff; } }
+</style>
+</head>
+<body>
+
+<svg class="vh" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <!-- Знаки-данные (звезда, лапа) — сплошной заливкой. Иконки
+       управления (телефон, метка, wi-fi, солнце, часы) — штрихом 2px
+       с круглыми концами. Два словаря не смешиваются внутри элемента. -->
+  <symbol id="i-star" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 2.6l2.76 5.98 6.54.79-4.83 4.47 1.28 6.46L12 17.06l-5.75 3.24 1.28-6.46L2.7 9.37l6.54-.79L12 2.6z"/>
+  </symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 13.4c2.9 0 5.3 2 5.3 4.2 0 1.5-1.2 2.5-2.8 2.5-1 0-1.7-.4-2.5-.4s-1.5.4-2.5.4c-1.6 0-2.8-1-2.8-2.5 0-2.2 2.4-4.2 5.3-4.2Z"/>
+    <ellipse fill="currentColor" cx="7.1" cy="9.4" rx="2.1" ry="2.6"/>
+    <ellipse fill="currentColor" cx="16.9" cy="9.4" rx="2.1" ry="2.6"/>
+    <ellipse fill="currentColor" cx="11" cy="5.9" rx="1.9" ry="2.4"/>
+    <ellipse fill="currentColor" cx="17.4" cy="4.8" rx="1.6" ry="2" transform="rotate(18 17.4 4.8)"/>
+  </symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          d="M6.4 3h3l1.5 4.4-2 1.5a13 13 0 0 0 6.2 6.2l1.5-2L21 14.6v3a2.5 2.5 0 0 1-2.7 2.5A16.9 16.9 0 0 1 3.5 5.7 2.5 2.5 0 0 1 6 3Z"/>
+  </symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11Z"/>
+    <circle fill="none" stroke="currentColor" stroke-width="2" cx="12" cy="10" r="2.6"/>
+  </symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M2.6 8.6a14.6 14.6 0 0 1 18.8 0"/>
+      <path d="M6 12.4a9.4 9.4 0 0 1 12 0"/>
+      <path d="M9.4 16.2a4.2 4.2 0 0 1 5.2 0"/>
+      <path d="M12 20h.01"/>
+    </g>
+  </symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2.6v2.2M12 19.2v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"/>
+    </g>
+  </symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24">
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 6.8V12l3.4 2"/>
+    </g>
+  </symbol>
+</svg>
+
+<!-- ── Липкая панель ───────────────────────────────────────────────── -->
+<header class="bar">
+  <div class="wrap bar-in">
+    <a class="mark" href="#top"><span class="mark-dot" aria-hidden="true"></span>Мурмур</a>
+
+    <p class="bar-status" id="status">
+      <span class="dot" aria-hidden="true"></span>
+      <!-- Без JavaScript здесь остаётся короткая правда о часах;
+           скрипт заменяет её на живой статус «Открыто до 22:00». -->
+      <b id="statusText" class="num">07:45–22:00</b>
+      <span class="vh">Пн–Пт с 07:45, Сб–Вс с 09:00, закрываемся в 22:00</span>
+    </p>
+
+    <a class="btn btn-primary btn-sm ears" href="tel:+79274964446">
+      <svg aria-hidden="true"><use href="#i-phone"/></svg><span>Позвонить</span>
+      <span class="vh">Позвонить в кофейню</span>
+    </a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ── Первый экран ─────────────────────────────────────────────── -->
+  <section class="hero" aria-labelledby="h1">
+    <div class="wrap hero-grid">
+
+      <div>
+        <p class="hero-place">Альметьевск · улица Ленина, 55</p>
+        <h1 class="display" id="h1">Мурмур<span class="quiet">Кофейня, где тихо, тепло и пахнет свежим зерном.</span></h1>
+
+        <div class="rate">
+          <p class="rate-score num">5,0<span class="rate-of">из 5</span></p>
+          <p>
+            <span class="stars rate-stars" role="img" aria-label="Оценка 5 из 5">
+              <svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg>
+            </span>
+            <span class="rate-count num">528 человек поставили<br>этому месту пятёрку</span>
+            <!-- Цифра привязана к площадке и к дате намеренно: у 2ГИС по
+                 этому же адресу другая оценка, и заявление без источника
+                 опровергается за два клика. -->
+            <span class="rate-src">
+              <a href="https://yandex.ru/maps/org/murmur_kofe/87776196986/" target="_blank" rel="noopener">Яндекс.Карты</a>,
+              сентябрь 2026 · и награда 2ГИС
+            </span>
+          </p>
+        </div>
+
+        <ul class="flags">
+          <li class="lead"><svg aria-hidden="true"><use href="#i-paw"/></svg>Можно с собакой и другими питомцами</li>
+          <li><svg aria-hidden="true"><use href="#i-clock"/></svg>Завтраки весь день</li>
+          <li><svg aria-hidden="true"><use href="#i-wifi"/></svg>Wi-Fi и розетки</li>
+          <li><svg aria-hidden="true"><use href="#i-sun"/></svg>Летом веранда</li>
+        </ul>
+
+        <!-- Номер оставлен текстом, но обозначен как действие: иконка,
+             подчёркивание терракотой и высота нажатия как у кнопки. -->
+        <a class="hero-tel num" href="tel:+79274964446">
+          <svg aria-hidden="true"><use href="#i-phone"/></svg>+7 (927) 496-44-46
+        </a>
+
+        <div class="paws" aria-hidden="true">
+          <svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg>
+        </div>
+      </div>
+
+      <figure class="hero-shot">
+        <picture>
+          <source media="(max-width:759px)" type="image/webp"
+                  srcset="img/hall-mob-800.webp 800w, img/hall-mob-1200.webp 1200w" sizes="100vw">
+          <source type="image/webp"
+                  srcset="img/hall-1100.webp 1100w, img/hall-1800.webp 1800w, img/hall-2400.webp 2400w" sizes="52vw">
+          <img src="img/hall-1100.webp" width="1100" height="619" fetchpriority="high"
+               alt="Зал кофейни: круглый светильник над деревянным столом, круглое зеркало на стене, цветы в вазе">
+        </picture>
+        <!-- ЗАГЛУШКА: временный снимок со стока. Заменить на фотографию
+             своего зала — это самая заметная разница между «похоже на
+             кофейню» и «это та самая кофейня». -->
+        <blockquote class="hero-quote">
+          <p>«Ехали из Уфы в Москву, сделали крюк 30 км. Кофе этого стоил.»</p>
+          <footer>
+            <span class="stars sm" role="img" aria-label="5 из 5">
+              <svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg>
+            </span>
+            <span class="who">Андрей И.</span> · август 2025
+          </footer>
+        </blockquote>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ── Меню ─────────────────────────────────────────────────────── -->
+  <section class="menu" id="menu" aria-labelledby="menuH">
+    <div class="wrap">
+
+      <div class="sec-head">
+        <h2 class="h2" id="menuH">Меню</h2>
+        <p class="lede">Самое заказываемое. Полная карта — на доске у стойки, она длиннее.</p>
+      </div>
+
+      <div class="menu-grid">
+        <div>
+          <!-- ЗАГЛУШКА: цены взяты из карточки заведения. Яндекс на ту же
+               дату показывает капучино 149 ₽ и латте 169 ₽ — расходятся.
+               Проверить всю колонку до публикации: неверная цена на сайте
+               это спор с гостем у кассы. -->
+          <div class="group">
+            <h3 class="group-h">На эспрессо</h3>
+            <ul class="price">
+              <li>
+                <span class="price-name">Эспрессо<span class="price-note">Зерно обжарщика «Ботаника»</span></span>
+                <span class="price-val num">130 ₽</span>
+              </li>
+              <li>
+                <span class="price-name">Американо<span class="price-note">Самый частый заказ навынос</span></span>
+                <span class="price-val num">179 ₽</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <h3 class="group-h">Молочный кофе</h3>
+            <ul class="price">
+              <li><span class="price-name">Капучино</span><span class="price-ask">по объёму</span></li>
+              <li><span class="price-name">Латте</span><span class="price-ask">по объёму</span></li>
+              <li><span class="price-name">Раф</span><span class="price-ask">по объёму</span></li>
+              <li><span class="price-name">Флэт уайт</span><span class="price-ask">по объёму</span></li>
+            </ul>
+            <!-- ЗАГЛУШКА: либо проставить цены по объёмам, либо подтвердить
+                 эту формулировку — сейчас она объясняет, почему цены нет. -->
+            <p class="group-why">Цена зависит от объёма и вида молока — на альтернативном она другая. Точные цифры на доске у стойки, бариста подскажет.</p>
+          </div>
+
+          <div class="group">
+            <h3 class="group-h">Матча, какао, чай</h3>
+            <ul class="price">
+              <li>
+                <span class="price-name">Матча латте<span class="price-note">Церемониальная матча</span></span>
+                <span class="price-val num">209 ₽</span>
+              </li>
+              <li>
+                <span class="price-name">Какао<span class="price-note">На молоке, без кофеина</span></span>
+                <span class="price-val num">179 ₽</span>
+              </li>
+              <li>
+                <span class="price-name">Облепиховый чай, смузи, кофейный глинтвейн<span class="price-note">Сезонное, меняется в течение года</span></span>
+                <span class="price-ask">по сезону</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="side">
+          <!-- Еда вынесена из списка напитков: круассан рядом с эспрессо
+               путал категорию раздела. -->
+          <aside class="shelf">
+            <div class="shelf-in">
+              <h3 class="h3">К кофе</h3>
+              <p>Круассаны, сэндвичи, десерты и торты. Выпечка своя, пекут каждый день, поэтому список меняется к вечеру.</p>
+              <p class="shelf-row">
+                <span class="price-name">Витрина дня</span>
+                <span class="price-ask">спросите у стойки</span>
+              </p>
+            </div>
+          </aside>
+
+          <!-- 649 ₽ стоит не рядом с эспрессо за 130 ₽ намеренно: это
+               упаковка домой, а не напиток. -->
+          <aside class="shelf">
+            <img src="img/beans-520.webp" srcset="img/beans-520.webp 520w, img/beans-900.webp 900w"
+                 sizes="(min-width:900px) 28vw, 92vw" width="520" height="520" loading="lazy" decoding="async"
+                 alt="Обжаренные кофейные зёрна в белой миске крупным планом">
+            <div class="shelf-in">
+              <h3 class="h3">Забрать домой</h3>
+              <p>То же зерно, что и в чашке. Мелем под ваш способ заваривания — скажите, воронка или турка.</p>
+              <p class="shelf-row">
+                <span class="price-name">Кофе в зёрнах<span class="price-note">Упаковка</span></span>
+                <span class="price-val num">649 ₽</span>
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <dl class="notes">
+        <div><dt>Зерно</dt><dd>Обжарщик «Ботаника»</dd></div>
+        <div><dt>Выпечка</dt><dd>Своя, каждый день</dd></div>
+        <div><dt>Навынос</dt><dd>И доставка по городу</dd></div>
+      </dl>
+
+    </div>
+  </section>
+
+  <!-- ── Зал ──────────────────────────────────────────────────────── -->
+  <section class="rooms" aria-labelledby="roomsH">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="roomsH">Где сидеть</h2>
+        <p class="lede">Мягкие диваны, удобные стулья и места у окон. Здесь работают с ноутбуком, читают и просто сидят подолгу.</p>
+      </div>
+
+      <div class="rooms-grid">
+        <figure class="shot">
+          <img src="img/sofa-640.webp" srcset="img/sofa-640.webp 640w, img/sofa-1200.webp 1200w"
+               sizes="(min-width:1040px) 24vw, (min-width:640px) 48vw, 92vw"
+               width="640" height="480" loading="lazy" decoding="async"
+               alt="Длинная мягкая скамья вдоль стены со светлыми подушками и высокими столиками">
+          <figcaption>Мягкая скамья вдоль стены — можно сесть надолго.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="img/corner-640.webp" srcset="img/corner-640.webp 640w, img/corner-1200.webp 1200w"
+               sizes="(min-width:1040px) 24vw, (min-width:640px) 48vw, 92vw"
+               width="640" height="800" loading="lazy" decoding="async"
+               alt="Плетёное кресло с подушкой в углу зала, вокруг комнатные растения, на столике стакан">
+          <figcaption>Угол с креслом и растениями — сюда садятся с книгой.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="img/window-640.webp" srcset="img/window-640.webp 640w, img/window-1200.webp 1200w"
+               sizes="(min-width:1040px) 24vw, (min-width:640px) 48vw, 92vw"
+               width="640" height="480" loading="lazy" decoding="async"
+               alt="Столы у высокого окна, дневной свет, две подвесные лампы над столешницей">
+          <figcaption>Места у окна — те самые, про которые пишут чаще всего.</figcaption>
+        </figure>
+        <figure class="shot">
+          <img src="img/soft-640.webp" srcset="img/soft-640.webp 640w, img/soft-1200.webp 1200w"
+               sizes="(min-width:1040px) 24vw, (min-width:640px) 48vw, 92vw"
+               width="640" height="480" loading="lazy" decoding="async"
+               alt="Светлый зал: мягкий диван у стены, круглые деревянные столы, лёгкие занавески на окне">
+          <figcaption>Светлая половина зала: диван, круглые столы, занавес.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Отзывы ───────────────────────────────────────────────────── -->
+  <section class="voices" id="voices" aria-labelledby="voicesH">
+    <div class="wrap">
+
+      <div class="voices-head">
+        <div>
+          <h2 class="h2" id="voicesH">Настоящие отзывы,<br>с именами и датами</h2>
+          <p class="lede">Три из пятисот двадцати восьми — взяты с карточки на Яндекс.Картах как есть, сокращены только длинные.</p>
+        </div>
+        <a class="btn btn-ghost" href="https://yandex.ru/maps/org/murmur_kofe/87776196986/reviews/" target="_blank" rel="noopener">
+          <svg aria-hidden="true"><use href="#i-star"/></svg>Все 528 на Яндекс.Картах
+        </a>
+      </div>
+
+      <div class="trio">
+        <blockquote class="voice">
+          <p>«Лучшая кофейня в Альметьевске, даже в Казани такой нет. Обслуживающий персонал — очень милые девушки.»</p>
+          <footer>
+            <span class="stars sm" role="img" aria-label="5 из 5"><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg></span>
+            <span class="who">Ди</span> · апрель 2025
+          </footer>
+        </blockquote>
+
+        <blockquote class="voice">
+          <p>«Моя любимая кофейня! Очень уютно и тепло, по-домашнему))) Кофе на любой вкус и цвет.»</p>
+          <footer>
+            <span class="stars sm" role="img" aria-label="5 из 5"><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg></span>
+            <span class="who">Алсу Г.</span> · январь 2025
+          </footer>
+        </blockquote>
+
+        <blockquote class="voice">
+          <p>«Отличное место! Это одно из немногих дог-френдли мест в нашем городе!»</p>
+          <footer>
+            <span class="stars sm" role="img" aria-label="5 из 5"><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg><svg aria-hidden="true"><use href="#i-star"/></svg></span>
+            <span class="who">Милена З.</span> · август 2024
+          </footer>
+        </blockquote>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Как дойти ────────────────────────────────────────────────── -->
+  <section class="find" id="find" aria-labelledby="findH">
+    <div class="wrap">
+      <h2 class="vh" id="findH">Как дойти</h2>
+
+      <div class="find-grid">
+        <div>
+          <p class="find-addr">Улица Ленина, 55</p>
+          <p class="find-near">Центр города, рядом с культурным центром «Әлмәт». Открываемся в 07:45 — раньше всех на улице.</p>
+          <a class="btn btn-ghost" href="https://yandex.ru/maps/org/murmur_kofe/87776196986/" target="_blank" rel="noopener">
+            <svg aria-hidden="true"><use href="#i-pin"/></svg>Открыть на карте
+          </a>
+        </div>
+
+        <aside class="others">
+          <h3 class="h3">Ещё пять Мурмуров в городе</h3>
+          <!-- Список справочный: у каждой точки своя карточка, свой
+               телефон и свой график. Кликабельность — задача следующего
+               раунда, поэтому здесь это прямо сказано словами. -->
+          <p class="others-lede">Справочный список, без ссылок: у каждой точки свои часы, телефон и своя оценка. Пятёрка выше относится к Ленина, 55.</p>
+          <ul class="others-list">
+            <li class="this">Ленина, 55 <span class="others-tag">эта страница</span></li>
+            <li>Ленина, 24</li>
+            <li>Кирова, 13Б</li>
+            <li>Проспект Строителей, 20А</li>
+            <li>Проспект Габдуллы Тукая, 31В</li>
+            <li>Монтажная, 2/3</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Финальный призыв ─────────────────────────────────────────── -->
+  <section class="call" aria-labelledby="callH">
+    <div class="wrap call-in">
+      <div>
+        <!-- ЗАГЛУШКА: подтвердить, что столики действительно бронируются
+             по телефону — факт взят из карточки 2ГИС. Про торты на заказ
+             здесь ничего не сказано: это не подтверждено. -->
+        <h2 class="h2" id="callH">Столик или<br>заказ навынос</h2>
+        <p>Позвоните — забронируем место, расскажем, что сегодня на витрине, и соберём заказ с собой.</p>
+        <div class="paw-trail" aria-hidden="true">
+          <svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg><svg><use href="#i-paw"/></svg>
+        </div>
+      </div>
+      <div class="call-act">
+        <a class="btn btn-light ears" href="tel:+79274964446">
+          <svg aria-hidden="true"><use href="#i-phone"/></svg>Позвонить
+        </a>
+        <a class="call-tel num" href="tel:+79274964446">+7 (927) 496-44-46</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <p class="foot-h">Мурмур Кофе</p>
+        <a class="foot-tel num" href="tel:+79274964446">+7 (927) 496-44-46</a>
+        <p style="margin-top:.7rem">Улица Ленина, 55</p>
+      </div>
+      <div>
+        <p class="foot-h">Режим работы</p>
+        <ul class="foot-hours num">
+          <li><span>Пн–Пт</span><span>07:45 — 22:00</span></li>
+          <li><span>Сб–Вс</span><span>09:00 — 22:00</span></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot-h">Где смотреть</p>
+        <p><a href="https://yandex.ru/maps/org/murmur_kofe/87776196986/" target="_blank" rel="noopener">Карточка на Яндекс.Картах</a></p>
+        <!-- ЗАГЛУШКА: подставить ссылку на инстаграм кофейни, если он ведётся. -->
+      </div>
+    </div>
+    <div class="foot-bar">
+      <span>Сайт сделан nekovvork group</span>
+      <span class="foot-purr">мурмур — это звук места, в котором хорошо</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Живой рабочий статус в липкой панели.
+
+   Единственный скрипт на странице. Он ничего не собирает и никуда не
+   ходит: считает по таблице часов, открыто ли сейчас, и пишет это
+   рядом с кнопкой звонка. Время берётся по часовому поясу кофейни,
+   а не гостя — иначе человек из другого региона увидит неправду.
+   Без скрипта в панели остаётся короткая строка «07:45–22:00». */
+(function () {
+  'use strict';
+
+  var el = document.getElementById('statusText');
+  var box = document.getElementById('status');
+  if (!el || !box || !window.Intl) return;
+
+  /* Воскресенье первое, дальше по порядку. Часы дробные: 7.75 — 07:45. */
+  var HOURS = [[9, 22], [7.75, 22], [7.75, 22], [7.75, 22], [7.75, 22], [7.75, 22], [9, 22]];
+  var DAYS = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  var TZ = 'Europe/Moscow';
+
+  function venueNow() {
+    try {
+      var parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: TZ, hour12: false, weekday: 'short', hour: '2-digit', minute: '2-digit'
+      }).formatToParts(new Date());
+      var got = {};
+      for (var i = 0; i < parts.length; i++) got[parts[i].type] = parts[i].value;
+      var day = DAYS[got.weekday];
+      if (day === undefined) return null;
+      return { day: day, t: parseInt(got.hour, 10) + parseInt(got.minute, 10) / 60 };
+    } catch (e) { return null; }
+  }
+
+  function hhmm(v) {
+    var h = Math.floor(v), m = Math.round((v - h) * 60);
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
+  function render() {
+    var now = venueNow();
+    if (!now) return;
+    var today = HOURS[now.day];
+    box.classList.remove('is-open', 'is-shut');
+
+    if (now.t >= today[0] && now.t < today[1]) {
+      var left = today[1] - now.t;
+      box.classList.add('is-open');
+      el.textContent = left <= 1
+        ? 'Закрываемся в ' + hhmm(today[1])
+        : 'Открыто до ' + hhmm(today[1]);
+      return;
+    }
+
+    /* Ищем ближайшее открытие: сегодня позже или в один из следующих дней. */
+    box.classList.add('is-shut');
+    if (now.t < today[0]) {
+      el.textContent = 'Закрыто · откроем в ' + hhmm(today[0]);
+      return;
+    }
+    var next = HOURS[(now.day + 1) % 7];
+    el.textContent = 'Закрыто · завтра с ' + hhmm(next[0]);
+  }
+
+  render();
+  /* Раз в минуту: статус должен меняться, пока страница открыта. */
+  setInterval(render, 60000);
+})();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CafeOrCoffeeShop",
+  "name": "Мурмур Кофе",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "улица Ленина, 55",
+    "addressLocality": "Альметьевск",
+    "addressRegion": "Республика Татарстан",
+    "postalCode": "423450",
+    "addressCountry": "RU"
+  },
+  "telephone": "+7-927-496-44-46",
+  "servesCuisine": "Кофе, выпечка, завтраки",
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "07:45", "closes": "22:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday","Sunday"], "opens": "09:00", "closes": "22:00" }
+  ]
+}
+</script>
+<!-- Оценка намеренно не размечена в schema.org: поисковики считают
+     самостоятельно проставленный aggregateRating на собственном сайте
+     нарушением и снимают сниппет целиком. Цифра живёт в тексте
+     страницы со ссылкой на источник — это честнее и безопаснее. -->
+
+</body>
+</html>
