@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Активная и пассивная безопасность</title>
+<style>
+@font-face{font-family:Jost;src:url(fonts/jost-cyr.woff2) format("woff2");font-weight:100 900;unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:Jost;src:url(fonts/jost-lat.woff2) format("woff2");font-weight:100 900;unicode-range:U+0000-00FF,U+2000-206F}
+:root{--bg:#0B0C0D;--t:#ECEEEF;--m:#A9AEB2;--a:#F0A93B;--p:#EE3A2A}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font-family:Jost,sans-serif}
+::selection{background:var(--t);color:var(--bg)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--t);outline-offset:3px}
+#f{position:relative;overflow:hidden;height:100vh;min-height:560px}
+#sc{position:absolute;right:0;bottom:0;width:min(100vw,118vh);aspect-ratio:4/3;transition:transform 1.2s cubic-bezier(.16,1,.3,1),opacity .8s;transform-origin:50% 60%}
+#f.o #sc{transform:scale(1.04);opacity:.14}
+#ph{position:absolute;inset:0;width:100%;height:100%;display:block}
+#ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#hd{position:absolute;top:clamp(20px,4vh,44px);left:clamp(20px,4vw,64px);z-index:2;transition:opacity .4s}
+#hd h1{font-weight:300;font-size:clamp(32px,5vw,76px);line-height:1.02;letter-spacing:-.015em;margin:0;text-wrap:balance}
+#hd #sub{margin:8px 0 0;font-size:clamp(15px,1.25vw,20px);line-height:1.4;color:var(--m);max-width:30em}
+#f.o #hd,#f.o #fl{opacity:0;pointer-events:none}
+.m{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;display:grid;place-items:center;transition:opacity .4s;--c:var(--a)}
+.m.p{--c:var(--p)}
+.m i{display:block;width:13px;height:13px;border-radius:50%;background:var(--c);box-shadow:0 2px 8px rgba(0,0,0,.7);transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.m.a i{background:none;border:3.5px solid var(--c)}
+.m::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid var(--c);animation:pu 2.8s cubic-bezier(.16,1,.3,1) infinite}
+@keyframes pu{0%{transform:scale(.5);opacity:.9}100%{transform:scale(1.4);opacity:0}}
+.m:hover i{transform:scale(1.6)}
+.m b{position:absolute;left:50%;bottom:36px;transform:translate(-50%,6px);white-space:nowrap;font-weight:400;font-size:15px;background:#0B0C0DEB;padding:4px 10px;opacity:0;transition:.3s;pointer-events:none}
+.m:hover b,.m:focus-visible b{opacity:1;transform:translate(-50%,0)}
+.m.d{opacity:.1;pointer-events:none}
+#fl{position:absolute;left:clamp(20px,4vw,64px);bottom:clamp(14px,3vh,32px);display:flex;gap:24px;font-size:16px;z-index:2;transition:opacity .4s}
+#fl button{color:var(--m);padding:5px 0;border-bottom:1px solid transparent;transition:color .25s}
+#fl button:hover{color:var(--t)}#fl button.on{color:var(--t);border-color:var(--t)}
+#pc{position:absolute;left:0;top:0;transform-origin:0 0;background-repeat:no-repeat;box-shadow:0 30px 70px rgba(0,0,0,.8);visibility:hidden;z-index:3;filter:contrast(1.08)}
+#dt{position:absolute;right:clamp(20px,6vw,110px);top:0;bottom:0;width:min(38vw,520px);display:flex;flex-direction:column;justify-content:center;visibility:hidden;z-index:3}
+#dt h2{font-weight:300;font-size:clamp(30px,3.6vw,56px);line-height:1.05;margin:0 0 10px;text-wrap:balance}
+#ct{font-size:clamp(14px,1.1vw,17px);margin-bottom:18px}
+#ds{font-size:clamp(16px,1.35vw,21px);line-height:1.5;margin:0 0 18px}
+#fc{font-size:clamp(14px,1.1vw,17px);line-height:1.45;margin:0;color:var(--m);padding-top:14px;border-top:1px solid #ffffff2b}
+#x{position:absolute;top:22px;right:22px;width:44px;height:44px;display:grid;place-items:center;border:1px solid #ffffff40;border-radius:50%;z-index:4;visibility:hidden;transition:background .25s}
+#x:hover{background:#ffffff1f}
+@media (max-width:760px){#dt{left:20px;right:20px;width:auto;top:auto;bottom:24px;justify-content:flex-end}}
+@media (prefers-reduced-motion:reduce){.m::before{animation:none}}
+
+#sc{width:min(100vw,135vh);bottom:-6vh}
+#ph,#sd{position:absolute;inset:0;width:100%;height:100%;display:block}
+#sl{position:absolute;top:0;bottom:0;left:0;width:1px;background:var(--t);box-shadow:0 0 18px 2px #ffffff80;opacity:0;pointer-events:none}
+#fd{position:absolute;inset:0 auto 0 0;width:8%;background:linear-gradient(90deg,var(--bg),transparent);pointer-events:none;opacity:0;transition:opacity .8s .4s}
+#f.c #fd{opacity:1}
+#bar{position:absolute;left:clamp(20px,4vw,64px);bottom:clamp(14px,3vh,32px);display:flex;align-items:center;flex-wrap:wrap;gap:12px 36px;z-index:2;transition:opacity .4s}
+#fl{position:static;opacity:0;pointer-events:none}
+#f.c #fl{opacity:1;pointer-events:auto;transition:opacity .5s 1s}
+#vw{display:flex;border:1px solid #ffffff40;border-radius:999px;padding:3px}
+#vw button{padding:8px 20px;border-radius:999px;font-size:16px;color:var(--m);transition:background .35s,color .35s}
+#vw button.on{background:var(--t);color:var(--bg)}
+#f.o #bar,#f.o #lic{opacity:0;pointer-events:none}
+.m{opacity:0;pointer-events:none}
+#f.c .m{opacity:1;pointer-events:auto}
+#f.c .m.d{opacity:.1;pointer-events:none}
+#lic{position:absolute;right:clamp(20px,3vw,48px);bottom:10px;font-size:12px;color:var(--m);z-index:2;transition:opacity .4s;text-align:right}
+#cr{display:block;margin-top:12px;font-size:12px;color:var(--m)}
+@media (max-width:760px){#lic{left:20px;bottom:4px;text-align:left}#bar{bottom:44px}}
+
+#ph{position:absolute;inset:0;width:100%;height:100%;display:block}
+#sd{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--bg);pointer-events:none}
+#au{margin:14px 0 0;font-weight:400;font-size:clamp(17px,1.5vw,24px);line-height:1.3}
+.m{width:48px;height:48px;margin:-24px 0 0 -24px}
+.m i,.m.a i{width:22px;height:22px;background:var(--c);border:3px solid #fff;box-shadow:0 0 0 2px #0B0C0D,0 4px 14px rgba(0,0,0,.8)}
+.m.a i{background:radial-gradient(circle,#fff 0 3px,var(--c) 3.5px)}
+.m::before{inset:4px;border:2px solid #fff;animation:pu 2.2s cubic-bezier(.16,1,.3,1) infinite}
+@keyframes pu{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.5);opacity:0}}
+.m:hover i{transform:scale(1.3)}
+.m b{bottom:44px}
+@media (max-width:760px){.m{width:36px;height:36px;margin:-18px 0 0 -18px}.m i,.m.a i{width:16px;height:16px;border-width:2px}}
+</style></head><body>
+<main id="f">
+<div id="sc">
+<img id="ph" src="img/razrez.jpg" alt="Настоящий Porsche 911, распиленный вдоль: салон, порог, переднее колесо с красным суппортом">
+<div id="fd"></div>
+<div id="ms"></div>
+</div>
+<img id="sd" src="img/sboku.jpg" alt="Porsche 911 Turbo сбоку, целая машина"><i id="sl"></i>
+<header id="hd"><h1>Активная и пассивная<br>безопасность</h1><p id="au">Выполнила: Каменская Ульяна, 214</p><p id="sub">Porsche 911 снаружи. Откройте разрез, чтобы увидеть, что защищает людей внутри.</p></header>
+<div id="bar"><div id="vw"><button id="v1" class="on">Вид сбоку</button><button id="v2">Разрез</button></div><div id="fl"><button class="on" data-k="">Все системы</button><button data-k="a">Активная</button><button data-k="p">Пассивная</button></div></div>
+<div id="pc" role="img"></div>
+<section id="dt" role="dialog" aria-modal="true" aria-labelledby="tt"><h2 id="tt" class="r"></h2><div id="ct" class="r"></div><p id="ds" class="r"></p><p id="fc" class="r"></p><small id="cr" class="r"></small></section>
+<button id="x" aria-label="Вернуть деталь на место"><svg width="18" height="18" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.6"><path d="M2 2l14 14M16 2L2 16"/></svg></button>
+</main>
+<script>
+const U='img/razrez.jpg',CH='Снимок разреза: M. Schönherr, CC BY-SA 3.0';
+const D=[
+{k:'a',x:58.7,y:68.9,r:[52,56,23,31],t:'Тормоза и ABS',d:'Датчики замечают, что колесо вот-вот заблокируется, и ABS быстро сбрасывает и снова поднимает давление. Машина тормозит и при этом слушается руля.',f:'Можно давить на педаль изо всех сил и одновременно объезжать препятствие.'},
+{k:'a',x:70.8,y:52,img:'abs',t:'Стабилизация PSM',d:'Porsche Stability Management сравнивает поворот руля с реальным движением машины. Если начинается занос, система подтормаживает отдельные колёса и снижает тягу.',f:'На снимке не PSM, а её предок: блок управления Bosch ABS-2 1978 года.',c:'Фото: Tomwsulcer, CC0'},
+{k:'a',x:66,y:61.5,r:[58,56,18,20],t:'Шины',d:'Единственная связь машины с дорогой. Вся электроника работает только в пределах сцепления, которое дают шины.',f:'С изношенным протектором на мокрой дороге не поможет никакая система.'},
+{k:'a',x:94,y:52,img:'fara',t:'Фары',d:'Ночью безопасность начинается со зрения. Чем раньше водитель заметит препятствие, тем больше у него времени на реакцию.',f:'На разрезе фара не попала в кадр, поэтому показана на целой машине.',c:'Фото: Brian Snelson, CC BY 2.0'},
+{k:'a',x:64.6,y:50,r:[57,45,14,15],t:'Подвеска',d:'Пружина и амортизатор прижимают колесо к дороге на неровностях. Колесо, которое не касается асфальта, не может ни тормозить, ни поворачивать.',f:'На разрезе видна стойка передней подвески с пружиной.'},
+{k:'a',x:90.8,y:66,img:'radar',t:'Адаптивный круиз и радар',d:'Радар в передней части следит за дистанцией до машины впереди. Система сама притормаживает и предупреждает об опасном сближении.',f:'У этой машины 2002 года радара нет: такая система относится к современным 911. На снимке радарный датчик другого производителя.',c:'Фото: Amyreed444, CC BY-SA 4.0'},
+{k:'p',x:49,y:38,img:'podushka',t:'Подушки безопасности',d:'Датчик удара подаёт сигнал, запал запускает реакцию, и газ наполняет подушку примерно за 30 миллисекунд. Она смягчает удар головы и груди и работает вместе с ремнём.',f:'На снимке сработавшие подушки в другой машине, Renault Laguna.',c:'Фото: David Perez, CC BY-SA 3.0'},
+{k:'p',x:42.5,y:36,img:'dver',t:'Боковая защита POSIP',d:'Porsche Side Impact Protection сочетает защитные балки в дверях с боковыми подушками. При ударе сбоку сминаться почти нечему, поэтому такая защита особенно важна.',f:'Система появилась в 911 вместе с поколением 996, к которому относится и эта машина.',c:'Фото: Brian Snelson, CC BY 2.0'},
+{k:'p',x:26,y:33,img:'remen',t:'Ремень и преднатяжитель',d:'При ударе преднатяжитель мгновенно выбирает слабину ремня, а ограничитель усилия затем снижает нагрузку на грудь.',f:'Подушка рассчитана на работу с пристёгнутым ремнём. На снимке ремень другой машины.',c:'Фото: Zunter, CC BY-SA 4.0'},
+{k:'p',x:32,y:30,r:[28,26,14,26],t:'Подголовник',d:'Удерживает голову при ударе сзади и не даёт шее резко запрокинуться. Так снижается риск хлыстовой травмы.',f:'Верх подголовника должен быть примерно на уровне макушки.'},
+{k:'p',x:35,y:65.5,r:[14,58,38,18],t:'Силовой каркас',d:'Пороги и стойки образуют жёсткую клетку вокруг людей. На разрезе видно, как устроены эти силовые элементы.',f:'Задача каркаса: сохранить пространство вокруг человека при ударе.'},
+{k:'p',x:84,y:71,img:'crash',t:'Зоны деформации',d:'Передняя и задняя части кузова сминаются по заданной схеме и забирают энергию удара, прежде чем она дойдёт до салона.',f:'На снимке краш-тест другой машины, Hyundai Tucson: передок смят, салон цел.',c:'Фото: Brady Holt, CC BY 3.0'}];
+const $=i=>document.getElementById(i),f=$('f'),sc=$('sc'),pc=$('pc'),dt=$('dt'),x=$('x'),sd=$('sd'),sl=$('sl');
+const col=k=>k=='a'?'var(--a)':'var(--p)',E='cubic-bezier(.16,1,.3,1)',Q='cubic-bezier(.7,0,.2,1)',rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let open=null,lastB=null,cut=false;
+D.forEach(p=>{const b=document.createElement('button');b.className='m '+p.k;b.style.left=p.x+'%';b.style.top=p.y+'%';b.dataset.k=p.k;b.setAttribute('aria-label',p.t);b.innerHTML='<i></i><b>'+p.t+'</b>';b.onclick=()=>go(p,b);b.tabIndex=-1;$('ms').append(b);p.b=b;if(p.img){p.im=new Image;p.im.src='img/parts/'+p.img+'.jpg'}});
+function view(c){if(c===cut||open)return;cut=c;$('v1').classList.toggle('on',!c);$('v2').classList.toggle('on',c);f.classList.toggle('c',c);$('sub').textContent=c?'Настоящий Porsche 911, распиленный вдоль. Выберите деталь на снимке.':'Porsche 911 снаружи. Откройте разрез, чтобы увидеть, что защищает людей внутри.';
+const a=c?[0,100]:[100,0],D1=rm?1:1500;sd.animate([{clipPath:`inset(0 0 0 ${a[0]}%)`},{clipPath:`inset(0 0 0 ${a[1]}%)`}],{duration:D1,easing:Q,fill:'both'});sl.animate([{left:a[0]+'%',opacity:1},{left:a[1]+'%',opacity:1,offset:.97},{left:a[1]+'%',opacity:0}],{duration:D1,easing:Q,fill:'both'});
+document.querySelectorAll('.m').forEach((m,i)=>{m.tabIndex=c?0:-1;m.style.transitionDelay=c?(rm?0:800+i*45)+'ms':'0ms'})}
+$('v1').onclick=()=>view(false);$('v2').onclick=()=>view(true);
+document.querySelectorAll('#fl button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#fl button').forEach(o=>o.classList.toggle('on',o===b));document.querySelectorAll('.m').forEach(m=>{m.style.transitionDelay='0ms';m.classList.toggle('d',!!b.dataset.k&&m.dataset.k!==b.dataset.k)})});
+function go(p,b){if(open)return;open=p;lastB=b;const F=f.getBoundingClientRect(),S=sc.getBoundingClientRect(),D2=dt.getBoundingClientRect(),narrow=F.width<=760,bw=narrow?F.width-40:D2.left-F.left-Math.max(40,F.width*.08),bh=narrow?F.height*.4:F.height*.72;let W,H,s,rx,ry,css;
+if(p.r){const[a,c,w,h]=p.r,rw=S.width*w/100,rh=S.height*h/100;s=Math.min(bw/rw,bh/rh);W=rw*s;H=rh*s;rx=S.left-F.left+S.width*a/100;ry=S.top-F.top+S.height*c/100;const bgW=S.width*s,bgH=S.height*s;css=`background-image:url("${U}");background-size:${bgW}px ${bgH}px;background-position:${-bgW*a/100}px ${-bgH*c/100}px`}
+else{const ar=(p.im.naturalWidth||4)/(p.im.naturalHeight||3);s=Math.min(bw/ar,bh);W=s*ar;H=s;const st=90;s=W/st;const m=p.b.getBoundingClientRect();rx=m.left-F.left+m.width/2-st/2;ry=m.top-F.top+m.height/2-(H/s)/2;css=`background-image:url("${p.im.src}");background-size:100% 100%`}
+const tx=narrow?(F.width-W)/2:Math.max(24,(D2.left-F.left-W)/2),ty=narrow?24:(F.height-H)/2;p.g={rx,ry,tx,ty,s};
+pc.style.cssText=`visibility:visible;width:${W}px;height:${H}px;${css}`;pc.setAttribute('aria-label',p.t);$('tt').textContent=p.t;$('ct').textContent=p.k=='a'?'Активная: не даёт аварии случиться':'Пассивная: спасает во время аварии';$('ct').style.color=col(p.k);$('ds').textContent=p.d;$('fc').textContent=p.f;$('cr').textContent=p.c||CH;
+dt.style.visibility='visible';x.style.visibility='visible';f.classList.add('o');
+pc.animate([{transform:`translate(${rx}px,${ry}px) scale(${1/s})`,opacity:p.r?1:0,offset:0},{transform:`translate(${rx-8}px,${ry-18}px) scale(${1.1/s})`,opacity:1,offset:.2},{transform:`translate(${tx}px,${ty}px) scale(1)`,opacity:1,offset:1}],{duration:rm?1:1300,easing:E,fill:'both'});
+document.querySelectorAll('.r').forEach((e,i)=>e.animate([{opacity:0,transform:'translateY(18px)',filter:'blur(6px)'},{opacity:1,transform:'none',filter:'blur(0)'}],{duration:rm?1:850,delay:rm?0:400+i*90,easing:E,fill:'both'}));x.focus({preventScroll:true})}
+function close(){if(!open)return;const{rx,ry,tx,ty,s}=open.g;document.querySelectorAll('.r').forEach(e=>{e.getAnimations().forEach(a=>a.cancel());e.animate([{opacity:1},{opacity:0}],{duration:rm?1:220,fill:'both'})});pc.getAnimations().forEach(a=>a.cancel());const a=pc.animate([{transform:`translate(${tx}px,${ty}px) scale(1)`,opacity:1},{transform:`translate(${rx}px,${ry}px) scale(${1/s})`,opacity:open.r?1:0}],{duration:rm?1:850,easing:Q,fill:'both'});f.classList.remove('o');a.onfinish=()=>{pc.style.visibility='hidden';dt.style.visibility='hidden';x.style.visibility='hidden';open=null;lastB&&lastB.focus({preventScroll:true})}}
+x.onclick=close;addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+</script></body></html>
