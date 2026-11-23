@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="radar-valuation-api" content="https://gift-radar-price.nekolov02.workers.dev">
+  <meta name="radar-api" content="https://gift.nekovvork.ru">
+  <meta name="radar-bot" content="gift_tg_robot">
+  <meta name="theme-color" content="#101210">
+  <title>Gift Radar — аналитика подарков</title>
+  <link rel="stylesheet" href="./styles.css?v=6">
+  <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script defer src="./flips.js?v=10"></script>
+  <script defer src="./app.js?v=10"></script>
+  <script defer src="./valuation.js?v=6"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <a class="brand" href="#market" aria-label="Gift Radar — рынок">
+        <span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Gift<span class="accent">Radar</span></span>
+      </a>
+      <nav id="nav" aria-label="Разделы">
+        <a href="#market"><span class="nav-icon" aria-hidden="true">▥</span>Рынок</a>
+        <a href="#signals"><span class="nav-icon" aria-hidden="true">↗</span>Связки</a>
+        <a href="#valuation"><span class="nav-icon" aria-hidden="true">◇</span>Оценка</a>
+        <a href="#deals"><span class="nav-icon" aria-hidden="true">♢</span>Сделки</a>
+        <a href="#mono"><span class="nav-icon" aria-hidden="true">◉</span>Монохром</a>
+        <a href="#analyst"><span class="nav-icon" aria-hidden="true">✦</span>Аналитик</a>
+        <a href="#saved"><span class="nav-icon" aria-hidden="true">☆</span>Избранное</a>
+      </nav>
+      <div class="rail-note"><span class="market-dot portals"></span> Portals <span class="market-dot mrkt"></span> MRKT</div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <a class="brand mobile-brand" href="#market"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span><span>Gift<span class="accent">Radar</span></span></a>
+        <div class="data-state" id="data-state">Подключение к потоку</div>
+        <div class="profile" id="profile" hidden></div>
+      </header>
+      <div class="content">
+        <div class="heading">
+          <div><h1 id="title">Рынок подарков</h1><p id="subtitle">Цены и продажи на Portals и MRKT</p></div>
+          <div class="periods" id="periods" role="group" aria-label="Период">
+            <button data-period="24h" type="button" aria-pressed="true">24 ч</button>
+            <button data-period="7d" type="button" aria-pressed="false">7 д</button>
+            <button data-period="30d" type="button" aria-pressed="false">30 д</button>
+          </div>
+        </div>
+        <div id="error" class="notice" role="status" hidden></div>
+        <section id="market" aria-labelledby="title">
+          <div class="stats" id="stats"></div>
+          <div class="panel chart-panel">
+            <div class="section-heading">
+              <div><h2>Оборот по площадкам</h2><p id="chart-period">Продажи за 24 часа</p></div>
+              <div class="legend"><span><i class="market-dot portals"></i>Portals</span><span><i class="market-dot mrkt"></i>MRKT</span></div>
+            </div>
+            <canvas id="chart" aria-label="Динамика оборота по площадкам" role="img"></canvas>
+          </div>
+          <div class="panel table-panel">
+            <div class="section-heading collections-heading">
+              <div><h2>Коллекции</h2><p>Сравнение минимальных цен</p></div>
+              <label class="search"><span aria-hidden="true">⌕</span><input id="search" placeholder="Поиск коллекции" aria-label="Поиск коллекции"></label>
+            </div>
+            <div id="collections" class="table-scroll"></div>
+          </div>
+        </section>
+        <section id="signals" aria-labelledby="title" hidden>
+          <div class="panel flip-console">
+            <div class="flip-overview">
+              <div>
+                <h2>Свежие лоты</h2>
+                <p>Сравниваем одинаковые коллекцию, модель и фон.</p>
+              </div>
+              <p id="signal-status" class="flip-status" role="status">Подключаемся к See.tg…</p>
+            </div>
+            <div class="flip-counts">
+              <div><span><i class="market-dot portals"></i> Portals</span><strong id="flip-portals-count">0</strong></div>
+              <div><span><i class="market-dot mrkt"></i> MRKT</span><strong id="flip-mrkt-count">0</strong></div>
+              <div><span>Подходящих связок</span><strong id="flip-matches">0</strong></div>
+            </div>
+            <form id="signal-form" class="flip-filters">
+              <label>Общий бюджет, TON<input name="budget" inputmode="decimal" value="10" required maxlength="20"></label>
+              <label>Расходы на перенос, TON<input name="transfer" inputmode="decimal" value="0,50" required maxlength="20"></label>
+              <label>Направление<select name="market"><option value="">Оба направления</option><option value="mrkt">MRKT → Portals</option><option value="portals">Portals → MRKT</option></select></label>
+              <button class="primary" type="submit">Применить фильтры</button>
+            </form>
+          </div>
+          <div id="signals-list" class="flip-results"></div>
+          <details class="flip-method">
+            <summary>Как считаются связки</summary>
+            <p>Для связки нужны три разных проданных аналога за семь дней с той же моделью и фоном. Последняя продажа должна быть за последние три дня. Ориентир берём по наименьшей из цены проверенного лота на второй площадке, цены последней продажи и нижнего квартиля продаж, затем вычитаем 5%.</p>
+            <p>Из ориентира вычитаем комиссию продажи, цену входа и перенос. Для вывода с Portals в перенос закладывается минимум 0,35 TON. Перед покупкой проверьте актуальную цену и доступность переноса.</p>
+            <p>Поток лотов и продаж <a href="https://kartoshka.free/#ws" target="_blank" rel="noopener noreferrer">See.tg</a>. Активность и цены обоих лотов проверяем перед показом.</p>
+          </details>
+        </section>
+        <section id="valuation" aria-labelledby="title" hidden>
+          <form class="panel valuation-form" id="valuation-form">
+            <label>Ссылка на подарок или его имя с номером
+              <input name="gift" type="text" required maxlength="180" autocomplete="off" placeholder="https://t.me/nft/ViceCream-51827">
+            </label>
+            <button class="primary" type="submit">Оценить подарок</button>
+          </form>
+          <p class="muted" id="valuation-status" role="status"></p>
+          <div id="valuation-result" aria-live="polite"></div>
+          <details class="flip-method">
+            <summary>Как рассчитывается цена</summary>
+            <p>Ищем завершённые продажи за 30 дней по той же модели. Сначала учитываем совпадение фона и узора, затем цвет и более широкую выборку модели. Для рекомендуемой цены берём 70% медианы и 30% последней используемой продажи. При трёх продажах и больше ограничиваем вклад последней цены средним диапазоном выборки.</p>
+            <p>Редкость берём из карточки Telegram. Совпадение цвета — по кадру модели на фоне. Денежная надбавка за редкость или монохром учитывается только через реальные продажи подходящих аналогов.</p>
+            <p>Для низких, круглых и узорных номеров сравниваем цены с обычными номерами. Поправка появляется, когда в каждой группе есть хотя бы три разных подарка.</p>
+            <p>Продажи из <a href="https://t.me/s/mrktnotification" target="_blank" rel="noopener noreferrer">@mrktnotification</a>. Поиск активных лотов через <a href="https://browse.tg" target="_blank" rel="noopener noreferrer">Browse.tg</a>. Изображения и палитры <a href="https://t.me/GiftChangesAPI" target="_blank" rel="noopener noreferrer">Gift Changes</a>.</p>
+          </details>
+        </section>
+        <section id="deals" aria-labelledby="title" hidden><div class="panel" id="deals-list"></div></section>
+        <section id="mono" aria-labelledby="title" hidden>
+          <form id="mono-form" class="panel filters">
+            <label>Бюджет до, TON<input name="budget" inputmode="decimal" value="10" required maxlength="20"></label>
+            <label>Площадка<select name="market"><option value="">Все площадки</option><option value="portals">Portals</option><option value="mrkt">MRKT</option></select></label>
+            <button class="primary" type="submit">Найти монохром</button>
+          </form>
+          <p id="mono-status" class="muted" role="status"></p>
+          <div class="panel" id="mono-list"></div>
+        </section>
+        <section id="analyst" aria-labelledby="title" hidden>
+          <div class="panel analyst-panel">
+            <form id="analysis-form">
+              <label for="question">Запрос по рынку</label>
+              <div class="analysis-input"><input id="question" required maxlength="500" placeholder="Найди монохром до 10 TON"><button class="primary" type="submit">Отправить</button></div>
+              <div id="suggestions" class="suggestions">
+                <button type="button">Монохром до 10 TON</button><button type="button">Подборка до 10 TON</button><button type="button">Самый дешёвый монохром</button>
+              </div>
+              <p id="ai-status" class="muted"></p>
+            </form>
+            <div id="answer" aria-live="polite"></div>
+          </div>
+        </section>
+        <section id="saved" aria-labelledby="title" hidden><div class="panel table-panel" id="saved-list"></div></section>
+      </div>
+    </main>
+  </div>
+  <dialog id="gift-card" aria-labelledby="gift-card-title">
+    <header class="gift-card-header">
+      <h2 id="gift-card-title"></h2>
+      <form method="dialog"><button type="submit" aria-label="Закрыть карточку" autofocus>×</button></form>
+    </header>
+    <div id="gift-card-body"></div>
+  </dialog>
+  <dialog id="detail" aria-labelledby="detail-title"><div id="detail-body"></div><form method="dialog"><button class="secondary">Закрыть</button></form></dialog>
+</body>
+</html>
