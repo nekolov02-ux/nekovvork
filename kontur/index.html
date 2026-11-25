@@ -1085,12 +1085,15 @@ function aiShow(result,mode,node){
   return href&&source&&labels[item.channel]?`<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${labels[item.channel]} · ${esc(item.contact)}</a>
   <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small></li>`:'';
  }).join('');
+ const coverage=(Array.isArray(result.coverage)?result.coverage:[]).map(pass=>
+  `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}</li>`).join('');
  const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&result.analysis&&Object.values(result.analysis).some(value=>typeof value==='string'&&value&&value!=='contacts'):result.comments;
  node.innerHTML=`<section class="sheet stack">
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
   ${mode==='owner'?`<div><strong>Прямой контакт владельца</strong>
   ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
-  ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}`:''}
+  ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
+  ${coverage?`<details><summary>Что проверил поиск</summary><ul class="ai-sources">${coverage}</ul></details>`:''}`:''}
   ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
   ${mode!=='owner'&&links?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
   ${mode==='analysis'&&!reviewable?'<p class="muted">Поиск не вернул достаточно данных с источниками.</p>':''}
@@ -1109,7 +1112,7 @@ async function aiStart(mode){
  if(mode!=='review'&&(!card||card.fixture))throw new Error('Анализ ИИ доступен для реальных заведений.');
  modal.aiPending=true;
  delete modal.aiResult;
- node.textContent=mode==='review'?'ИИ проверяет проект…':'ИИ ищет открытые источники…';
+ node.textContent=mode==='owner'?'Проверяем карту, сайт, соцсети и публикации…':mode==='review'?'ИИ проверяет проект…':'ИИ ищет открытые источники…';
  const venue=card?{name:card.name,city:card.city,address:card.address,category:card.category,site:card.site,map:workflow.yandexPlace(card.map_url)}:null;
  try{
   const result=await aiRequest(mode==='review'?{mode,brief:modal.brief}:{mode,venue});
