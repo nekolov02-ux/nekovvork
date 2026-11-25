@@ -1079,12 +1079,20 @@ function aiShow(result,mode,node){
  const own=result.owner;
  const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
   <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
+ const contactItems=(Array.isArray(result.venueContacts)?result.venueContacts:[]).map(item=>{
+  const href=safeLink(item.href,['https:','mailto:','tel:']), source=workflow.https(item.url);
+  const labels={phone:'Телефон',email:'Почта',telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте'};
+  return href&&source&&labels[item.channel]?`<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${labels[item.channel]} · ${esc(item.contact)}</a>
+  <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small></li>`:'';
+ }).join('');
  const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&result.analysis&&Object.values(result.analysis).some(value=>typeof value==='string'&&value&&value!=='contacts'):result.comments;
  node.innerHTML=`<section class="sheet stack">
-  ${result.summary?`<p>${esc(result.summary)}</p>`:''}
-  ${mode==='owner'?(candidate||'<p>Рабочий контакт владельца не подтверждён источниками.</p>'):''}
+  ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
+  ${mode==='owner'?`<div><strong>Прямой контакт владельца</strong>
+  ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
+  ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}`:''}
   ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
-  ${links?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
+  ${mode!=='owner'&&links?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
   ${mode==='analysis'&&!reviewable?'<p class="muted">Поиск не вернул достаточно данных с источниками.</p>':''}
   ${reviewable?btn({owner:'Подставить для проверки',analysis:'Заполнить черновик анализа',review:'Подставить рецензию'}[mode],'ai-apply','','data-v="'+mode+'"'):''}
  </section>`;
@@ -1429,10 +1437,10 @@ function modalView(m){
 }
 function ownerForm(c){
  const o=c.owner;
- const query=[c.name,c.city].filter(Boolean).map(value=>'"'+value.replaceAll('"','')+'"').join(' ');
+ const query=[c.name,c.city,c.address].filter(Boolean).map(value=>'"'+value.replaceAll('"','')+'"').join(' ');
  const lookup=term=>'https://www.google.com/search?q='+encodeURIComponent(query+' '+term);
  const contact=o?.channel==='email'?o.href.slice(7):o?.channel==='whatsapp'?'+'+o.href.split('/').at(-1):o?.channel==='telegram'?o.href:'';
- return `<p class="muted">${esc(c.name+' · '+c.city)}. Укажите публичный рабочий контакт, который источник связывает с владельцем. Номер заведения сам по себе этого не подтверждает.</p>
+ return `<p class="muted">${esc([c.name,c.city,c.address].filter(Boolean).join(' · '))}. Сохраните прямой рабочий контакт после проверки источника.</p>
  <div class="wrap"><a class="btn" href="${esc(lookup('владелец основатель'))}" target="_blank" rel="noopener noreferrer">Поиск владельца</a>
  <a class="btn" href="${esc(lookup('официальная страница контакты'))}" target="_blank" rel="noopener noreferrer">Сайт и контакты</a></div>
  ${c.fixture?'':aiControls('owner')}
