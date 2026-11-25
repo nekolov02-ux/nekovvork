@@ -281,6 +281,9 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .workflow-steps li.current{background:var(--soft);color:var(--menu-ink);border-color:var(--control-line);font-weight:750}
 .long-prompt{min-height:240px}
 .review-item{display:flex;align-items:flex-start;gap:9px}.review-item .pill{flex:none}
+.ai-comments{white-space:pre-wrap}
+.ai-sources{margin:.35rem 0 0;padding-inline-start:1.35rem;overflow-wrap:anywhere}
+.ai-sources li+li{margin-top:.4rem}
 
 </style>
 </head><body>
@@ -419,8 +422,8 @@ const workflow=(()=>{
   }:{title:d.title,reference:d.source||'HTML из редактора'};
   return [
    'Проведи независимую рецензию демосайта. Проверь рендер или HTML, если он приложен. Не считай результат проверенным без просмотра.',
-   prompt(card),
    'Текущий черновик\n'+JSON.stringify(data,null,2),
+   prompt(card),
    'Раздели результат на проверки фактов и источников, дизайна и сценария, мобильной доступности. Укажи, что подтвердилось, что исправить и что невозможно проверить по имеющимся данным.',
   ].join('\n\n');
  }
@@ -999,6 +1002,148 @@ const localApi=(()=>{
 </script>
 <script>
 'use strict';
+
+const defaultAiEndpoint = {
+ 'https://nekovvork.ru':'https://kontur-ai.nekolov02.workers.dev/ai',
+ 'http://127.0.0.1:8790':'http://127.0.0.1:8791/ai',
+}[location.origin]||'';
+const aiConfig = {
+ endpoint: defaultAiEndpoint,
+ code: '',
+};
+try {
+ aiConfig.endpoint=localStorage.getItem('kontur-ai-endpoint')||defaultAiEndpoint;
+ aiConfig.code=sessionStorage.getItem('kontur-ai-code')||'';
+}catch{}
+
+function aiEndpoint(value){
+ try{
+  const url=new URL(value);
+  const loopback=location.protocol==='http:'&&['127.0.0.1','localhost'].includes(location.hostname)&&
+   ['127.0.0.1','localhost'].includes(url.hostname);
+  if(url.username||url.password||url.search||url.hash||!(url.protocol==='https:'||loopback&&url.protocol==='http:'))throw new Error();
+  if(url.pathname==='/')url.pathname='/ai';
+  if(url.pathname==='/ai')return url.href;
+ }catch{}
+ throw new Error('Укажите HTTPS-адрес сервера с путём /ai.');
+}
+async function aiRequest(data,config=aiConfig){
+ let response;
+ try{
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),65000);
+  try{
+   response=await fetch(config.endpoint,{
+    method:'POST',headers:{Authorization:'Bearer '+config.code,'Content-Type':'application/json'},
+    body:JSON.stringify(data),credentials:'omit',redirect:'error',cache:'no-store',signal:controller.signal,
+   });
+   const result=await response.json();
+   if(response.ok&&result&&typeof result==='object')return result;
+   if(typeof result?.error==='string')throw new Error(result.error);
+  }finally{clearTimeout(timer);}
+ }catch(error){
+  if(error.name==='AbortError')throw new Error('ИИ не успел ответить. Повторите запрос.');
+  if(!(error instanceof TypeError||error instanceof SyntaxError))throw error;
+ }
+ throw new Error('Сервер ИИ недоступен. Проверьте адрес и разрешённый домен приложения.');
+}
+function aiSettings(){
+ return `<form class="stack" data-form="ai-settings">
+  ${field('Адрес сервера ИИ','endpoint',aiConfig.endpoint,'url','required placeholder="https://…/ai"')}
+  ${field('Код доступа','code','','password','required autocomplete="off" spellcheck="false" minlength="32" maxlength="128"')}
+  <p class="muted">Код действует в текущем окне. Для подключения нужен код сервера «Контур», созданный при настройке.</p>
+  <button class="btn primary">Подключить</button></form>`;
+}
+function aiControls(mode){
+ const label={owner:'Поиск владельца с ИИ',analysis:'Глубокий анализ с ИИ',review:'Запустить рецензию ИИ'}[mode];
+ return `<div class="stack"><div class="wrap">
+  ${btn(icon('spark')+' '+label,'ai-start','tint','data-v="'+mode+'"')}
+  ${btn(icon('settings'),'ai-settings','ghost','aria-label="Подключение ИИ"')}
+ </div><div data-ai-result aria-live="polite"></div></div>`;
+}
+function aiShow(result,mode,node){
+ const sources=(Array.isArray(result.sources)?result.sources:[]).map(s=>({...s,url:workflow.https(s.url)})).filter(s=>s.url);
+ const links=sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title||new URL(s.url).hostname)}</a>${s.cited?'':' <small>· проверьте ссылку из ответа ИИ</small>'}</li>`).join('');
+ const own=result.owner;
+ const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
+  <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
+ const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&result.analysis&&Object.values(result.analysis).some(value=>typeof value==='string'&&value&&value!=='contacts'):result.comments;
+ node.innerHTML=`<section class="sheet stack">
+  ${result.summary?`<p>${esc(result.summary)}</p>`:''}
+  ${mode==='owner'?(candidate||'<p>Рабочий контакт владельца не подтверждён источниками.</p>'):''}
+  ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
+  ${links?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
+  ${mode==='analysis'&&!reviewable?'<p class="muted">Поиск не вернул достаточно данных с источниками.</p>':''}
+  ${reviewable?btn({owner:'Подставить для проверки',analysis:'Заполнить черновик анализа',review:'Подставить рецензию'}[mode],'ai-apply','','data-v="'+mode+'"'):''}
+ </section>`;
+}
+async function aiStart(mode){
+ if(!aiConfig.endpoint||!aiConfig.code){
+  showModal('ai-settings',{back:model.modal});
+  return;
+ }
+ const modal=model.modal;
+ const card=model.selected;
+ const node=el('[data-ai-result]');
+ if(!modal||!node||modal.aiPending)return;
+ if(mode!=='review'&&(!card||card.fixture))throw new Error('Анализ ИИ доступен для реальных заведений.');
+ modal.aiPending=true;
+ delete modal.aiResult;
+ node.textContent=mode==='review'?'ИИ проверяет проект…':'ИИ ищет открытые источники…';
+ const venue=card?{name:card.name,city:card.city,address:card.address,category:card.category,site:card.site}:null;
+ try{
+  const result=await aiRequest(mode==='review'?{mode,brief:modal.brief}:{mode,venue});
+  if(model.modal!==modal||mode!=='review'&&model.selected?.pid!==card.pid)return;
+  modal.aiResult={mode,result};
+  const current=el('[data-ai-result]');
+  if(current)aiShow(result,mode,current);
+ }catch(error){
+  if(model.modal!==modal)return;
+  const current=el('[data-ai-result]');
+  if(current)current.textContent=error.message;
+ }finally{modal.aiPending=false;}
+}
+function aiApply(mode){
+ const saved=model.modal?.aiResult;
+ if(!saved||saved.mode!==mode)return;
+ const {result}=saved;
+ const form=el(`form[data-form="${mode==='analysis'?'research':mode==='review'?'agent-review':'owner'}"]`);
+ if(!form)return;
+ const fill=(name,value)=>{if(form.elements[name]&&typeof value==='string')form.elements[name].value=value;};
+ if(mode==='owner'){
+  if(!result.owner)return;
+  const {name,channel,contact,url}=result.owner;
+  fill('name',name);fill('channel',channel);fill('contact',contact);fill('source',workflow.https(url));
+  form.elements.confirmed.checked=false;
+ }else if(mode==='analysis'){
+  if(!result.analysis)return;
+  for(const [key] of researchFields)if(result.analysis[key])fill(key,result.analysis[key]);
+  for(const key of ['cta','target','verifiedItems'])if(result.analysis[key])fill(key,result.analysis[key]);
+  const urls=Array.isArray(result.sources)?result.sources.map(s=>workflow.https(s.url)).filter(Boolean):[];
+  fill('sources',[...new Set([...urls,...form.elements.sources.value.split('\n').filter(Boolean)])].slice(0,12).join('\n'));
+ }else fill('comments',result.comments);
+ form.elements[mode==='owner'?'name':mode==='analysis'?'audience':'comments']?.focus();
+ notify(mode==='review'?'Рецензия добавлена в форму.':'Проверьте данные и сохраните форму.');
+}
+async function aiConnect(data){
+ const modal=model.modal;
+ const code=String(data.code||'').trim();
+ if(!/^[a-f0-9]{32,128}$/i.test(code))throw new Error('Проверьте код доступа к ИИ.');
+ const config={endpoint:aiEndpoint(data.endpoint),code};
+ const result=await aiRequest({mode:'check'},config);
+ if(result.ok!==true)throw new Error('Сервер не подтвердил подключение.');
+ Object.assign(aiConfig,config);
+ try{
+  localStorage.setItem('kontur-ai-endpoint',config.endpoint);
+  sessionStorage.setItem('kontur-ai-code',config.code);
+ }catch{}
+ if(model.modal===modal){model.modal=modal.back||null;renderOverlay();}
+ notify('Сервер ИИ подключён.');
+}
+
+</script>
+<script>
+'use strict';
 const el = (s,root=document) => root.querySelector(s);
 const all = (s,root=document) => Array.from(root.querySelectorAll(s));
 const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1220,11 +1365,13 @@ function modalView(m){
     btn(icon(symbol)+esc(label),'select-theme',appTheme.preference===value?'tint':'',`data-v="${value}" aria-pressed="${appTheme.preference===value}"`)
    ).join('')}</div>`);
  }
+ if(m.type==='ai-settings')return dialog('Подключение ИИ',aiSettings());
  if(m.type==='owner')return dialog('Контакт владельца',ownerForm(model.selected));
  if(m.type==='research')return dialog('Анализ заведения',researchForm(model.selected,m.sample),true);
  if(m.type==='prompt')return dialog('Промпт для сайта и проверки',`<textarea class="long-prompt" readonly aria-label="Промпт">${esc(workflow.prompt(model.selected))}</textarea>
   <div class="wrap">${btn('Скопировать промпт','copy-prompt')}${btn('Собрать демо здесь','card-demo','primary')}</div>`,true);
- if(m.type==='agent-review')return dialog('Рецензия агента',`<p class="muted">Скопируйте задание и передайте его агенту вместе с HTML или предпросмотром. Сюда можно сохранить выводы.</p>
+ if(m.type==='agent-review')return dialog('Рецензия агента',`<p class="muted">Проверьте структуру и текст с ИИ или передайте задание вместе с предпросмотром внешнему агенту.</p>
+  ${aiControls('review')}
   <textarea readonly aria-label="Задание на рецензию">${esc(m.brief)}</textarea>${btn('Скопировать задание','copy-review')}
   <form data-form="agent-review" class="stack">${area('Замечания агента','comments',model.editor.feedback?.comments||'','required')}
   <button class="btn primary">Сохранить рецензию</button></form>`,true);
@@ -1255,6 +1402,7 @@ function ownerForm(c){
  return `<p class="muted">${esc(c.name+' · '+c.city)}. Укажите публичный рабочий контакт, который источник связывает с владельцем. Номер заведения сам по себе этого не подтверждает.</p>
  <div class="wrap"><a class="btn" href="${esc(lookup('владелец основатель'))}" target="_blank" rel="noopener noreferrer">Поиск владельца</a>
  <a class="btn" href="${esc(lookup('официальная страница контакты'))}" target="_blank" rel="noopener noreferrer">Сайт и контакты</a></div>
+ ${c.fixture?'':aiControls('owner')}
  <form data-form="owner" class="stack">
   ${field('Имя владельца','name',o?.channel==='test'?'':o?.name,'text','required maxlength="140"')}
   <label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',email:'Рабочая почта'},o?.channel)}</select></label>
@@ -1266,7 +1414,7 @@ function ownerForm(c){
 }
 function researchForm(c,sample){
  const a=sample?workflow.sampleAnalysis():c.analysis||{};
- return `<form data-form="research" class="stack">
+ return `${c.fixture?'':aiControls('analysis')}<form data-form="research" class="stack">
   ${researchFields.map(([key,label,hint])=>area(label,key,a[key]||'',`${key==='unknown'?'':'required'} placeholder="${esc(hint)}"`)).join('')}
   ${area('Проверенные позиции для сайта','verifiedItems',a.verifiedItems||'','placeholder="Название | Описание | Цена. По одной позиции в строке."')}
   ${field('Главная кнопка сайта','cta',a.cta||'','text','required maxlength="65"')}
@@ -1440,7 +1588,7 @@ function showModal(type,data={}){
  renderOverlay();
  el('.dialog button')?.focus({preventScroll:true});
 }
-function closeModal(){model.modal=null;renderOverlay();}
+function closeModal(){model.modal=model.modal?.type==='ai-settings'?model.modal.back||null:null;renderOverlay();}
 function closeCard(){
  model.selected=null;
  model.cardScratch=null;
@@ -1590,6 +1738,9 @@ async function encodeFiles(files,folder){
  })));
 }
 const actions={
+ 'ai-start': n=>aiStart(n.dataset.v),
+ 'ai-apply': n=>aiApply(n.dataset.v),
+ 'ai-settings': ()=>showModal('ai-settings',{back:model.modal}),
  'appearance': ()=>showModal('appearance'),
  'select-theme': n=>{appTheme.select(n.dataset.v);closeModal();el('.theme-control')?.focus();},
  'nav': n=>navigate(n.dataset.v),
@@ -1727,6 +1878,7 @@ const actions={
  },
 };
 const forms={
+ 'ai-settings': aiConnect,
  'agent-review': async data=>{
   const p=model.editor;
   model.editor=await api('project/'+p.id+'/feedback',{version:p.version,comments:data.comments});
