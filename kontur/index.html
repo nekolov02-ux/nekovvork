@@ -305,7 +305,11 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .dialog-head h2{font-size:1.32rem;line-height:1.15;letter-spacing:-.035em}
 .dialog-head>.btn{width:44px;min-height:44px;padding:0;flex:none}
-.dialog.owner-dialog{padding:16px;gap:16px}
+.dialog.owner-dialog{padding:16px;gap:12px;display:flex;flex-direction:column;overflow:hidden}
+.owner-dialog>.dialog-head,.owner-dialog-footer{flex:none}
+.owner-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;padding:3px 2px 8px}
+.owner-dialog-footer{border-top:1px solid var(--line);padding-top:10px}
+.owner-dialog-footer .btn{width:100%;justify-content:center;min-height:46px}
 .owner-context{display:flex;align-items:center;gap:12px;min-width:0}
 .owner-context .venue-media{width:54px;height:54px;flex:none;border-radius:12px}
 .owner-context .venue-media>svg{width:21px;height:21px}
@@ -332,7 +336,6 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .owner-form-section [aria-invalid="true"]{border-color:var(--bad-ink)}
 .owner-form-section [data-owner-error]{color:var(--bad-ink);margin:0;line-height:1.35;scroll-margin-block:12px}
 .owner-form-section [data-owner-error]:empty{display:none}
-.owner-form-section button[type=submit]{justify-self:stretch;justify-content:center;min-height:46px}
 .drawer-head{gap:9px}
 .drawer-cover{margin:0;border-radius:12px;height:122px}
 .drawer-head .tabs{gap:4px;margin:0;padding-top:2px;border-top:0}
@@ -1655,8 +1658,8 @@ function projectRow(p){
  ${p.url?`<div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-project','ghost',d)}</div>`:''}
  <small>${esc(p.metric)} · <b>${demoStats(p).opens}</b> · Последнее · ${fmt(demoStats(p).last)}</small></article>`;
 }
-function dialog(heading,body,large=false,css=''){
- return `<div class="scrim" data-backdrop><div class="dialog ${large?'large':''} ${css}" role="dialog" aria-modal="true" aria-label="${esc(heading)}"><div class="dialog-head"><h2>${esc(heading)}</h2>${btn(icon('close'),'close-modal','ghost','aria-label="Закрыть"')}</div>${body}</div></div>`;
+function dialog(heading,body,large=false,css='',footer=''){
+ return `<div class="scrim" data-backdrop><div class="dialog ${large?'large':''} ${css}" role="dialog" aria-modal="true" aria-label="${esc(heading)}"><div class="dialog-head"><h2>${esc(heading)}</h2>${btn(icon('close'),'close-modal','ghost','aria-label="Закрыть"')}</div>${body}${footer}</div></div>`;
 }
 function modalView(m){
  if(!m)return '';
@@ -1667,7 +1670,8 @@ function modalView(m){
    ).join('')}</div>`);
  }
  if(m.type==='ai-settings')return dialog('Подключение ИИ',aiSettings());
- if(m.type==='owner')return dialog('Контакт владельца',ownerForm(model.selected,m),'','owner-dialog');
+ if(m.type==='owner')return dialog('Контакт владельца',`<div class="owner-dialog-body stack">${ownerForm(model.selected,m)}</div>`,false,'owner-dialog',
+  `<div class="owner-dialog-footer"><button type="submit" form="owner-contact-form" class="btn primary">Подтвердить контакт и продолжить</button></div>`);
  if(m.type==='research')return dialog('Анализ заведения',researchForm(model.selected,m.sample),true);
  if(m.type==='quick-proposal'){
   const p=model.editor;
@@ -1714,14 +1718,13 @@ function ownerForm(c,modal){
  return `<div class="owner-context">${venueMedia(c)}<div><strong>${esc(c.name)}</strong><small>${esc(c.address||c.city)}</small></div></div>
  ${c.fixture?'':aiControls('owner')}
  <details class="owner-form-section" data-key="owner-form" ${o||modal.ownerScratch?'open':''}><summary>${o?'Редактировать контакт':'Добавить контакт вручную'}</summary>
- <form data-form="owner" class="stack" novalidate>
+ <form id="owner-contact-form" data-form="owner" class="stack" novalidate>
   ${field('ФИО или имя из источника','name',form.name,'text','required maxlength="140" autocomplete="off"')}
   <div class="form-grid"><label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',email:'Рабочая почта'},form.channel)}</select></label>
   ${field('Рабочий контакт','contact',form.contact,'text','required placeholder="Имя пользователя, номер или ссылка"')}</div>
   ${field('Источник подтверждения','source',form.source,'url','required placeholder="https://…"')}
   <label class="confirmation"><input type="checkbox" name="confirmed" required ${form.confirmed?'checked':''}> Источник связывает контакт с владельцем или руководителем</label>
   <p id="owner-error" data-owner-error role="alert"></p>
-  <button type="submit" class="btn primary">Сохранить контакт</button>
  </form></details>
  ${c.fixture?btn('Использовать учебный контакт','sample-owner','ghost'):
   `<details data-key="external-owner"><summary>Где ещё искать</summary><div class="wrap">
@@ -1885,13 +1888,14 @@ function renderOverlay(){
  const root=el('#overlay');
  const tabs=renderedModal===model.modal?new Map(all('.dialog details[data-key]',root).map(d=>[d.dataset.key,d.open])):null;
  const drawerScroll=renderedCard===model.selected?.pid?el('.drawer-body',root)?.scrollTop||0:0;
- const dialogScroll=renderedModal===model.modal?el('.dialog',root)?.scrollTop||0:0;
+ const dialogScroll=renderedModal===model.modal?el('.owner-dialog-body, .dialog:not(.owner-dialog)',root)?.scrollTop||0:0;
  root.innerHTML=(model.selected?cardView(model.selected):'')+(model.modal?modalView(model.modal):'');
  restoreAiOutput(root,model.modal);
  for(const d of all('.dialog details[data-key]',root))if(tabs?.has(d.dataset.key))d.open=tabs.get(d.dataset.key);
  renderedModal=model.modal;renderedCard=model.selected?.pid;
  if(el('.drawer-body',root))el('.drawer-body',root).scrollTop=drawerScroll;
- if(el('.dialog',root))el('.dialog',root).scrollTop=dialogScroll;
+ const scroller=el('.owner-dialog-body, .dialog:not(.owner-dialog)',root);
+ if(scroller)scroller.scrollTop=dialogScroll;
  const frame=el('.demo-frame',root);
  if(frame&&model.editor?.preview)frame.srcdoc=model.editor.preview;
  const tg=telegramApp();
@@ -2338,6 +2342,17 @@ const forms={
   showModal('edit-project');
  },
  'owner': async (data,form)=>{
+  const fields=form.closest('details');
+  if(!fields.open){
+   if(model.modal.aiResult?.result.owner){
+    aiApply('owner');
+    return;
+   }
+   fields.open=true;
+   form.elements.name.focus({preventScroll:true});
+   form.elements.name.scrollIntoView({block:'nearest'});
+   return;
+  }
   const modal=model.modal;
   const candidate=modal.aiResult?.result.owner||model.selected.owner;
   const match=candidate&&data.name.trim()===candidate.name&&workflow.https(data.source)===workflow.https(candidate.url||candidate.source);
