@@ -284,6 +284,10 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .ai-comments{white-space:pre-wrap}
 .ai-sources{margin:.35rem 0 0;padding-inline-start:1.35rem;overflow-wrap:anywhere}
 .ai-sources li+li{margin-top:.4rem}
+.ai-messengers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));margin:0;padding:0;gap:8px;list-style:none}
+.ai-messengers li{display:grid;align-content:start;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px}
+.ai-messengers .btn{text-decoration:none;min-height:44px}
+[data-ai-result] summary{cursor:pointer;color:var(--link);padding-block:5px}
 
 </style>
 </head><body>
@@ -1085,6 +1089,39 @@ function aiControls(mode){
   ${btn(icon('settings'),'ai-settings','ghost','aria-label="Подключение ИИ"')}
  </div><div data-ai-result aria-live="polite"></div></div>`;
 }
+const messengerNames={telegram:'Telegram',max:'MAX',vk:'ВКонтакте',whatsapp:'WhatsApp'};
+const messengerHosts={telegram:['t.me'],max:['max.ru'],vk:['vk.me','vk.com','vk.ru'],whatsapp:['wa.me','api.whatsapp.com']};
+function aiMessengerLinks(contacts,coverage){
+ const phones=[...new Set(contacts.filter(item=>item.channel==='phone'&&workflow.https(item.url)&&
+  /^tel:\+[1-9][0-9]{8,14}$/.test(item.href)).map(item=>item.href.slice(4)))].slice(0,2);
+ const link=(href,label)=>`<a class="btn tint" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-a="open-ai-channel">${esc(label)}</a>`;
+ return `<div class="stack"><strong>Мессенджеры заведения</strong><ul class="ai-messengers">${Object.entries(messengerNames).map(([channel,label])=>{
+  const published=contacts.filter(item=>{
+   const href=workflow.https(item.href);
+   return item.channel===channel&&href&&workflow.https(item.url)&&messengerHosts[channel].includes(new URL(href).hostname);
+  });
+  const contact=channel==='vk'?published.find(item=>new URL(item.href).hostname==='vk.me')||published[0]:published[0];
+  const check=coverage.find(pass=>pass.platforms?.includes(label));
+  const status=check&&!check.completed?'Поиск не завершился.':'Открытая ссылка не найдена.';
+  let body;
+  if(contact){
+   const page=channel==='vk'&&new URL(contact.href).hostname!=='vk.me';
+   body=`<div class="wrap">${link(contact.href,page?'Открыть страницу':'Открыть')}`
+    + `<small><a href="${esc(contact.url)}" target="_blank" rel="noopener noreferrer">Источник</a></small></div>`;
+  }else if(phones.length&&['telegram','whatsapp'].includes(channel)){
+   body=`<small>По номеру · аккаунт не подтверждён</small><div class="wrap">${phones.map(number=>
+    link(channel==='telegram'?'https://t.me/'+number:'https://wa.me/'+number.slice(1),
+     phones.length===1?'Открыть по номеру':'Открыть '+number)).join('')}</div>`;
+  }else if(channel==='max'&&phones.length){
+   body=`<small>${status} В MAX выберите «Найти по номеру».</small><div class="wrap">
+    ${phones.map(number=>btn(phones.length===1?'Копировать номер':'Копировать '+number,'copy-ai-phone','tint','data-v="'+esc(number)+'"')).join('')}
+    ${link('https://web.max.ru/','Открыть MAX')}</div>`;
+  }else{
+   body=`<small>${phones.length?status:'Публичный номер или ссылка пока не найдены.'}</small>`;
+  }
+  return `<li><b>${label}</b>${body}</li>`;
+ }).join('')}</ul></div>`;
+}
 function aiShow(result,mode,node){
  const sources=(Array.isArray(result.sources)?result.sources:[]).map(s=>({...s,url:workflow.https(s.url)})).filter(s=>s.url);
  const links=sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title||new URL(s.url).hostname)}</a>${s.cited?'':' <small>· проверьте ссылку из ответа ИИ</small>'}</li>`).join('');
@@ -1098,10 +1135,11 @@ function aiShow(result,mode,node){
   return href&&source&&labels[item.channel]?`<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${labels[item.channel]} · ${esc(item.contact)}</a>
   <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small></li>`:'';
  }).join('');
- const contactItems=contactList(contacts.filter(item=>item.channel!=='phone'));
+ const contactItems=contactList(contacts.filter(item=>item.channel!=='phone'&&!messengerNames[item.channel]));
  const phones=contactList(contacts.filter(item=>item.channel==='phone'));
  const website=workflow.https(result.website?.site);
- const coverage=(Array.isArray(result.coverage)?result.coverage:[]).map(pass=>
+ const passes=Array.isArray(result.coverage)?result.coverage:[];
+ const coverage=passes.map(pass=>
   `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}${Array.isArray(pass.platforms)?`<small> · ${esc(pass.platforms.length?pass.platforms.join(', '):'поисковик не указал площадки') }</small>`:''}</li>`).join('');
  const warnings=(Array.isArray(result.warnings)?result.warnings:[]).filter(warning=>typeof warning==='string');
  const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&researchFields.some(([key])=>result.analysis?.[key]):result.comments;
@@ -1110,11 +1148,12 @@ function aiShow(result,mode,node){
   ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
   <div><strong>Прямой контакт владельца</strong>
   ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
+  ${aiMessengerLinks(contacts,passes)}
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
   ${phones?`<details><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
   ${coverage?`<details><summary>Что проверил поиск</summary><ul class="ai-sources">${coverage}</ul></details>`:''}`:''}
   ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
-  ${links&&(mode!=='owner'||!candidate&&!contactItems)?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
+  ${links?`<details><summary>Источники (${sources.length})</summary><ol class="ai-sources">${links}</ol></details>`:''}
   ${mode==='analysis'&&warnings.length?`<ul class="ai-sources">${warnings.map(warning=>`<li>${esc(warning)}</li>`).join('')}</ul>`:''}
   ${mode==='analysis'&&!reviewable?'<p class="muted">Поиск не вернул достаточно данных с источниками.</p>':''}
   ${reviewable?btn({owner:'Подставить для проверки',analysis:'Заполнить черновик анализа',review:'Подставить рецензию'}[mode],'ai-apply','','data-v="'+mode+'"'):''}
@@ -1695,7 +1734,7 @@ function showModal(type,data={}){
  renderOverlay();
  el('.dialog button')?.focus({preventScroll:true});
 }
-function closeModal(){model.modal=model.modal?.type==='ai-settings'?model.modal.back||null:null;renderOverlay();}
+function closeModal(){model.modal=model.modal?.back||null;renderOverlay();}
 function closeCard(){
  model.selected=null;
  model.cardScratch=null;
@@ -2010,6 +2049,10 @@ const actions={
   if(await copyText(p?.url||''))notify('Ссылка скопирована.');
  },
  'copy-editor': async ()=>{if(await copyText(model.editor.url))notify('Ссылка скопирована.');},
+ 'copy-ai-phone': async n=>{
+  if(await copyText(n.dataset.v,false))notify('Номер скопирован.');
+  else showModal('copy',{value:n.dataset.v,back:model.modal});
+ },
  'refresh-editor': async ()=>{await openProject(model.editor.id);await refresh();},
  'reload': async ()=>{
   await refresh();
@@ -2073,6 +2116,10 @@ document.addEventListener('click',event=>{
  const n=event.target.closest('[data-a]');
  if(!n){
   if(event.target.matches('[data-backdrop]'))model.modal?closeModal():closeCard();
+  return;
+ }
+ if(n.dataset.a==='open-ai-channel'){
+  if(openTelegramLink(n.href))event.preventDefault();
   return;
  }
  const act=actions[n.dataset.a];
