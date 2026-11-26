@@ -606,16 +606,20 @@ const localApi=(()=>{
   if(!p.snapshot)return '';
   if(p.kind==='external')return p.snapshot.source;
   if(p.kind!=='generated')return '';
+  if(p.cloud) return 'https://kontur-ai.nekolov02.workers.dev/d/'+p.cloud;
   return shareURL(p.snapshot,p.token);
  }
  function projectPublic(p,full=false){
   const out={id:p.id,pid:p.pid,kind:p.kind,title:p.data.title,slug:p.token,version:p.version,
-   research:p.publicResearch||'',demo:p.publicDemo===true,published:p.published||null,opens:p.opens||0,last:p.last||null,url:projectURL(p),metric:p.kind==='external'?'Переходы на этом устройстве':'Открытия на этом устройстве'};
+   research:p.publicResearch||'',demo:p.publicDemo===true,published:p.published||null,opens:p.opens||0,last:p.last||null,url:projectURL(p),
+   cloud:p.cloud||'',metric:p.cloud?'Открытия по ссылке':p.kind==='external'?'Переходы на этом устройстве':'Открытия на этом устройстве'};
   if(full){
    out.data={...p.data};delete out.data.files;
    out.review=p.review||null;
    out.feedback=p.feedback||null;
    out.analysisCurrent=!!p.research;
+   out.shareKey=p.shareKey||'';
+   if(p.shareKey&&p.snapshot)out.sharePayload=shareURL(p.snapshot,p.shareKey).split('.').at(-1);
   }
   return out;
  }
@@ -668,6 +672,12 @@ const localApi=(()=>{
   }
   else if(action==='generate'){c.drafts[stage]=generateDraft(s,c,outreach(s,c),b.variant);write('draft_created',stage);}
   else if(action==='draft'){c.drafts[stage]=requireMessage(msg,outreach(s,c));write('draft_saved',stage);}
+  else if(action==='follow'){
+   if(c.status!==STATUS[1])throw issue('Напоминание доступно после отметки об отправке.');
+   if(!['1','3','7'].includes(b.days))throw issue('Выберите срок напоминания.');
+   const next=new Date();next.setDate(next.getDate()+Number(b.days));
+   c.follow=next.toISOString();write('follow_scheduled','Следующий контакт: '+fmt(c.follow));
+  }
   else if(action==='chat'){
    requireMessage(msg,outreach(s,c));
    if(b.href!==c.owner.href)throw issue('Можно открыть только подтверждённый контакт владельца.');
@@ -957,10 +967,23 @@ const localApi=(()=>{
    workflow.requireAnalysis(c);
    if(!p.review||p.review.version!==p.version||p.review.research!==workflow.key(c)||p.review.checks.some(k=>!k.ok))
     throw issue('Для публикации проверьте актуальную версию сайта.');
+   if(p.kind==='generated'&&location.origin==='https://nekovvork.ru'&&
+      (!p.shareKey||JSON.stringify(p.snapshot)!==JSON.stringify(p.data))){
+    p.shareKey=ids().replaceAll('-','');p.cloud='';p.opens=0;p.last=null;
+   }
    p.snapshot=p.kind==='generated'?copy(p.data):p.kind==='external'?{source:p.data.source}:{};
    p.published=date();
    p.publicDemo=true;
    p.publicResearch=workflow.key(c);
+  }
+  if(action==='cloud'){
+   if(p.kind!=='generated'||!p.snapshot||b.key!==p.shareKey)throw issue('Демо изменилось. Опубликуйте актуальную версию.',409);
+   const oldURL=projectURL(p);
+   p.cloud=b.key;
+   const stage=STAGES[2], draft=c.drafts[stage];
+   if(oldURL&&draft?.split(/\s+/).includes(oldURL)&&oldURL!==projectURL(p)){
+    c.drafts[stage]=draft.replace(oldURL,projectURL(p));change(c);
+   }
   }
   if(action==='open'){p.opens++;p.last=date();}
   return projectFull(p);
@@ -1010,7 +1033,15 @@ const localApi=(()=>{
    document.title=shared.site.title;
    root.innerHTML='<iframe class="shared-site" title="Демосайт" sandbox=""></iframe>';
    root.firstElementChild.srcdoc=renderSite(shared.site);
-   opening(shared.token).catch(()=>{});
+   if(location.origin==='https://nekovvork.ru'&&/^[a-f0-9]{32}$/.test(shared.token)){
+    const key='kontur-open:'+shared.token;
+    let seen=false;
+    try{seen=!!sessionStorage.getItem(key);}catch{}
+    if(!seen){
+     fetch('https://kontur-ai.nekolov02.workers.dev/d/'+shared.token+'/view',{method:'POST',keepalive:true,credentials:'omit'})
+      .then(response=>{if(response.ok)sessionStorage.setItem(key,'1');}).catch(()=>{});
+    }
+   }else opening(shared.token).catch(()=>{});
   }catch(error){
    root.innerHTML='<main class="wait"><h1>Демосайт недоступен</h1><p>'+esc(error.message)+'</p><a href="'+esc(location.pathname)+'">Открыть Контур</a></main>';
   }
@@ -1126,6 +1157,17 @@ function aiShow(result,mode,node){
  const sources=(Array.isArray(result.sources)?result.sources:[]).map(s=>({...s,url:workflow.https(s.url)})).filter(s=>s.url);
  const links=sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title||new URL(s.url).hostname)}</a>${s.cited?'':' <small>· проверьте ссылку из ответа ИИ</small>'}</li>`).join('');
  const own=result.owner;
+ const business=result.business;
+ const businessSource=workflow.https(business?.venueSource);
+ const registrySource=workflow.https(business?.registrySource);
+ const legal=businessSource&&/^\d{10}(?:\d{2})?$/.test(business.inn)?`<div class="stack">
+  <strong>Кто принимает решения</strong>
+  <div>${business.name?`<b>${esc(business.name)}</b> · `:''}ИНН ${esc(business.inn)} · <a href="${esc(businessSource)}" target="_blank" rel="noopener noreferrer">Связь с заведением</a></div>
+  ${business.person?`<div><b>${esc(business.person)}</b> · ${esc(business.role)}</div>`:'<small>Руководитель пока не подтверждён.</small>'}
+  ${registrySource?`<a href="${esc(registrySource)}" target="_blank" rel="noopener noreferrer">Запись по ИНН</a>`:''}
+  <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer">Получить выписку ФНС по ИНН</a>
+  ${business.quote?`<details><summary>Подтверждение роли</summary><p>${esc(business.quote)}</p></details>`:''}
+ </div>`:'';
  const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
   <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
  const contacts=Array.isArray(result.venueContacts)?result.venueContacts:[];
@@ -1146,6 +1188,7 @@ function aiShow(result,mode,node){
  node.innerHTML=`<section class="sheet stack">
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
   ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
+  ${legal}
   <div><strong>Прямой контакт владельца</strong>
   ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
   ${aiMessengerLinks(contacts,passes)}
@@ -1323,6 +1366,8 @@ const model = {
 };
 const telegramApp = () => {const app=window.Telegram?.WebApp;return app&&(app.initData||(app.platform&&app.platform!=='unknown'))?app:null;};
 const api=(path,data)=>localApi.api(path,data);
+const cloudStats=new Map();
+const demoStats=p=>cloudStats.get(p.cloud)||p;
 async function refresh(paint=true){model.state=await api('state');if(paint) render();}
 function notify(text,actions='',duration=6500){
  clearTimeout(notify.timer);
@@ -1497,7 +1542,7 @@ function projectRow(p){
  const d=`data-id="${p.id}"`;
  return `<article class="sheet stack"><div class="spread"><div><h3>${esc(p.title)}</h3><small>${PROJECTS[p.kind]} · ${p.published?'опубликован':'черновик'}</small></div>${btn('Открыть проект','edit-project','',d)}</div>
  ${p.url?`<div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-project','ghost',d)}</div>`:''}
- <small>${esc(p.metric)} · <b>${p.opens}</b> · Последнее · ${fmt(p.last)}</small></article>`;
+ <small>${esc(p.metric)} · <b>${demoStats(p).opens}</b> · Последнее · ${fmt(demoStats(p).last)}</small></article>`;
 }
 function dialog(heading,body,large=false){
  return `<div class="scrim" data-backdrop><div class="dialog ${large?'large':''}" role="dialog" aria-modal="true" aria-label="${esc(heading)}"><div class="spread"><h2>${esc(heading)}</h2>${btn(icon('close'),'close-modal','ghost','aria-label="Закрыть"')}</div>${body}</div></div>`;
@@ -1513,6 +1558,16 @@ function modalView(m){
  if(m.type==='ai-settings')return dialog('Подключение ИИ',aiSettings());
  if(m.type==='owner')return dialog('Контакт владельца',ownerForm(model.selected));
  if(m.type==='research')return dialog('Анализ заведения',researchForm(model.selected,m.sample),true);
+ if(m.type==='quick-proposal'){
+  const p=model.editor;
+  return dialog('Подготовка предложения',`<div class="stack">
+   <div class="preview"><iframe title="Предпросмотр демо" sandbox="" srcdoc="${esc(p.preview)}"></iframe></div>
+   ${reviewView(p)}
+   ${m.pending?'<p>ИИ проверяет текст и структуру демо…</p>':m.error?`<p class="muted">${esc(m.error)}</p>`:''}
+   <div class="wrap">${btn('Открыть редактор','edit-project','ghost','data-id="'+p.id+'"')}
+   ${!m.pending&&p.review?.checks.every(check=>check.ok)?btn('Опубликовать и подготовить сообщение','quick-publish','primary'):''}</div>
+  </div>`,true);
+ }
  if(m.type==='prompt')return dialog('Промпт для сайта и проверки',`<textarea class="long-prompt" readonly aria-label="Промпт">${esc(workflow.prompt(model.selected))}</textarea>
   <div class="wrap">${btn('Скопировать промпт','copy-prompt')}${btn('Собрать демо здесь','card-demo','primary')}</div>`,true);
  if(m.type==='agent-review')return dialog('Рецензия агента',`<p class="muted">Проверьте структуру и текст с ИИ или передайте задание вместе с предпросмотром внешнему агенту.</p>
@@ -1597,7 +1652,7 @@ function chooseProjectView(m){
 function editorView(){
  const p=model.editor;
  if(!p)return '<p class="muted">Загрузка проекта…</p>';
- const publication=p.url?`<div class="sheet stack"><div class="spread"><b>Ссылка готова · ${fmt(p.published)}</b><small>${esc(p.metric)} · ${p.opens}</small></div><div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-editor','ghost')}${model.selected?.pid===p.pid?btn('К сообщению','close-modal','tint'):''}</div></div>`:
+ const publication=p.url?`<div class="sheet stack"><div class="spread"><b>Ссылка готова · ${fmt(p.published)}</b><small>${esc(p.metric)} · ${demoStats(p).opens}</small></div><div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-editor','ghost')}${model.selected?.pid===p.pid?btn('К сообщению','close-modal','tint'):''}</div></div>`:
  p.published?`<p class="notice">Страница сохранена. Для этого проекта доступен экспорт HTML. Ссылка на автономное демо создаётся на веб-хостинге, если адрес умещается в 3900 символов.</p>`:
  '<p class="muted">Редактор работает локально. Сохраните черновик, создайте ссылку или скачайте готовую страницу.</p>';
  const frame=()=>`<div class="preview ${model.phone?'phone':''}"><iframe class="demo-frame" title="Предпросмотр демо" sandbox="" loading="lazy"></iframe></div>`;
@@ -1648,9 +1703,9 @@ function cardView(c){
   const ownerInfo=o?`<div class="sheet spread"><div><strong>${esc(o.name)}</strong><p class="muted">${training?'Учебный контакт':o.source?`<a target="_blank" rel="noopener noreferrer" href="${esc(o.source)}">Источник подтверждения</a>`:'Владелец подтверждён'}</p></div>${btn('Изменить контакт','owner','ghost')}</div>`:'';
   let next;
   if(!o)next=`<div class="sheet stack"><h3>Найдите владельца</h3><p class="muted">Демо и сообщение доступны после подтверждения рабочего контакта.</p>${btn('Найти владельца','owner','primary')}</div>`;
-  else if(!c.analysis)next=`<div class="sheet stack"><h3>Разберите заведение</h3><p class="muted">Соберите факты, сравните аналоги и определите задачу сайта.</p>${btn('Заполнить анализ','research','primary')}</div>`;
+  else if(!c.analysis)next=`<div class="sheet stack"><h3>Разберите заведение</h3><p class="muted">Соберите факты, сравните аналоги и определите задачу сайта.</p><div class="wrap">${!training?btn('Начать анализ с ИИ','start-research','primary'):''}${btn('Заполнить анализ','research',training?'primary':'ghost')}</div></div>`;
   else if(!published)next=`<div class="sheet stack"><h3>${project?'Проверьте и опубликуйте демо':'Соберите сайт из анализа'}</h3>
-   <div class="wrap">${btn(project?'Открыть демо':'Собрать демо','card-demo','primary')}${btn('Промпт','research-prompt')}${btn('Анализ','research','ghost')}</div></div>`;
+   <div class="wrap">${!training&&(!project||project.kind==='generated')?btn('Подготовить предложение','quick-proposal','primary'):''}${btn(project?'Открыть демо':'Собрать демо','card-demo',training?'primary':'ghost')}${btn('Промпт','research-prompt')}${btn('Анализ','research','ghost')}</div></div>`;
   else{
    const available=readyDraft?'':'disabled';
    const channelsMarkup=channels(c).map(([name])=>btn(icon('send')+' '+name,'open-channel','primary',`data-v="${esc(name)}" ${available}`)).join('');
@@ -1660,6 +1715,7 @@ function cardView(c){
     ${area('Текст сообщения','draft',readyDraft||model.cardScratch!==null&&model.cardScratch!==undefined?draft:'','id="draft" placeholder="Подготовьте сообщение со ссылкой на демо"')}
     <div class="wrap">${btn('Сохранить','save-draft','',available)}${btn(icon('copy')+' Скопировать','copy-draft','ghost',available)}</div></section>
     <div class="wrap">${channelsMarkup}${btn('Отметить отправку','mark-sent','ghost',available)}</div>
+    ${c.status===STATUS[1]?`<div class="sheet stack"><b>Следующий контакт</b>${c.follow?`<small>${fmt(c.follow)}</small>`:''}<div class="wrap">${[1,3,7].map(days=>btn(days===1?'Завтра':'Через '+days+' дн.','set-follow','tint','data-v="'+days+'"')).join('')}</div></div>`:''}
     ${model.externalFallback?`<div class="notice warn">Браузер заблокировал новое окно. ${btn('Открыть контакт','retry-channel','',`data-v="${esc(model.externalFallback.name)}"`)}</div>`:''}
     `;
   }
@@ -1701,7 +1757,7 @@ function cardView(c){
  </aside></div>`;
 }
 function timeline(events){
- const names={owner_confirmed:'Контакт владельца подтверждён',analysis_saved:'Анализ сохранён',chat_opened:'Чат открыт',incoming:'Получен ответ',sent:'Пользователь отметил отправку',confirmed:'Отправка подтверждена интеграцией',draft_created:'Черновик создан',draft_saved:'Черновик сохранён',claimed:'Добавлено в Базу',status:'Статус изменён',updated:'Карточка изменена',undo:'Перенос отменён'};
+ const names={owner_confirmed:'Контакт владельца подтверждён',analysis_saved:'Анализ сохранён',chat_opened:'Чат открыт',incoming:'Получен ответ',sent:'Пользователь отметил отправку',confirmed:'Отправка подтверждена интеграцией',draft_created:'Черновик создан',draft_saved:'Черновик сохранён',claimed:'Добавлено в Базу',status:'Статус изменён',updated:'Карточка изменена',undo:'Перенос отменён',follow_scheduled:'Напоминание запланировано'};
  return `<div class="timeline">${events.map(e=>{
  let message=e.text;
  if(e.kind==='chat_opened'){try{const d=JSON.parse(e.text);message=d.channel+(d.text?'\n'+d.text:'');}catch{}}
@@ -1813,6 +1869,10 @@ async function navigate(target){
  model.tab=target==='base'?'base':'parser';
  model.status='';model.filter='';model.q='';model.filters=false;model.editParams=false;
  await refresh();
+ if(target==='demo'){
+  await loadDemoStats(model.state.projects);
+  if(model.section===target)render();
+ }
  el('.workspace')?.scrollTo(0,0);
  renderOverlay();
 }
@@ -1868,6 +1928,41 @@ async function openProject(id){
  model.phone=matchMedia('(max-width:700px)').matches;
 
  showModal('edit-project');
+ if(model.editor.cloud){
+  await loadDemoStats([model.editor]);
+  if(model.modal?.type==='edit-project'&&model.editor?.id===id&&!model.editorDirty)renderOverlay();
+ }
+}
+async function loadDemoStats(projects){
+ const keys=projects.filter(p=>p.cloud).map(p=>p.cloud).slice(-16);
+ if(!keys.length||!aiConfig.code||aiConfig.endpoint!==defaultAiEndpoint)return;
+ try{
+  const {stats}=await aiRequest({mode:'demo-stats',keys});
+  for(const [key,value] of Object.entries(stats||{}))if(value)cloudStats.set(key,value);
+ }catch{}
+}
+async function prepareProposal(){
+ const card=model.selected;
+ workflow.requireAnalysis(card);
+ const draft=await api('project/create',{kind:'generated',pid:card.pid,style:'Современный'});
+ const reviewed=await api('project/'+draft.id+'/review',{version:draft.version});
+ if(model.selected?.pid!==card.pid)return;
+ model.editor=reviewed;
+ model.editorDirty=false;
+ const canReview=aiConfig.code&&aiConfig.endpoint&&reviewed.review.checks.every(check=>check.ok);
+ showModal('quick-proposal',{pending:!!canReview});
+ const modal=model.modal;
+ if(!canReview)return;
+ try{
+  const {comments}=await aiRequest({mode:'review',brief:workflow.critiqueBrief(card,reviewed)});
+  if(!comments)throw new Error();
+  if(model.modal===modal)model.editor=await api('project/'+draft.id+'/feedback',{version:draft.version,comments});
+ }catch{
+  modal.error='Рецензия ИИ недоступна. Проверьте предпросмотр и результаты проверок вручную.';
+ }finally{
+  modal.pending=false;
+  if(model.modal===modal)renderOverlay();
+ }
 }
 function readEditor(form=el('#editor-form')){
  if(!form)return model.editor.data;
@@ -1887,13 +1982,34 @@ async function saveProject(){
  model.editor=await api('project/'+p.id+'/save',{version:p.version,data});
  model.editorDirty=false;
 }
-async function publishProject(){
+async function publishProject(quick=false){
  if(model.editor.kind==='generated'&&(model.editorDirty||JSON.stringify(readEditor())!==JSON.stringify(model.editor.data)))await saveProject();
  const p=model.editor;
- model.editor=await api('project/'+p.id+'/publish',{version:p.version});
+ let publication=await api('project/'+p.id+'/publish',{version:p.version});
+ const modal=model.modal;
+ if(publication.sharePayload&&publication.shareKey&&!publication.cloud&&aiConfig.code&&aiConfig.endpoint===defaultAiEndpoint){
+  try{
+   const {key}=await aiRequest({mode:'demo-publish',key:publication.shareKey,payload:publication.sharePayload});
+   publication=await api('project/'+p.id+'/cloud',{version:publication.version,key});
+  }catch{}
+ }
+ if(model.modal===modal)model.editor=publication;
+ if(model.selected?.pid===publication.pid)model.selected=await api('card/'+publication.pid);
  await refresh();
- renderOverlay();
- notify(model.editor.url?'Ссылка готова.':'Демо сохранено. Доступен экспорт HTML.');
+ if(quick&&model.modal===modal&&model.selected?.pid===publication.pid&&publication.url){
+  closeModal();
+  const saved=draftInput();
+  if(!saved.trim()){
+   await updateCard('generate',{},model.selected);
+  }else if(!saved.split(/\s+/).includes(publication.url)){
+   const message=p.url&&saved.split(/\s+/).includes(p.url)?saved.replace(p.url,publication.url):saved.trim()+'\n'+publication.url;
+   await updateCard('draft',{text:message},model.selected);
+  }
+  notify(publication.cloud?'Демоссылка и черновик готовы.':'Черновик готов. Открытия доступны только на этом устройстве.');
+  return;
+ }
+ if(model.modal===modal)renderOverlay();
+ notify(publication.cloud?'Ссылка готова. Открытия считаются на сервере.':publication.url?'Ссылка готова.':'Демо сохранено. Доступен экспорт HTML.');
 }
 async function encodeFiles(files,folder){
  const list=[...files];
@@ -1918,6 +2034,14 @@ const actions={
   notify('Заведение сохранено в Базе.');
  },
  'ai-start': n=>aiStart(n.dataset.v),
+ 'start-research': ()=>{
+  showModal('research');
+  if(!aiConfig.code||!aiConfig.endpoint){
+   showModal('ai-settings',{back:model.modal,onConnect:()=>aiStart('analysis')});
+   return;
+  }
+  return aiStart('analysis');
+ },
  'ai-apply': n=>aiApply(n.dataset.v),
  'ai-settings': ()=>showModal('ai-settings',{back:model.modal}),
  'appearance': ()=>showModal('appearance'),
@@ -1969,6 +2093,7 @@ const actions={
  'open-channel': n=>openChannel(n.dataset.v),
  'retry-channel': n=>openChannel(n.dataset.v,true),
  'mark-sent': async ()=>{await updateCard('sent',{text:draftInput(),stage:model.stage});notify('Отправка отмечена.');},
+ 'set-follow': async n=>{await updateCard('follow',{days:n.dataset.v});notify('Дата следующего контакта сохранена.');},
  'verify-card': async ()=>{
   const p=model.selected;model.selected=await api('card/'+p.pid+'/verify',{version:p.version});
   await refresh();renderOverlay();notify('Проверка завершена.');
@@ -2014,6 +2139,8 @@ const actions={
  },
  'edit-project': n=>openProject(Number(n.dataset.id)),
  'publish-project': ()=>publishProject(),
+ 'quick-proposal': prepareProposal,
+ 'quick-publish': ()=>publishProject(true),
  'device': n=>{
   if(model.editor.kind==='generated'){model.editorDirty ||= JSON.stringify(readEditor())!==JSON.stringify(model.editor.data);model.editor.data=readEditor();}
   model.phone=n.dataset.v==='phone';renderOverlay();
