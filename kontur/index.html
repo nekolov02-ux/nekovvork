@@ -12,8 +12,8 @@ const appTheme=(()=>{
  const storageKey='kontur-mini-ui-theme';
  const media=window.matchMedia('(prefers-color-scheme: dark)');
  const colors={
-  light:{background:'#eff2ec',chrome:'#f6f8f3'},
-  dark:{background:'#17201d',chrome:'#1d2924'},
+  light:{background:'#f0f2f7',chrome:'#f6f7fc'},
+  dark:{background:'#141925',chrome:'#181f2e'},
  };
  let preference='auto';
  let telegram=null;
@@ -201,27 +201,27 @@ html,body{height:100%;background:var(--base)}
 /* Subdued light and dark palettes share the same component hierarchy. */
 :root{
  color-scheme:light;
- --base:#eff2ec;--paper:#f7f9f4;--chrome:#f6f8f3;--surface:#ecf1e9;--field:#f4f7f1;
- --ink:#21362e;--muted:#4d6559;--line:#d4dfd3;--control-line:#748a7c;
- --soft:#e1ece2;--purple:#295d49;--menu-ink:#2b5946;--focus:#317052;
- --action:#265e4b;--action-hover:#204d3e;--action-ink:#f3f8f1;--link:#245c47;
- --good-bg:#e4efe5;--good-ink:#2e5f49;--warn-bg:#f2ebdb;--warn-ink:#72511f;
- --bad-bg:#f3e5e6;--bad-ink:#893a48;--neutral-bg:#e9eeea;--neutral-ink:#4d6559;
- --amber:#8f5f29;--scrim-color:#19342958;--toast-bg:#254237;--toast-ink:#edf5ed;
- --toast-btn:#395b4e;--toast-line:#638275;--map-grid:#ccdccc;--map-soft:#dceadd;
- --shadow:0 12px 42px #17352420;
+ --base:#f0f2f7;--paper:#fafbfe;--chrome:#f6f7fc;--surface:#e9edf6;--field:#f1f4fa;
+ --ink:#1c2639;--muted:#525f76;--line:#dce1ed;--control-line:#75829a;
+ --soft:#e3eaff;--purple:#3659a5;--menu-ink:#2b4e97;--focus:#3c61bd;
+ --action:#365bb4;--action-hover:#2e4d98;--action-ink:#fff;--link:#3456a5;
+ --good-bg:#e1f0ee;--good-ink:#265b56;--warn-bg:#f3ebdb;--warn-ink:#745320;
+ --bad-bg:#f6e5e9;--bad-ink:#89394d;--neutral-bg:#e9edf4;--neutral-ink:#4d5a73;
+ --amber:#91621f;--scrim-color:#10192d63;--toast-bg:#293653;--toast-ink:#f3f6ff;
+ --toast-btn:#3b4d72;--toast-line:#6c7e9e;--map-grid:#ccd6e9;--map-soft:#e0e8f8;
+ --shadow:0 14px 46px #15254926;
 }
 :root[data-theme="dark"]{
  color-scheme:dark;
- --base:#17201d;--paper:#202c26;--chrome:#1d2924;--surface:#26342d;--field:#1b2721;
- --ink:#e4ede5;--muted:#a8bbb0;--line:#3c5045;--control-line:#6f8b7a;
- --soft:#304638;--purple:#afcfba;--menu-ink:#c1dac8;--focus:#96c4a9;
- --action:#96c2a8;--action-hover:#accfb9;--action-ink:#182c22;--link:#b7d9c3;
- --good-bg:#2b4538;--good-ink:#b5d8c4;--warn-bg:#403726;--warn-ink:#e1c797;
- --bad-bg:#463136;--bad-ink:#edb8c0;--neutral-bg:#2c3a33;--neutral-ink:#bdccc1;
- --amber:#e1b979;--scrim-color:#09110cc4;--toast-bg:#314b3e;--toast-ink:#e9f4ec;
- --toast-btn:#425e50;--toast-line:#6b8f7b;--map-grid:#44594d;--map-soft:#33493d;
- --shadow:0 12px 45px #080f0a70;
+ --base:#141925;--paper:#1c2333;--chrome:#181f2e;--surface:#242e42;--field:#161e2d;
+ --ink:#ebedf6;--muted:#b1bbd1;--line:#343f55;--control-line:#7887a7;
+ --soft:#293a61;--purple:#a5b9ff;--menu-ink:#c6d4ff;--focus:#a6b9ff;
+ --action:#a8baff;--action-hover:#bbc9ff;--action-ink:#17244a;--link:#bdccff;
+ --good-bg:#263e40;--good-ink:#a9d9d1;--warn-bg:#423525;--warn-ink:#f0cea0;
+ --bad-bg:#482d3a;--bad-ink:#f1bbc9;--neutral-bg:#2c3548;--neutral-ink:#c0cbdf;
+ --amber:#e6c18c;--scrim-color:#080d18c4;--toast-bg:#2b3b5c;--toast-ink:#edf2ff;
+ --toast-btn:#3a4a70;--toast-line:#7185ad;--map-grid:#425375;--map-soft:#273756;
+ --shadow:0 14px 46px #070b137a;
 }
 body,.workspace{background:var(--base);color:var(--ink)}
 a{color:var(--link)}
@@ -288,6 +288,69 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .ai-messengers li{display:grid;align-content:start;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px}
 .ai-messengers .btn{text-decoration:none;min-height:44px}
 [data-ai-result] summary{cursor:pointer;color:var(--link);padding-block:5px}
+.toast{pointer-events:none}
+.toast .btn{pointer-events:auto}
+.search-launch{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px}
+.search-shortcuts{display:flex;align-items:center;flex-wrap:wrap;gap:0 8px}
+.search-shortcuts .btn{padding-inline:6px;color:var(--link);font-weight:600;font-size:.88rem;min-height:42px}
+.place-card{padding:0;gap:0;overflow:hidden;border-radius:16px;align-content:start}
+.place-card-body{display:grid;gap:8px;padding:13px 15px 15px;min-width:0}
+.place-card .place-name,.place-card h3{font-size:1.13rem;line-height:1.2;font-weight:780;letter-spacing:-.02em;overflow-wrap:anywhere}
+.place-card .place-name{margin:0}
+.place-card p{margin:0}
+.place-card .foot{margin-top:2px;padding-top:10px;border-top:1px solid var(--line)}
+.venue-media{position:relative;isolation:isolate;min-width:0;height:160px;overflow:hidden;background:linear-gradient(145deg,var(--surface),var(--soft));display:grid;place-items:center;color:var(--menu-ink)}
+.venue-media>svg{width:32px;height:32px;opacity:.55}
+.venue-media img,.person-avatar img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.dialog-head h2{font-size:1.32rem;line-height:1.15;letter-spacing:-.035em}
+.dialog-head>.btn{width:44px;min-height:44px;padding:0;flex:none}
+.dialog.owner-dialog{padding:16px;gap:16px}
+.owner-context{display:flex;align-items:center;gap:12px;min-width:0}
+.owner-context .venue-media{width:54px;height:54px;flex:none;border-radius:12px}
+.owner-context .venue-media>svg{width:21px;height:21px}
+.owner-context strong{display:block;letter-spacing:-.02em}
+.owner-context small{display:block;overflow-wrap:anywhere;line-height:1.35}
+.owner-dialog .ai-actions{display:flex;gap:8px}
+.owner-dialog .ai-actions>.primary{flex:1;justify-content:center;min-height:46px}
+.owner-dialog .ai-settings-button{flex:none;width:44px;min-height:44px;padding:0}
+.owner-dialog [data-ai-result]:empty{display:none}
+.owner-dialog .owner-report{padding:0;border:0;background:none;gap:12px}
+.owner-report details,.owner-form-section{border-top:1px solid var(--line);padding-top:6px}
+.owner-report details summary,.owner-form-section summary{padding:8px 0;min-height:36px;color:var(--link);cursor:pointer}
+.owner-profile{display:flex;align-items:center;min-width:0;gap:12px}
+.owner-profile strong{display:block;font-size:1.06rem;overflow-wrap:anywhere}
+.person-avatar{position:relative;isolation:isolate;overflow:hidden;display:grid;place-items:center;background:var(--soft);color:var(--menu-ink);font-weight:750;width:48px;height:48px;border-radius:50%;flex:none}
+.owner-report .ai-messengers{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.owner-report .ai-messengers li{padding:8px;gap:3px}
+.owner-report .ai-messengers .btn{padding-inline:8px;min-height:40px;font-size:.82rem;white-space:normal;line-height:1.2}
+.owner-report .ai-messengers small{font-size:.76rem}
+.owner-report .ai-messengers .wrap{gap:4px}
+.owner-form-section form{padding-top:5px}
+.owner-form-section .confirmation{display:flex;gap:10px;align-items:center;min-height:44px;cursor:pointer}
+.owner-form-section .confirmation input{width:22px;height:22px;flex:none}
+.owner-form-section [aria-invalid="true"]{border-color:var(--bad-ink)}
+.owner-form-section [data-owner-error]{color:var(--bad-ink);margin:0;line-height:1.35;scroll-margin-block:12px}
+.owner-form-section [data-owner-error]:empty{display:none}
+.owner-form-section button[type=submit]{justify-self:stretch;justify-content:center;min-height:46px}
+.drawer-head{gap:9px}
+.drawer-cover{margin:0;border-radius:12px;height:122px}
+.drawer-head .tabs{gap:4px;margin:0;padding-top:2px;border-top:0}
+.drawer-head .tabs .tab{min-height:44px;border:0;border-radius:8px 8px 0 0;background:transparent}
+.drawer-head .tabs .tab.on{box-shadow:inset 0 -2px var(--action);color:var(--link)}
+.current-step{display:flex;align-items:center;gap:8px;font-size:.83rem;color:var(--muted)}
+.current-step progress{width:54px;height:4px;border:0;border-radius:9px;accent-color:var(--action)}
+.drawer-body .next-action{border:0;background:var(--surface);border-radius:13px}
+@media(max-width:700px){
+ .search-launch{display:grid}
+ .search-launch>.primary{width:100%;min-height:45px;justify-content:center}
+ .drawer-cover{height:clamp(76px,16dvh,132px)}
+ .drawer-head{padding-inline:14px}
+ .drawer-head .tabs{margin:0}
+ .drawer-head h2{font-size:1.46rem}
+ .dialog.owner-dialog{border-radius:16px;max-height:calc(var(--tg-viewport-stable-height,100dvh) - 20px);overscroll-behavior:contain}
+ input,select,textarea{font-size:16px}
+}
 
 </style>
 </head><body>
@@ -324,11 +387,19 @@ const workflow=(()=>{
   if(url.origin!=='https://yandex.ru'||!/^\/maps\/(?:\d+\/[^/]+\/)?org\/(?:[^/]+\/)?\d+\/?$/.test(url.pathname))return '';
   return url.origin+url.pathname.replace(/\/?$/,'/');
  }
+ function venuePhoto(value){
+  const href=https(value);
+  if(!href)return '';
+  const url=new URL(href);
+  return url.hostname==='avatars.mds.yandex.net'&&/^\/get-altay\/\d+\/[a-z\d]+\/[a-z_]+$/i.test(url.pathname)?url.origin+url.pathname:'';
+ }
+ const ownerField=(field,message)=>Object.assign(new Error(message),{field});
  function owner(card,b){
   if(card.fixture&&b.sample===true)return {name:'Алексей (учебный контакт)',channel:'test',href:'#test-chat',source:'',checkedAt:new Date().toISOString()};
   if(card.fixture)throw new Error('Используйте учебный контакт или добавьте реальное заведение вручную.');
   const name=string(b.name,140), source=https(b.source), channel=b.channel;
-  if(!name||!source||b.confirmed!==true)throw new Error('Укажите имя владельца, публичный источник и подтвердите принадлежность контакта.');
+  if(!name)throw ownerField('name','Укажите имя или ФИО из источника.');
+  if(!source)throw ownerField('source','Укажите полный HTTPS-адрес публичной страницы.');
   let href='';
   const value=string(b.contact,500);
   if(channel==='telegram'){
@@ -343,12 +414,24 @@ const workflow=(()=>{
    }
   }
   if(channel==='whatsapp'){
-   const n=value.replace(/[()\s+-]/g,'');
+   const link=https(value);
+   const u=link?new URL(link):null;
+   const raw=u?.hostname==='wa.me'?u.pathname.slice(1).replace(/\/$/,''):u?.hostname==='api.whatsapp.com'&&u.pathname==='/send'?u.searchParams.get('phone'):value;
+   let n=String(raw||'').replace(/[()\s+\p{Pd}]/gu,'');
+   if(/^8[3489]\d{9}$/.test(n))n='7'+n.slice(1);
    if(/^[1-9][0-9]{7,14}$/.test(n))href='https://wa.me/'+n;
   }
+  if(channel==='vk'){
+   const link=https(value);
+   const u=link?new URL(link):null;
+   if(u&&['vk.com','vk.ru','vk.me'].includes(u.hostname)&&/^\/[a-z0-9_.-]+\/?$/i.test(u.pathname)&&
+      !/^\/(?:help|feed|wall[-\d_]+|share|login|search|video[-\d_]+)\/?$/i.test(u.pathname))href=u.origin+u.pathname;
+  }
   if(channel==='email'&&/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(value))href='mailto:'+value;
-  if(!href)throw new Error('Укажите личный рабочий Telegram владельца, международный номер WhatsApp или рабочую почту.');
-  return {name,channel,href,source,checkedAt:new Date().toISOString()};
+  if(!href)throw ownerField('contact','Укажите рабочий контакт в формате выбранного канала.');
+  if(b.confirmed!==true)throw ownerField('confirmed','Сверьте контакт с источником и отметьте подтверждение.');
+  const photo=https(b.photo),photoSource=https(b.photoSource);
+  return {name,channel,href,source,checkedAt:new Date().toISOString(),...(photo&&photoSource?{photo,photoSource}:{})};
  }
  function analysis(card,b){
   const result=Object.fromEntries(researchFields.map(([key])=>[key,string(b[key],key==='publicCopy'?1000:2200)]));
@@ -407,7 +490,7 @@ const workflow=(()=>{
   const comparablePhone=d.phone.replace(/[^\d]/g,'');
   const ownerTelegram=card.owner.channel==='telegram'?new URL(card.owner.href).pathname.split('/')[1].toLowerCase():'';
   const ownerInCopy=ownerTelegram&&[('t.me/'+ownerTelegram),('@'+ownerTelegram)].some(x=>publicText.toLowerCase().includes(x));
-  const privacy=!ownerInCopy&&!(ownerPhone&&publicText.replace(/\D/g,'').includes(ownerPhone))&&
+  const privacy=!ownerInCopy&&(card.owner.channel!=='vk'||!publicText.toLowerCase().includes(card.owner.href.slice(8).toLowerCase()))&&!(ownerPhone&&publicText.replace(/\D/g,'').includes(ownerPhone))&&
     (card.owner.channel!=='email'||!publicText.toLowerCase().includes(card.owner.href.slice(7).toLowerCase()))&&
     (!d.phone||String(d.phone).replace(/[^\d+]/g,'')===allowedPhone||
       comparablePhone.length>=8&&research.publicCopy.replace(/\D/g,'').includes(comparablePhone));
@@ -438,7 +521,7 @@ const workflow=(()=>{
    'Раздели результат на проверки фактов и источников, дизайна и сценария, мобильной доступности. Укажи, что подтвердилось, что исправить и что невозможно проверить по имеющимся данным.',
   ].join('\n\n');
  }
- return {owner,analysis,sampleAnalysis,key,requireAnalysis,prompt,audit,critiqueBrief,https,yandexPlace};
+ return {owner,analysis,sampleAnalysis,key,requireAnalysis,prompt,audit,critiqueBrief,https,yandexPlace,venuePhoto};
 })();
 
 </script>
@@ -714,18 +797,20 @@ const localApi=(()=>{
   const name=text(b.name,200),city=text(b.city,80),address=text(b.address,300),site=web(b.site);
   if(!name||!city)throw issue('Укажите название и город.');
   const map_url=workflow.yandexPlace(b.map_url);
+  const photo=map_url&&workflow.venuePhoto(b.photo);
   if(b.map_url&&!map_url)throw issue('Укажите прямую ссылку на карточку организации на Яндекс Картах.');
   const mapId=url=>url?.match(/\/(\d+)\/$/)?.[1];
   const found=s.cards.find(c=>!c.fixture&&((map_url&&mapId(c.map_url)===mapId(map_url))||
     (c.name===name&&c.city===city&&c.address===address)));
-    if(found&&((map_url&&!found.map_url)||(site&&b.siteStatus==='own'&&!found.site))){
+  if(found&&((map_url&&!found.map_url)||(site&&b.siteStatus==='own'&&!found.site)||(photo&&photo!==found.photo))){
    if(map_url&&!found.map_url)found.map_url=map_url;
    if(site&&b.siteStatus==='own'&&!found.site){found.site=site;found.own='own';}
+   if(photo)found.photo=photo;
    change(found);
   }
   if(found)return publicCard(found,true);
   const contact=Object.fromEntries(['telegram','phone','email','whatsapp','vk'].map(k=>[k,text(b[k],300)]).filter(([,v])=>v));
-  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,own:b.siteStatus==='own'&&site?'own':site||map_url?'unknown':'none',contact},'base');
+  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,photo,own:b.siteStatus==='own'&&site?'own':site||map_url?'unknown':'none',contact},'base');
   event(c,'claimed',map_url?'Добавлено из Яндекс Карт':'Добавлено вручную',b.request);
   return publicCard(c,true);
  }
@@ -995,6 +1080,11 @@ const localApi=(()=>{
   let m=path.match(/^job\/(\d+)\/(stop|all|portion|forget)$/);
   if(m)return jobAction(s,m[1],m[2]);
   if(path==='card/manual')return manual(s,b);
+  if(path==='card/photo'){
+   const c=getCard(s,b.pid);
+   if(c.map_url&&c.map_url===workflow.yandexPlace(b.map))c.photo||=workflow.venuePhoto(b.photo);
+   return publicCard(c,true);
+  }
   if(path==='card/recheck'){
    const excluded=s.cards.filter(c=>c.fixture&&c.bucket==='excluded'&&c.site);
    let restored=0;
@@ -1115,10 +1205,20 @@ function restoreAiOutput(root,modal){
 }
 function aiControls(mode){
  const label={owner:'Поиск владельца с ИИ',analysis:'Глубокий анализ с ИИ',review:'Запустить рецензию ИИ'}[mode];
- return `<div class="stack"><div class="wrap">
-  ${btn(icon('spark')+' '+label,'ai-start','tint','data-v="'+mode+'"')}
-  ${btn(icon('settings'),'ai-settings','ghost','aria-label="Подключение ИИ"')}
+ return `<div class="stack"><div class="wrap ai-actions">
+  ${btn(icon('spark')+' '+label,'ai-start',mode==='owner'?'primary':'tint','data-v="'+mode+'"')}
+  ${btn(icon('settings'),'ai-settings','ghost ai-settings-button','aria-label="Подключение ИИ"')}
  </div><div data-ai-result aria-live="polite"></div></div>`;
+}
+function personAvatar(person){
+ const photo=workflow.https(person.photo);
+ const initials=String(person.person||person.name||'').trim().split(/\s+/).slice(0,2).map(word=>word[0]||'').join('').toUpperCase();
+ return `<span class="person-avatar" aria-hidden="true">${esc(initials)}${photo&&workflow.https(person.photoSource)?
+  `<img src="${esc(photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-public-image>`:''}</span>`;
+}
+function rememberOwnerForm(form){
+ const data=Object.fromEntries(new FormData(form));
+ model.modal.ownerScratch={...data,confirmed:data.confirmed==='on'};
 }
 const messengerNames={telegram:'Telegram',max:'MAX',vk:'ВКонтакте',whatsapp:'WhatsApp'};
 const messengerHosts={telegram:['t.me'],max:['max.ru'],vk:['vk.me','vk.com','vk.ru'],whatsapp:['wa.me','api.whatsapp.com']};
@@ -1140,11 +1240,11 @@ function aiMessengerLinks(contacts,coverage){
    body=`<div class="wrap">${link(contact.href,page?'Открыть страницу':'Открыть')}`
     + `<small><a href="${esc(contact.url)}" target="_blank" rel="noopener noreferrer">Источник</a></small></div>`;
   }else if(phones.length&&['telegram','whatsapp'].includes(channel)){
-   body=`<small>По номеру · аккаунт не подтверждён</small><div class="wrap">${phones.map(number=>
+   body=`<small>Аккаунт не подтверждён</small><div class="wrap">${phones.map(number=>
     link(channel==='telegram'?'https://t.me/'+number:'https://wa.me/'+number.slice(1),
      phones.length===1?'Открыть по номеру':'Открыть '+number)).join('')}</div>`;
   }else if(channel==='max'&&phones.length){
-   body=`<small>${status} В MAX выберите «Найти по номеру».</small><div class="wrap">
+   body=`<small>Поиск номера в приложении</small><div class="wrap">
     ${phones.map(number=>btn(phones.length===1?'Копировать номер':'Копировать '+number,'copy-ai-phone','tint','data-v="'+esc(number)+'"')).join('')}
     ${link('https://web.max.ru/','Открыть MAX')}</div>`;
   }else{
@@ -1160,18 +1260,19 @@ function aiShow(result,mode,node){
  const business=result.business;
  const businessSource=workflow.https(business?.venueSource);
  const registrySource=workflow.https(business?.registrySource);
- const legal=businessSource&&/^\d{10}(?:\d{2})?$/.test(business.inn)?`<div class="stack">
-  <strong>Кто принимает решения</strong>
+ const legal=businessSource&&/^\d{10}(?:\d{2})?$/.test(business.inn)?`<details data-key="business"><summary>Реквизиты и подтверждение роли</summary><div class="stack">
   <div>${business.name?`<b>${esc(business.name)}</b> · `:''}ИНН ${esc(business.inn)} · <a href="${esc(businessSource)}" target="_blank" rel="noopener noreferrer">Связь с заведением</a></div>
-  ${business.person?`<div><b>${esc(business.person)}</b> · ${esc(business.role)}</div>`:'<small>Руководитель пока не подтверждён.</small>'}
+  ${business.person?'<div><b>'+esc(business.person)+'</b> · '+esc(business.role)+'</div>':'<small>Руководитель пока не подтверждён.</small>'}
   ${registrySource?`<a href="${esc(registrySource)}" target="_blank" rel="noopener noreferrer">Запись по ИНН</a>`:''}
   <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer">Получить выписку ФНС по ИНН</a>
-  ${business.quote?`<details><summary>Подтверждение роли</summary><p>${esc(business.quote)}</p></details>`:''}
- </div>`:(Object.hasOwn(result,'business')?`<div class="stack"><strong>Кто принимает решения</strong>
-  <small>Реквизиты для этой точки пока не подтверждены.</small>
-  <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer">Проверить реквизиты в ФНС</a></div>`:'');
- const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
-  <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
+  ${business.quote?`<small>${esc(business.quote)}</small>`:''}
+ </div></details>`:'';
+ const person=own||(business?.person?business:null);
+ const personSource=workflow.https(person?.nameSource)||workflow.https(person?.photoSource)||workflow.https(own?.url)||registrySource;
+ const candidate=person?`<div class="owner-profile">${personAvatar(person)}<div><strong>${esc(person.name&&person===own?person.name:person.person)}</strong>
+  <small>${esc(own?'Рабочий контакт найден':business.role||'Представитель заведения')}${own?' · '+esc(own.contact):''}</small>
+  ${personSource?`<small><a href="${esc(personSource)}" target="_blank" rel="noopener noreferrer">Открыть источник</a></small>`:''}</div></div>`:
+  '<div><strong>Рабочий контакт не найден</strong><p class="muted">Ниже — общие каналы заведения.</p></div>';
  const contacts=Array.isArray(result.venueContacts)?result.venueContacts:[];
  const contactList=items=>items.map(item=>{
   const href=safeLink(item.href,['https:','mailto:','tel:']), source=workflow.https(item.url);
@@ -1187,21 +1288,23 @@ function aiShow(result,mode,node){
   `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}${Array.isArray(pass.platforms)?`<small> · ${esc(pass.platforms.length?pass.platforms.join(', '):'поисковик не указал площадки') }</small>`:''}</li>`).join('');
  const warnings=(Array.isArray(result.warnings)?result.warnings:[]).filter(warning=>typeof warning==='string');
  const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&researchFields.some(([key])=>result.analysis?.[key]):result.comments;
- node.innerHTML=`<section class="sheet stack">
+ node.innerHTML=`<section class="sheet stack ${mode==='owner'?'owner-report':''}">
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
   ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
-  ${legal}
-  <div><strong>Прямой рабочий контакт</strong>
-  ${candidate||'<p>Публичный рабочий контакт владельца или руководителя пока не подтверждён.</p>'}</div>
+  ${candidate}
+  ${own?`<details data-key="contact-proof"><summary>Подтверждение контакта</summary><small>${esc(own.evidence)}</small>
+  ${workflow.https(own.url)?`<p><a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Страница с контактом</a></p>`:''}</details>`:''}
+  ${reviewable?btn('Подставить для проверки','ai-apply','tint','data-v="owner"'):''}
   ${aiMessengerLinks(contacts,passes)}
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
-  ${phones?`<details><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
-  ${coverage?`<details><summary>Что проверил поиск</summary><ul class="ai-sources">${coverage}</ul></details>`:''}`:''}
+  ${phones?`<details data-key="phones"><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
+  ${legal}
+  ${coverage?`<details data-key="coverage"><summary>Что проверил поиск</summary><ul class="ai-sources">${coverage}</ul></details>`:''}`:''}
   ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
-  ${links?`<details><summary>Источники (${sources.length})</summary><ol class="ai-sources">${links}</ol></details>`:''}
+  ${links?`<details data-key="sources"><summary>Источники (${sources.length})</summary><ol class="ai-sources">${links}</ol></details>`:''}
   ${mode==='analysis'&&warnings.length?`<ul class="ai-sources">${warnings.map(warning=>`<li>${esc(warning)}</li>`).join('')}</ul>`:''}
   ${mode==='analysis'&&!reviewable?'<p class="muted">Поиск не вернул достаточно данных с источниками.</p>':''}
-  ${reviewable?btn({owner:'Подставить для проверки',analysis:'Заполнить черновик анализа',review:'Подставить рецензию'}[mode],'ai-apply','','data-v="'+mode+'"'):''}
+  ${reviewable&&mode!=='owner'?btn({analysis:'Заполнить черновик анализа',review:'Подставить рецензию'}[mode],'ai-apply','','data-v="'+mode+'"'):''}
  </section>`;
 }
 async function aiStart(mode){
@@ -1272,6 +1375,8 @@ function aiApply(mode){
   const {name,channel,contact,url}=result.owner;
   fill('name',name);fill('channel',channel);fill('contact',contact);fill('source',workflow.https(url));
   form.elements.confirmed.checked=false;
+  form.closest('details').open=true;
+  rememberOwnerForm(form);
  }else if(mode==='analysis'){
   if(!result.analysis)return;
   for(const [key] of researchFields)if(result.analysis[key])fill(key,result.analysis[key]);
@@ -1407,18 +1512,23 @@ function details(label,key,body){return `<details data-key="${key}"><summary>${l
 function tagInput(kind,label,values,placeholder,list=''){
  return `<section class="tagbox"><h3>${label}</h3><div class="wrap">${values.map(v=>chip(v+' ×',kind+'-remove',v,true)).join('')}</div><form data-form="${kind}-add"><input name="value" placeholder="${placeholder}" aria-label="${label}" ${list?'list="cities-list"':''} required maxlength="80"><button class="btn" aria-label="Добавить ${kind==='city'?'город':'категорию'}">${icon('plus')}</button></form>${list?`<datalist id="cities-list">${CITIES.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>`:''}</section>`;
 }
+function venueMedia(place,css=''){
+ const photo=workflow.venuePhoto(place.photo);
+ return `<div class="venue-media ${css}" aria-hidden="true">${icon('pin')}${photo?
+  `<img src="${esc(photo)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-public-image>`:''}</div>`;
+}
 function liveSearch(){
  const state=model.mapSearch;
  const groups={not_found:[],unknown:[],own:[]};
  for(const [index,place] of (state.result||[]).entries()){
   const kind=place.siteStatus==='own'&&safeLink(place.site)?'own':place.siteStatus==='not_found'?'not_found':'unknown';
   const heading={own:'Сайт найден',not_found:'Сайт не найден при проверке',unknown:'Сайт ещё не проверен'}[kind];
-  groups[kind].push(`<article class="place">
-  <h3>${esc(place.name)}</h3><p class="muted">${esc(place.category)} · ${esc(place.address)}</p>
-  <small>${heading}</small>
-  <div class="wrap"><a class="btn" href="${esc(workflow.yandexPlace(place.map_url))}" rel="noopener noreferrer" target="_blank">Карточка на карте</a>
-  ${kind==='own'?`<a class="btn" href="${esc(safeLink(place.site))}" rel="noopener noreferrer" target="_blank">Открыть сайт</a>`:''}
-  ${btn('+ В базу','map-save','tint',`data-id="${index}"`)}</div></article>`);
+  groups[kind].push(`<article class="place place-card">${venueMedia(place)}
+  <div class="place-card-body"><div class="spread"><h3>${esc(place.name)}</h3>${tag(heading,kind==='own'?'green':'gray')}</div>
+  <p class="muted">${esc(place.category)} · ${esc(place.address)}</p>
+  <div class="foot wrap">${btn('+ В базу','map-save','tint',`data-id="${index}"`)}
+  <a class="btn ghost" data-a="open-ai-channel" href="${esc(workflow.yandexPlace(place.map_url))}" rel="noopener noreferrer" target="_blank">Карточка на карте</a>
+  ${kind==='own'?`<a class="btn ghost" data-a="open-ai-channel" href="${esc(safeLink(place.site))}" rel="noopener noreferrer" target="_blank">Открыть сайт</a>`:''}</div></div></article>`);
  }
  const other=(kind,label)=>groups[kind].length?`<details class="search-card"><summary>${label} · ${groups[kind].length}</summary><div class="cards">${groups[kind].join('')}</div></details>`:'';
  const results=state.result?`<div class="group-head"><h2>${groups.not_found.length?'Кандидаты без найденного сайта':'Кандидатов без найденного сайта пока нет'}</h2></div>
@@ -1428,9 +1538,8 @@ function liveSearch(){
  return title('Поиск заведений','Яндекс Карты')+`<section class="search-card"><form data-form="maps-search" class="stack">
   <div class="form-grid">${field('Город','city',state.city||model.cities[0]||'','text','required maxlength="80"')}
   ${field('Название или категория','query',state.query,'text','required maxlength="160" placeholder="Например, пиццерия"')}</div>
-  <div class="wrap"><button class="btn primary" ${state.pending?'disabled':''}>${icon('search')} Найти заведения</button>
-  ${btn('Открыть Яндекс Карты','maps-open')}
-  ${btn('Учебная выдача','training-search','ghost')}</div></form></section>
+  <div class="search-launch"><button class="btn primary" ${state.pending?'disabled':''}>${icon('search')} Найти заведения</button>
+  <div class="search-shortcuts">${btn('Открыть Яндекс Карты','maps-open','ghost')}${btn('Учебная выдача','training-search','ghost')}</div></div></form></section>
   <div aria-live="polite">${state.pending?'<p class="job-inline"><span class="activity-dot"></span>Ищем заведения и проверяем, есть ли у них сайт…</p>':
   state.error?`<p class="muted">${esc(state.error)} Можно открыть поиск на Яндекс Картах.</p>`:
   results}</div>`;
@@ -1508,13 +1617,13 @@ function boardResults(){
 function channels(c){
  const o=c.owner;
  if(!o)return [];
- const labels={telegram:'Telegram',whatsapp:'WhatsApp',email:'Рабочая почта',test:'Тестовый чат'};
+ const labels={telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',email:'Рабочая почта',test:'Тестовый чат'};
  return [[labels[o.channel],o.href]];
 }
 function placeTile(c){
  const d=`data-id="${c.pid}"`;
  const kind={none:'red',own:'green',social:'',directory:'gray',template:'orange',down:'red',unknown:'gray'};
- return `<article class="place">
+ return `<article class="place place-card">${c.photo?venueMedia(c):''}<div class="place-card-body">
  <div class="spread"><div class="wrap">${tag(KINDS[c.own],kind[c.own])}${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div>
  <span class="rating">${c.rating!=null?`<em>★</em> ${num(c.rating)} <small>· ${num(c.reviews)}</small>`:''}</span></div>
  <button class="place-name" data-a="card" ${d}>${esc(c.name)}</button>
@@ -1523,7 +1632,7 @@ function placeTile(c){
  <div class="foot spread"><div class="wrap">${c.bucket==='base'?tag(c.effective,c.effective===STATUS[6]?'gray':'green'):
 ''}</div>
  <div class="wrap">${c.bucket==='base'?'':
- btn(c.owner?'Продолжить':'Найти владельца',c.owner?'card':'find-owner','tint',d)+btn('+ В базу','claim','',d)}</div></div></article>`;
+ btn(c.owner?'Продолжить':'Найти владельца',c.owner?'card':'find-owner','tint',d)+btn('+ В базу','claim','',d)}</div></div></div></article>`;
 }
 function proposalSettings(){
  const cfg=model.state.settings;
@@ -1546,8 +1655,8 @@ function projectRow(p){
  ${p.url?`<div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-project','ghost',d)}</div>`:''}
  <small>${esc(p.metric)} · <b>${demoStats(p).opens}</b> · Последнее · ${fmt(demoStats(p).last)}</small></article>`;
 }
-function dialog(heading,body,large=false){
- return `<div class="scrim" data-backdrop><div class="dialog ${large?'large':''}" role="dialog" aria-modal="true" aria-label="${esc(heading)}"><div class="spread"><h2>${esc(heading)}</h2>${btn(icon('close'),'close-modal','ghost','aria-label="Закрыть"')}</div>${body}</div></div>`;
+function dialog(heading,body,large=false,css=''){
+ return `<div class="scrim" data-backdrop><div class="dialog ${large?'large':''} ${css}" role="dialog" aria-modal="true" aria-label="${esc(heading)}"><div class="dialog-head"><h2>${esc(heading)}</h2>${btn(icon('close'),'close-modal','ghost','aria-label="Закрыть"')}</div>${body}</div></div>`;
 }
 function modalView(m){
  if(!m)return '';
@@ -1558,7 +1667,7 @@ function modalView(m){
    ).join('')}</div>`);
  }
  if(m.type==='ai-settings')return dialog('Подключение ИИ',aiSettings());
- if(m.type==='owner')return dialog('Контакт владельца',ownerForm(model.selected));
+ if(m.type==='owner')return dialog('Контакт владельца',ownerForm(model.selected,m),'','owner-dialog');
  if(m.type==='research')return dialog('Анализ заведения',researchForm(model.selected,m.sample),true);
  if(m.type==='quick-proposal'){
   const p=model.editor;
@@ -1596,23 +1705,28 @@ function modalView(m){
  if(m.type==='copy')return dialog('Скопировать вручную',`<textarea data-select readonly>${esc(m.value)}</textarea><p class="muted">Выделите текст и скопируйте его.</p>`);
  return '';
 }
-function ownerForm(c){
+function ownerForm(c,modal){
  const o=c.owner;
  const query=[c.name,c.city,c.address].filter(Boolean).map(value=>'"'+value.replaceAll('"','')+'"').join(' ');
  const lookup=term=>'https://www.google.com/search?q='+encodeURIComponent(query+' '+term);
- const contact=o?.channel==='email'?o.href.slice(7):o?.channel==='whatsapp'?'+'+o.href.split('/').at(-1):o?.channel==='telegram'?o.href:'';
- return `<p class="muted">${esc([c.name,c.city,c.address].filter(Boolean).join(' · '))}. Сохраните прямой рабочий контакт после проверки источника.</p>
- <div class="wrap"><a class="btn" href="${esc(lookup('владелец основатель'))}" target="_blank" rel="noopener noreferrer">Поиск владельца</a>
- <a class="btn" href="${esc(lookup('официальная страница контакты'))}" target="_blank" rel="noopener noreferrer">Сайт и контакты</a></div>
+ const contact=o?.channel==='email'?o.href.slice(7):o?.channel==='whatsapp'?'+'+o.href.split('/').at(-1):o?.channel!=='test'?o?.href:'';
+ const form=modal.ownerScratch||{name:o?.channel==='test'?'':o?.name,channel:o?.channel,contact,source:o?.source,confirmed:!!o&&o.channel!=='test'};
+ return `<div class="owner-context">${venueMedia(c)}<div><strong>${esc(c.name)}</strong><small>${esc(c.address||c.city)}</small></div></div>
  ${c.fixture?'':aiControls('owner')}
- <form data-form="owner" class="stack">
-  ${field('Имя владельца','name',o?.channel==='test'?'':o?.name,'text','required maxlength="140"')}
-  <label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',email:'Рабочая почта'},o?.channel)}</select></label>
-  ${field('Рабочий контакт','contact',contact,'text','required placeholder="@username, международный номер или email"')}
-  ${field('Источник подтверждения','source',o?.source,'url','required placeholder="https://…"')}
-  <label class="row"><input type="checkbox" name="confirmed" required> Источник связывает этот контакт с владельцем</label>
-  <button class="btn primary">Сохранить контакт</button>
- </form>${c.fixture?btn('Использовать учебный контакт','sample-owner','ghost'):''}`;
+ <details class="owner-form-section" data-key="owner-form" ${o||modal.ownerScratch?'open':''}><summary>${o?'Редактировать контакт':'Добавить контакт вручную'}</summary>
+ <form data-form="owner" class="stack" novalidate>
+  ${field('ФИО или имя из источника','name',form.name,'text','required maxlength="140" autocomplete="off"')}
+  <div class="form-grid"><label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',email:'Рабочая почта'},form.channel)}</select></label>
+  ${field('Рабочий контакт','contact',form.contact,'text','required placeholder="Имя пользователя, номер или ссылка"')}</div>
+  ${field('Источник подтверждения','source',form.source,'url','required placeholder="https://…"')}
+  <label class="confirmation"><input type="checkbox" name="confirmed" required ${form.confirmed?'checked':''}> Источник связывает контакт с владельцем или руководителем</label>
+  <p id="owner-error" data-owner-error role="alert"></p>
+  <button type="submit" class="btn primary">Сохранить контакт</button>
+ </form></details>
+ ${c.fixture?btn('Использовать учебный контакт','sample-owner','ghost'):
+  `<details data-key="external-owner"><summary>Где ещё искать</summary><div class="wrap">
+   <a class="btn ghost" data-a="open-ai-channel" href="${esc(lookup('владелец основатель'))}" target="_blank" rel="noopener noreferrer">Поиск владельца</a>
+   <a class="btn ghost" data-a="open-ai-channel" href="${esc(lookup('официальная страница контакты'))}" target="_blank" rel="noopener noreferrer">Сайт и контакты</a></div></details>`}`;
 }
 function researchForm(c,sample){
  const a=sample?workflow.sampleAnalysis():c.analysis||{};
@@ -1698,13 +1812,11 @@ function cardView(c){
   const draft=model.cardScratch??c.drafts[STAGES[2]]??'';
   const readyDraft=published&&draft.split(/\s+/).includes(published);
   const training=o?.channel==='test';
-  const stages=`<ol class="workflow-steps">
-   <li class="${o?'complete':'current'}">Владелец</li><li class="${c.analysis?'complete':o?'current':''}">Анализ</li>
-   <li class="${published?'complete':c.analysis?'current':''}">Демо</li><li class="${published?'current':''}">Сообщение</li>
-  </ol>`;
-  const ownerInfo=o?`<div class="sheet spread"><div><strong>${esc(o.name)}</strong><p class="muted">${training?'Учебный контакт':o.source?`<a target="_blank" rel="noopener noreferrer" href="${esc(o.source)}">Источник подтверждения</a>`:'Владелец подтверждён'}</p></div>${btn('Изменить контакт','owner','ghost')}</div>`:'';
+  const step=!o?1:!c.analysis?2:!published?3:4;
+  const stages=`<div class="current-step"><progress max="4" value="${step}" aria-label="Готовность предложения"></progress><span>${step} из 4 · ${['Контакт','Анализ','Демо','Сообщение'][step-1]}</span></div>`;
+  const ownerInfo=o?`<div class="spread"><div class="owner-profile">${personAvatar(o)}<div><strong>${esc(o.name)}</strong><small>${training?'Учебный контакт':'Рабочий контакт подтверждён'}</small></div></div>${btn('Изменить контакт','owner','ghost')}</div>`:'';
   let next;
-  if(!o)next=`<div class="sheet stack"><h3>Найдите владельца</h3><p class="muted">Демо и сообщение доступны после подтверждения рабочего контакта.</p>${btn('Найти владельца','owner','primary')}</div>`;
+  if(!o)next=`<div class="sheet stack next-action"><h3>Найдите рабочий контакт</h3><p class="muted">Подтвердите, с кем обсуждать сайт для заведения.</p>${btn('Найти владельца','owner','primary')}</div>`;
   else if(!c.analysis)next=`<div class="sheet stack"><h3>Разберите заведение</h3><p class="muted">Соберите факты, сравните аналоги и определите задачу сайта.</p><div class="wrap">${!training?btn('Начать анализ с ИИ','start-research','primary'):''}${btn('Заполнить анализ','research',training?'primary':'ghost')}</div></div>`;
   else if(!published)next=`<div class="sheet stack"><h3>${project?'Проверьте и опубликуйте демо':'Соберите сайт из анализа'}</h3>
    <div class="wrap">${!training&&(!project||project.kind==='generated')?btn('Подготовить предложение','quick-proposal','primary'):''}${btn(project?'Открыть демо':'Собрать демо','card-demo',training?'primary':'ghost')}${btn('Промпт','research-prompt')}${btn('Анализ','research','ghost')}</div></div>`;
@@ -1750,7 +1862,9 @@ function cardView(c){
   <div class="drawer-head"><div class="spread"><div class="row">${btn('‹','neighbor','ghost',`data-v="-1" aria-label="Предыдущее заведение" ${at<=0?'disabled':''}`)}
   <small>${at<0?'':(at+1)+' / '+list.length}</small>${btn('›','neighbor','ghost',`data-v="1" aria-label="Следующее заведение" ${at<0||at===list.length-1?'disabled':''}`)}</div>
   ${btn(icon('close'),'close-card','ghost','aria-label="Закрыть карточку"')}</div>
-  <div class="wrap">${tag(KINDS[c.own])}${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div><h2>${esc(c.name)}</h2>
+ ${c.photo?venueMedia(c,'drawer-cover'):''}
+ <div class="spread"><h2>${esc(c.name)}</h2>${tag(c.own==='unknown'?'Сайт не проверен':KINDS[c.own],c.own==='unknown'?'gray':'')}</div>
+ ${c.network||c.opening?`<div class="wrap">${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div>`:''}
   <div class="spread"><span class="muted">${icon('pin')} ${esc(c.city)} · ${esc(c.category)}</span>${c.rating!=null?`<span class="rating"><em>★</em> ${num(c.rating)} · ${num(c.reviews)} отзывов</span>`:''}</div>
   <div class="wrap">${c.bucket==='base'?`<select id="card-status" aria-label="Статус заведения" ${active?'disabled':''}>${options(STATUS,c.effective)}</select>`:
   btn('+ В базу','claim','primary',`data-id="${pid}" ${active?'disabled':''}`)}
@@ -1766,14 +1880,16 @@ function timeline(events){
  return `<article><div class="spread"><strong>${esc(names[e.kind]||e.kind)}</strong><small>${fmt(e.time)}</small></div>${message?`<p>${esc(message)}</p>`:''}</article>`;
  }).join('')||'<p class="muted">История пока пуста.</p>'}</div>`;
 }
+let renderedModal=null,renderedCard=null;
 function renderOverlay(){
  const root=el('#overlay');
- const tabs=all('.dialog details[open]',root).map(d=>d.dataset.key);
- const drawerScroll=el('.drawer-body',root)?.scrollTop||0;
- const dialogScroll=el('.dialog',root)?.scrollTop||0;
+ const tabs=renderedModal===model.modal?new Map(all('.dialog details[data-key]',root).map(d=>[d.dataset.key,d.open])):null;
+ const drawerScroll=renderedCard===model.selected?.pid?el('.drawer-body',root)?.scrollTop||0:0;
+ const dialogScroll=renderedModal===model.modal?el('.dialog',root)?.scrollTop||0:0;
  root.innerHTML=(model.selected?cardView(model.selected):'')+(model.modal?modalView(model.modal):'');
  restoreAiOutput(root,model.modal);
- for(const d of all('.dialog details',root))if(tabs.includes(d.dataset.key))d.open=true;
+ for(const d of all('.dialog details[data-key]',root))if(tabs?.has(d.dataset.key))d.open=tabs.get(d.dataset.key);
+ renderedModal=model.modal;renderedCard=model.selected?.pid;
  if(el('.drawer-body',root))el('.drawer-body',root).scrollTop=drawerScroll;
  if(el('.dialog',root))el('.dialog',root).scrollTop=dialogScroll;
  const frame=el('.demo-frame',root);
@@ -1788,6 +1904,7 @@ function renderOverlay(){
  if(drawer)drawer.inert=!!model.modal;
 }
 function showModal(type,data={}){
+ if(!el('#toast button'))el('#toast').replaceChildren();
  model.modal={type,...data};
  renderOverlay();
  el('.dialog button')?.focus({preventScroll:true});
@@ -1799,6 +1916,23 @@ function closeCard(){
  model.externalFallback=null;
  renderOverlay();
 }
+const requestedPhotos=new Set();
+async function fillCardPhoto(card){
+ const map=workflow.yandexPlace(card.map_url);
+ if(card.photo||!map||!aiConfig.code||requestedPhotos.has(map))return;
+ requestedPhotos.add(map);
+ try{
+  const result=await aiRequest({mode:'place-photo',map});
+  const photo=workflow.venuePhoto(result.photo);
+  if(!photo)return;
+  const changed=await api('card/photo',{pid:card.pid,map,photo});
+  if(model.selected?.pid===card.pid){
+   model.selected={...model.selected,photo:changed.photo};
+   if(!model.modal)renderOverlay();
+  }
+  await refresh();
+ }catch{requestedPhotos.delete(map);}
+}
 async function openCard(pid,compose=false,keepList=false){
  if(!keepList){
   model.cardList=visibleCards().map(c=>c.pid);
@@ -1809,6 +1943,7 @@ async function openCard(pid,compose=false,keepList=false){
  model.stage=STAGES[2];
  renderOverlay();
  el('.drawer button')?.focus({preventScroll:true});
+ void fillCardPhoto(model.selected);
 }
 async function updateCard(action,fields={},origin=model.selected){
  if(!origin)return;
@@ -1832,7 +1967,12 @@ function openTelegramLink(href){
  if(!app)return false;
  const url=safeLink(href);
  if(!url)return false;
- try{if(new URL(url).hostname==='t.me')app.openTelegramLink(url);else app.openLink(url);return true;}
+ try{
+  const method=new URL(url).hostname==='t.me'?'openTelegramLink':'openLink';
+  if(typeof app[method]!=='function')return false;
+  app[method](url);
+  return true;
+ }
  catch{return false;}
 }
 async function openChannel(name,fallback=false){
@@ -2197,7 +2337,22 @@ const forms={
   model.editor=await api('project/'+p.id+'/feedback',{version:p.version,comments:data.comments});
   showModal('edit-project');
  },
- 'owner': async data=>{await updateCard('owner',{...data,confirmed:data.confirmed==='on'});closeModal();},
+ 'owner': async (data,form)=>{
+  const modal=model.modal;
+  const candidate=modal.aiResult?.result.owner||model.selected.owner;
+  const match=candidate&&data.name.trim()===candidate.name&&workflow.https(data.source)===workflow.https(candidate.url||candidate.source);
+  try{
+   await updateCard('owner',{...data,confirmed:data.confirmed==='on',...(match?{photo:candidate.photo,photoSource:candidate.photoSource}:{})});
+   if(model.modal===modal)closeModal();
+  }catch(error){
+   const field=form.elements[error.field];
+   if(!field)throw error;
+   all('[aria-invalid]',form).forEach(input=>{input.removeAttribute('aria-invalid');input.removeAttribute('aria-describedby');});
+   el('[data-owner-error]',form).textContent=error.message;
+   field.setAttribute('aria-invalid','true');field.setAttribute('aria-describedby','owner-error');
+   field.focus({preventScroll:true});field.scrollIntoView({block:'nearest'});
+  }
+ },
  'research': async data=>{await updateCard('analysis',data);closeModal();},
  'city-add': data=>setOptions('cities',toggleChoice(model.cities,data.value,true)),
  'cat-add': data=>setOptions('categories',toggleChoice(model.categories,data.value,true)),
@@ -2267,6 +2422,11 @@ document.addEventListener('submit',event=>{
 });
 document.addEventListener('input',event=>{
  const n=event.target;
+ if(n.form?.dataset.form==='owner'&&model.modal?.type==='owner'){
+  rememberOwnerForm(n.form);
+  n.removeAttribute('aria-invalid');n.removeAttribute('aria-describedby');
+  el('[data-owner-error]',n.form).textContent='';
+ }
  if(n.id==='query'){model.q=n.value;el('#board-results').innerHTML=boardResults();}
  if(n.id==='draft'){
   model.cardScratch=n.value;
@@ -2275,6 +2435,9 @@ document.addEventListener('input',event=>{
   for(const button of all('[data-a="save-draft"],[data-a="copy-draft"],[data-a="open-channel"],[data-a="mark-sent"]',el('.drawer')))button.disabled=!complete;
  }
 });
+document.addEventListener('error',event=>{
+ if(event.target.matches?.('img[data-public-image]'))event.target.remove();
+},true);
 document.addEventListener('change',event=>{
  const n=event.target;
  run(null,async ()=>{
