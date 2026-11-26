@@ -517,7 +517,8 @@ const workflow=(()=>{
    {label:'Факты',ok:!suspicious.length,hint:'В тексте есть числа без подтверждения в анализе. Сверьте факты и цены либо пометьте позиции как пример.'},
    {label:'Приватность',ok:privacy,hint:'Удалите личный контакт владельца и оставьте только подтверждённый рабочий телефон заведения.'},
    {label:'Действие',ok:usable,hint:'Добавьте обложку и блок, на который ведёт кнопка. Для меню нужна хотя бы одна позиция.'},
-   {label:'Читаемость',ok:contrast>=4.5,hint:'Цвет обложки слишком светлый для белого текста. Выберите более тёмный оттенок.'},
+   d.design?{label:'Индивидуальный макет',ok:designIsComplete(d,d.design),hint:'После правок макету недостаёт блока. Пересоберите дизайн.'}:
+    {label:'Читаемость',ok:contrast>=4.5,hint:'Цвет обложки слишком светлый для белого текста. Выберите более тёмный оттенок.'},
   ];
  }
  function critiqueBrief(card,project){
@@ -525,6 +526,7 @@ const workflow=(()=>{
   const data=project.kind==='generated'?{
    title:d.title,subtitle:d.subtitle,publicText:d.about,blocks:d.blocks,
    target:d.target,button:d.action,color:d.color,menu:d.menu.map(({image,...item})=>item),
+   ...(d.design?{direction:d.design.direction,layout:d.design.markup.slice(0,1300),styles:d.design.css.slice(0,650)}:{}),
   }:{title:d.title,reference:d.source||'HTML из редактора'};
   return [
    'Проведи независимую рецензию демосайта. Проверь рендер или HTML, если он приложен. Не считай результат проверенным без просмотра.',
@@ -641,6 +643,124 @@ function renderDemoSite(site, imageURL) {
   ${sections.length?`<nav aria-label="Разделы сайта">${sections.map(([id,label])=>`<a href="#${id}">${label}</a>`).join('')}</nav>`:''}</div></header>
   <main>${site.blocks.map(block=>blocks[block]).join('')}</main>
   <footer><div class="layout">${esc(site.title)}${demo?' · Демонстрационная страница':''}</div></footer></body></html>`;
+}
+
+</script>
+<script>
+'use strict';
+
+const demoDesignTags=new Set('a article aside br div dl dt dd em figure figcaption footer h1 h2 h3 header hr li main nav ol p section small span strong ul'.split(' '));
+const demoDesignSlots=new Set(['title','category','about','address','hours','menu','photo','route','call','action']);
+const demoLabels=new Set(['Адрес','Атмосфера','В гостях','В зале','В меню','Визит','Где мы','За столиком','Записаться','Как добраться','Как нас найти','Карта','Контакты','Меню','На карте','На месте','Навынос','О заведении','О нас','Позвонить','Приехать','Режим работы','С собой','Связаться','Телефон','Услуги','Часы работы','Что в меню']);
+
+function cleanDemoDesign(value) {
+ if(!value||typeof value!=='object')return null;
+ const {markup,css}=value;
+ if(typeof markup!=='string'||typeof css!=='string'||markup.length>10500||css.length>10000||
+    !css.trim()||/[<\\]/.test(css)||/(?:@import|@font-face|@namespace|url\s*\(|image-set\s*\()/i.test(css))return null;
+ const template=document.createElement('template');
+ template.innerHTML=markup;
+ const doc=template.content;
+ if(doc.querySelectorAll('*').length>160)return null;
+ const seen=new Set();
+ const ids=new Set();
+ for(const node of doc.querySelectorAll('*')){
+  if(!demoDesignTags.has(node.localName))return null;
+  if(node.hasAttribute('data-slot')){
+   const key=node.dataset.slot==='map'?'route':node.dataset.slot;
+   if(!demoDesignSlots.has(key)||seen.has(key)){node.remove();continue;}
+   if(node.children.length)return null;
+   node.dataset.slot=key;
+   node.textContent='';
+   seen.add(key);
+  }
+  for(const {name,value} of [...node.attributes]){
+   if(name==='class'&&/^[a-z\d _-]{1,150}$/i.test(value))continue;
+   if(name==='id'&&/^[a-z][a-z\d-]{0,32}$/i.test(value)&&!ids.has(value)){ids.add(value);continue;}
+   if(name==='href'&&node.localName==='a'&&/^#[a-z][a-z\d-]{0,32}$/i.test(value))continue;
+   if(name==='data-slot')continue;
+   node.removeAttribute(name);
+  }
+  for(const child of node.childNodes){
+   if(child.nodeType===3&&child.textContent.trim()&&!demoLabels.has(child.textContent.trim()))child.remove();
+   if(child.nodeType===8)child.remove();
+  }
+ }
+ for(const child of doc.childNodes){
+  if(child.nodeType===3&&child.textContent.trim())return null;
+  if(child.nodeType===8)child.remove();
+ }
+ if(doc.querySelectorAll('h1').length!==1||!doc.querySelector('h1[data-slot="title"]')||
+    !seen.has('about')||!ids.has('contacts')||!['action','route','call'].some(key=>seen.has(key)))return null;
+ if([...doc.querySelectorAll('a[href]')].some(a=>!ids.has(a.getAttribute('href').slice(1))))return null;
+ const direction=typeof value.direction==='string'?value.direction.trim().slice(0,240):'';
+ return {direction,css:css.trim(),markup:template.innerHTML};
+}
+
+function designIsComplete(site, design) {
+ const parsed=cleanDemoDesign(design);
+ if(!parsed)return false;
+ const doc=new DOMParser().parseFromString(parsed.markup,'text/html');
+ const slot=name=>!!doc.querySelector('[data-slot="'+name+'"]');
+ return (!site.image||slot('photo'))&&(!site.address||slot('address'))&&(!site.hours||slot('hours'))&&
+  (!site.phone||slot('call'))&&(!(site.map||site.address)||slot('route'))&&
+  (site.target!=='menu'||!site.menu.length||slot('menu')&&!!doc.getElementById('menu'));
+}
+
+function renderIndividualDemo(site, imageURL) {
+ const design=cleanDemoDesign(site.design);
+ if(!design)return '';
+ const doc=new DOMParser().parseFromString(design.markup,'text/html');
+ const phone=site.phone.replace(/[^\d+]/g,'');
+ const map=site.map||(site.address?'https://yandex.ru/maps/?text='+encodeURIComponent(site.address):'');
+ const setLink=(node,href,label,external=false)=>{
+  if(!href){node.remove();return;}
+  const link=node.localName==='a'?node:doc.createElement('a');
+  if(link!==node){link.className=node.className;node.replaceWith(link);}
+  link.href=href;link.textContent=label;
+  if(external){link.target='_blank';link.rel='noopener noreferrer';}
+ };
+ const content={title:site.title,category:site.subtitle,about:site.about,address:site.address,hours:site.hours};
+ for(const node of doc.querySelectorAll('[data-slot]')){
+  const key=node.dataset.slot;
+  if(key in content){if(content[key])node.textContent=content[key];else node.remove();continue;}
+  if(key==='action')setLink(node,site.target==='menu'&&site.menu.length?'#menu':'#contacts',site.action||'Контакты');
+  if(key==='route')setLink(node,map,'Открыть на карте',true);
+  if(key==='call')setLink(node,/^\+?\d{8,15}$/.test(phone)?'tel:'+phone:'','Позвонить '+site.phone);
+  if(key==='photo'){
+   const src=imageURL(site.image);
+   if(!src){node.remove();continue;}
+   const image=doc.createElement('img');image.src=src;image.alt='';image.referrerPolicy='no-referrer';image.decoding='async';node.append(image);
+  }
+  if(key==='menu'){
+   if(!site.menu.length){node.remove();continue;}
+   const list=doc.createElement('div');list.className='kontur-menu';
+   for(const item of site.menu){
+    const row=doc.createElement('article');
+    const title=doc.createElement('strong');title.textContent=item.name;
+    const price=doc.createElement('span');price.textContent=item.price;
+    const text=doc.createElement('p');text.textContent=[item.description,item.example?'Пример':''].filter(Boolean).join(' · ');
+    row.append(title,price,text);list.append(row);
+   }
+   node.append(list);
+  }
+ }
+ const contacts=doc.getElementById('contacts');
+ if(!contacts.querySelector('a[href],[data-slot="address"],[data-slot="hours"]')){
+  const address=doc.createElement('p');
+  address.textContent=site.address||site.hours||'Контакты уточняются.';
+  contacts.append(address);
+  if(map){
+   const link=doc.createElement('a');
+   contacts.append(link);
+   setLink(link,map,'Открыть на карте',true);
+  }
+ }
+ const base='*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif}img{max-width:100%;display:block}a:focus-visible{outline:2px solid currentColor;outline-offset:4px}.kontur-menu article{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;padding-block:.8rem;border-bottom:1px solid #8885}.kontur-menu article p{grid-column:1/-1;margin:0}.kontur-demo-footer{padding:1rem;font-size:.82rem}';
+ return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src https: http: data:; base-uri 'none'; form-action 'none'">
+  <title>${esc(site.title)}</title><style>${base}${design.css}</style></head><body>${doc.body.innerHTML}
+  <footer class="kontur-demo-footer">Демонстрационная страница</footer></body></html>`;
 }
 
 </script>
@@ -808,7 +928,7 @@ const localApi=(()=>{
   if(!p.snapshot)return '';
   if(p.kind==='external')return p.snapshot.source;
   if(p.kind!=='generated')return '';
-  if(p.cloud) return 'https://kontur-ai.nekolov02.workers.dev/d/'+p.cloud;
+  if(p.cloud) return p.cloudOnDomain?'https://nekovvork.ru/kontur/?demo='+p.cloud:'https://kontur-ai.nekolov02.workers.dev/d/'+p.cloud;
   return shareURL(p.snapshot,p.token);
  }
  function projectPublic(p,full=false){
@@ -820,6 +940,7 @@ const localApi=(()=>{
    out.review=p.review||null;
    out.feedback=p.feedback||null;
    out.analysisCurrent=!!p.research;
+   out.individual=!!p.data.design;
    out.shareKey=p.shareKey||'';
    if(p.shareKey&&p.snapshot)out.sharePayload=shareURL(p.snapshot,p.shareKey).split('.').at(-1);
   }
@@ -950,10 +1071,16 @@ const localApi=(()=>{
  function decoded(value){return Uint8Array.from(atob(value.replaceAll('-','+').replaceAll('_','/')),s=>s.charCodeAt(0));}
  function shareURL(snapshot,token){
   if(!/^https?:$/.test(location.protocol))return '';
-  const data=encoded(fflate.zlibSync(encoder.encode(JSON.stringify(snapshot)),{level:6}));
+  const data=sharePayload(snapshot);
   const url=new URL(location.pathname,location.origin);
   url.hash='demo='+token+'.'+data;
   return url.href.length<=3900?url.href:'';
+ }
+ function sharePayload(snapshot){return encoded(fflate.zlibSync(encoder.encode(JSON.stringify(snapshot)),{level:6}));}
+ function publicSnapshot(data){
+  const snapshot=copy(data);
+  if(snapshot.design)snapshot.design.direction='';
+  return snapshot;
  }
  async function opening(token){
   const operation=async ()=>{const s=await storage();const p=s.projects.find(x=>x.token===token);
@@ -967,15 +1094,19 @@ const localApi=(()=>{
  function readShared(){
   const m=location.hash.match(/^#demo=([\w-]{8,40})\.([\w-]{1,3900})$/);
   if(!m)return null;
+  return {site:unpackSite(m[2]),token:m[1]};
+ }
+ function unpackSite(payload){
+  if(!/^[\w-]{1,21000}$/.test(payload))throw issue('Некорректные данные демо.');
   const buffer=new Uint8Array(100_000);
   let n=0;const inf=new fflate.Unzlib((chunk)=>{
    if(n+chunk.length>buffer.length)throw issue('Снимок демо слишком большой.');
    buffer.set(chunk,n);n+=chunk.length;
   });
   // Bound decompression of URL content before parsing it.
-  const data=decoded(m[2]);
+  const data=decoded(payload);
   for(let i=0;i<data.length;i+=64)inf.push(data.subarray(i,i+64),i+64>=data.length);
-  return {site:cleanSite(JSON.parse(decoder.decode(buffer.subarray(0,n)))),token:m[1]};
+  return cleanSite(JSON.parse(decoder.decode(buffer.subarray(0,n))));
  }
  const photoToken='/assets/pizza-example.jpg';
  function safeImage(value){
@@ -990,6 +1121,10 @@ const localApi=(()=>{
   if(!clean.title)throw issue('Укажите название сайта.');
   clean.image=safeImage(d.image);
   clean.map=workflow.yandexPlace(d.map);
+  if(d.design){
+   const design=cleanDemoDesign(d.design);
+   if(design)clean.design=design;
+  }
   clean.target=d.target==='contacts'?'contacts':'menu';
   clean.color=/^#[\da-f]{6}$/i.test(d.color)?d.color:'#a74429';
   clean.blocks=Array.isArray(d.blocks)?[...new Set(d.blocks.filter(b=>Object.hasOwn(BLOCKS,b)))]:[];
@@ -1022,7 +1157,8 @@ const localApi=(()=>{
    menu:menuFirst?menu:[]});
  }
  function renderSite(d){
-  return renderDemoSite(d,value=>value===photoToken?document.getElementById('demo-photo').textContent.trim():safeImage(value));
+  const image=value=>value===photoToken?document.getElementById('demo-photo').textContent.trim():safeImage(value);
+  return d.design?renderIndividualDemo(d,image)||renderDemoSite(d,image):renderDemoSite(d,image);
  }
  const maxImport=5_000_000, maxFiles=200;
  function localPath(value){
@@ -1133,6 +1269,13 @@ const localApi=(()=>{
   }
   requireVersion(p,b.version);
   const c=getCard(s,p.pid);
+  if(action==='design'){
+   workflow.requireAnalysis(c);
+   if(p.kind!=='generated'||p.research!==workflow.key(c))throw issue('Пересоберите проект по актуальному анализу.');
+   const design=cleanDemoDesign(b.design);
+   if(!design||!designIsComplete(p.data,design))throw issue('ИИ вернул неполный макет. Запустите сборку ещё раз.');
+   p.data={...p.data,design};p.version++;p.review=null;p.feedback=null;
+  }
   if(action==='save'){p.data=cleanSite(b.data);p.version++;p.review=null;p.feedback=null;}
   if(action==='rebuild'){
    if(p.kind!=='generated')throw issue('Создание по анализу работает для демосайта.');
@@ -1154,18 +1297,41 @@ const localApi=(()=>{
     p.review={checks:[{label:'Страница проверена вручную',ok:true}],research:p.research,version:p.version};
    }
   }
-  if(action==='publish'){
+  if(action==='publish'||action==='stage_publication'){
    workflow.requireAnalysis(c);
    if(!p.review||p.review.version!==p.version||p.review.research!==workflow.key(c)||p.review.checks.some(k=>!k.ok))
     throw issue('Для публикации проверьте актуальную версию сайта.');
+   const snapshot=p.kind==='generated'?publicSnapshot(p.data):p.kind==='external'?{source:p.data.source}:{};
+   const sameSnapshot=JSON.stringify(p.snapshot)===JSON.stringify(snapshot);
+   if(action==='stage_publication'){
+    if(p.kind!=='generated')throw issue('В облаке публикуется сгенерированное демо.');
+    const payload=sharePayload(snapshot);
+    if(payload.length>21000)throw issue('Демосайт слишком большой для публикации. Уменьшите вложенные изображения.');
+    const key=p.pendingShare?.version===p.version?p.pendingShare.key:
+      p.cloudOnDomain&&sameSnapshot?p.cloud:ids().replaceAll('-','');
+    p.pendingShare={key,version:p.version,research:workflow.key(c)};
+    return {key,payload};
+   }
+   const onDomain=!!b.key;
+   if(onDomain&&(!p.pendingShare||b.key!==p.pendingShare.key||p.pendingShare.version!==p.version||
+                  p.pendingShare.research!==workflow.key(c)))throw issue('Демо изменилось. Проверьте и опубликуйте заново.',409);
+   const oldURL=projectURL(p);
    if(p.kind==='generated'&&location.origin==='https://nekovvork.ru'&&
-      (!p.shareKey||JSON.stringify(p.snapshot)!==JSON.stringify(p.data))){
+      (!p.shareKey||!sameSnapshot)){
     p.shareKey=ids().replaceAll('-','');p.cloud='';p.opens=0;p.last=null;
    }
-   p.snapshot=p.kind==='generated'?copy(p.data):p.kind==='external'?{source:p.data.source}:{};
+   p.snapshot=snapshot;
    p.published=date();
    p.publicDemo=true;
    p.publicResearch=workflow.key(c);
+   if(onDomain){
+    p.shareKey=b.key;p.cloud=b.key;p.cloudOnDomain=true;
+    delete p.pendingShare;
+    const stage=STAGES[2], draft=c.drafts[stage];
+    if(oldURL&&draft?.split(/\s+/).includes(oldURL)&&oldURL!==projectURL(p)){
+     c.drafts[stage]=draft.replace(oldURL,projectURL(p));change(c);
+    }
+   }
   }
   if(action==='cloud'){
    if(p.kind!=='generated'||!p.snapshot||b.key!==p.shareKey)throw issue('Демо изменилось. Опубликуйте актуальную версию.',409);
@@ -1234,11 +1400,19 @@ const localApi=(()=>{
   });
  }
  function showShared(){
-  if(!location.hash.startsWith('#demo='))return false;
+  const cloudKey=new URLSearchParams(location.search).get('demo');
+  if(cloudKey===null&&!location.hash.startsWith('#demo='))return false;
   document.title='Демосайт · Контур';
   const root=document.getElementById('app');
-  try{
-   const shared=readShared();
+  async function draw(){
+   let shared;
+   if(cloudKey!==null){
+    if(!/^[a-f0-9]{32}$/.test(cloudKey))throw issue('Некорректный адрес демо.');
+    root.textContent='Загружаем демосайт…';
+    const response=await fetch('https://kontur-ai.nekolov02.workers.dev/d/'+cloudKey+'/payload',{credentials:'omit'});
+    if(!response.ok)throw issue('Страница не найдена или временно недоступна.');
+    shared={site:unpackSite(await response.text()),token:cloudKey};
+   }else shared=readShared();
    if(!shared)throw issue('Некорректный адрес демо.');
    document.title=shared.site.title;
    root.innerHTML='<iframe class="shared-site" title="Демосайт" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols"></iframe>';
@@ -1252,9 +1426,10 @@ const localApi=(()=>{
       .then(response=>{if(response.ok)sessionStorage.setItem(key,'1');}).catch(()=>{});
     }
    }else opening(shared.token).catch(()=>{});
-  }catch(error){
-   root.innerHTML='<main class="wait"><h1>Демосайт недоступен</h1><p>'+esc(error.message)+'</p><a href="'+esc(location.pathname)+'">Открыть Контур</a></main>';
   }
+  draw().catch(error=>{
+   root.innerHTML='<main class="wait"><h1>Демосайт недоступен</h1><p>'+esc(error.message)+'</p><a href="'+esc(location.pathname)+'">Открыть Контур</a></main>';
+  });
   return true;
  }
  return {api,showShared,matchingDemo,requireMessage};
@@ -1836,11 +2011,13 @@ function modalView(m){
  if(m.type==='quick-proposal'){
   const p=model.editor;
   return dialog('Подготовка предложения',`<div class="stack">
-   <div class="preview"><iframe title="Предпросмотр демо" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols" srcdoc="${esc(p.preview)}"></iframe></div>
-   ${reviewView(p)}
-   ${m.pending?'<p>ИИ проверяет текст и структуру демо…</p>':m.error?`<p class="muted">${esc(m.error)}</p>`:''}
+   ${m.designing?'<p role="status">Gemini проектирует страницу для этого заведения…</p>':
+   p.individual||!m.individual?`<div class="preview"><iframe title="Предпросмотр демо" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols" srcdoc="${esc(p.preview)}"></iframe></div>${reviewView(p)}`:''}
+   ${p.individual&&p.data.design.direction?`<p class="muted">${esc(p.data.design.direction)}</p>`:''}
+   ${m.pending&&!m.designing?'<p role="status">ИИ проверяет текст и структуру демо…</p>':m.error?`<p class="muted">${esc(m.error)}</p>`:''}
    <div class="wrap">${btn('Открыть редактор','edit-project','ghost','data-id="'+p.id+'"')}
-   ${!m.pending&&p.review?.checks.every(check=>check.ok)?btn('Опубликовать и подготовить сообщение','quick-publish','primary'):''}</div>
+   ${!m.pending&&m.individual&&!p.individual?btn('Повторить сборку','quick-proposal','primary'):''}
+   ${!m.pending&&(!m.individual||p.individual)&&p.review?.checks.every(check=>check.ok)?btn('Опубликовать и подготовить сообщение','quick-publish','primary'):''}</div>
   </div>`,true);
  }
  if(m.type==='prompt')return dialog('Промпт для сайта и проверки',`<textarea class="long-prompt" readonly aria-label="Промпт">${esc(workflow.prompt(model.selected))}</textarea>
@@ -1955,6 +2132,7 @@ function editorView(){
   ${i>=0&&i<d.blocks.length-1?btn('↓','move-block','ghost',`data-v="${k}" data-direction="1" aria-label="Опустить ${v}"`):''}</div>`;
  }).join('');
  return `<div class="editor-layout"><div><form id="editor-form" data-form="save-project" class="stack">
+  ${location.origin==='https://nekovvork.ru'?btn(p.individual?'Спроектировать другой вариант':'Спроектировать сайт с ИИ','redesign-project','tint'):''}
   ${btn('Собрать заново из анализа','rebuild-project','ghost')}${field('Заголовок','title',d.title,'text','required')}${field('Подзаголовок','subtitle',d.subtitle)}${area('Описание','about',d.about)}
   ${details('Внешний вид и блоки','look',`<div class="stack">${field('Обложка (URL)','image',d.image)}<label class="field">Загрузить обложку<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-photo="cover"></label>${field('Цвет','color',d.color,'color')}${field('Текст кнопки','action',d.action)}<label class="field">Переход кнопки<select name="target">${optMap({contacts:'К контактам',menu:'К меню или услугам'},d.target)}</select></label>${blocks}
   <label class="row"><input type="checkbox" name="example" ${d.example?'checked':''}> Пометить сайт как пример</label></div>`)}
@@ -2252,26 +2430,46 @@ async function loadDemoStats(projects){
   for(const [key,value] of Object.entries(stats||{}))if(value)cloudStats.set(key,value);
  }catch{}
 }
+const liveDesign=card=>!card.fixture&&['https://nekovvork.ru','http://127.0.0.1:8790'].includes(location.origin);
+async function designProject(card,p,previousDirection=''){
+ const d=p.data;
+ const {design}=await aiRequest({mode:'design',venue:{name:card.name,city:card.city,category:card.category},page:{
+  about:d.about,idea:card.analysis.opportunity,address:d.address,hours:d.hours,
+  hasPhoto:!!d.image,hasPhone:!!d.phone,hasMap:!!(d.map||d.address),hasMenu:d.target==='menu'&&d.menu.length>0,
+  preferredAction:d.target,previousDirection,
+ }});
+ return api('project/'+p.id+'/design',{version:p.version,design});
+}
 async function prepareProposal(){
  const card=model.selected;
  workflow.requireAnalysis(card);
- const draft=await api('project/create',{kind:'generated',pid:card.pid,style:'Современный'});
- const reviewed=await api('project/'+draft.id+'/review',{version:draft.version});
+ const individual=liveDesign(card);
+ if(individual&&(!aiConfig.code||!aiConfig.endpoint)){
+  showModal('ai-settings',{back:model.modal,onConnect:prepareProposal});
+  return;
+ }
+ let draft=await api('project/create',{kind:'generated',pid:card.pid,style:'Современный'});
  if(model.selected?.pid!==card.pid)return;
- model.editor=reviewed;
+ model.editor=draft;
  model.editorDirty=false;
- const canReview=aiConfig.code&&aiConfig.endpoint&&reviewed.review.checks.every(check=>check.ok);
- showModal('quick-proposal',{pending:!!canReview});
+ showModal('quick-proposal',{pending:true,individual,designing:individual&&!draft.individual});
  const modal=model.modal;
- if(!canReview)return;
  try{
+  if(modal.designing)draft=await designProject(card,draft);
+  const reviewed=await api('project/'+draft.id+'/review',{version:draft.version});
+  if(model.modal!==modal)return;
+  model.editor=reviewed;
+  modal.designing=false;
+  renderOverlay();
+  if(reviewed.feedback||!aiConfig.code||!aiConfig.endpoint||!reviewed.review.checks.every(check=>check.ok))return;
   const {comments}=await aiRequest({mode:'review',brief:workflow.critiqueBrief(card,reviewed)});
   if(!comments)throw new Error();
   if(model.modal===modal)model.editor=await api('project/'+draft.id+'/feedback',{version:draft.version,comments});
- }catch{
-  modal.error='Рецензия ИИ недоступна. Проверьте предпросмотр и результаты проверок вручную.';
+ }catch(error){
+  modal.error=modal.designing?error.message:'Рецензия ИИ недоступна. Проверьте предпросмотр и результаты проверок вручную.';
  }finally{
   modal.pending=false;
+  modal.designing=false;
   if(model.modal===modal)renderOverlay();
  }
 }
@@ -2296,14 +2494,18 @@ async function saveProject(){
 async function publishProject(quick=false){
  if(model.editor.kind==='generated'&&(model.editorDirty||JSON.stringify(readEditor())!==JSON.stringify(model.editor.data)))await saveProject();
  const p=model.editor;
- let publication=await api('project/'+p.id+'/publish',{version:p.version});
+ const cloud=location.origin==='https://nekovvork.ru'&&p.kind==='generated';
  const modal=model.modal;
- if(publication.sharePayload&&publication.shareKey&&!publication.cloud&&aiConfig.code&&aiConfig.endpoint===defaultAiEndpoint){
-  try{
-   const {key}=await aiRequest({mode:'demo-publish',key:publication.shareKey,payload:publication.sharePayload});
-   publication=await api('project/'+p.id+'/cloud',{version:publication.version,key});
-  }catch{}
+ let key;
+ if(cloud){
+  const card=await api('card/'+p.pid);
+  if(!card.fixture&&!p.individual)throw new Error('Сначала спроектируйте индивидуальный сайт с ИИ.');
+  if(!aiConfig.code||aiConfig.endpoint!==defaultAiEndpoint)throw new Error('Для публикации на nekovvork.ru подключите сервер «Контура».');
+  const draft=await api('project/'+p.id+'/stage_publication',{version:p.version});
+  ({key}=await aiRequest({mode:'demo-publish',...draft}));
+  if(key!==draft.key)throw new Error('Сервер не подтвердил публикацию. Повторите попытку.');
  }
+ const publication=await api('project/'+p.id+'/publish',{version:p.version,key});
  if(model.modal===modal)model.editor=publication;
  if(model.selected?.pid===publication.pid)model.selected=await api('card/'+publication.pid);
  await refresh();
@@ -2431,6 +2633,7 @@ const actions={
   const c=model.selected;
   workflow.requireAnalysis(c);
   const found=c.projects.find(p=>p.kind==='generated')||c.projects.find(p=>p.kind==='external');
+  if(liveDesign(c)&&!found)return prepareProposal();
   if(found){await openProject(found.id);return;}
   const p=await api('project/create',{kind:'generated',pid:c.pid,style:'Современный'});
   model.selected=await api('card/'+c.pid);
@@ -2450,6 +2653,22 @@ const actions={
  },
  'copy-review': async ()=>{if(await copyText(model.modal.brief))notify('Задание на рецензию скопировано.');},
  'rebuild-project': ()=>showModal('rebuild'),
+ 'redesign-project': async ()=>{
+  if(model.editorDirty)await saveProject();
+  const current=model.editor;
+  const card=await api('card/'+current.pid);
+  if(!liveDesign(card))throw new Error('Индивидуальный дизайн доступен для реальных заведений.');
+  if(!aiConfig.code||!aiConfig.endpoint){
+   showModal('ai-settings',{back:model.modal,onConnect:actions['redesign-project']});
+   return;
+  }
+  notify('Gemini проектирует новый вариант…','',12000);
+  const updated=await designProject(card,current,current.data.design?.direction);
+  if(model.editor?.id===current.id&&model.modal?.type==='edit-project'){
+   model.editor=updated;model.editorDirty=false;renderOverlay();
+   notify('Новый макет готов. Проверьте его перед публикацией.');
+  }
+ },
  'rebuild-confirm': async ()=>{
   const p=model.editor;
   model.editor=await api('project/'+p.id+'/rebuild',{version:p.version});
@@ -2578,6 +2797,7 @@ const forms={
   if(model.selected?.pid===p.pid)model.selected=await api('card/'+p.pid);
   await refresh();
   await openProject(p.id);
+  if(kind==='generated'&&!p.individual&&liveDesign(await api('card/'+p.pid)))await actions['redesign-project']();
  },
  'save-project': async ()=>{await saveProject();await refresh();renderOverlay();notify('Черновик сохранён.');},
 };
@@ -2713,7 +2933,7 @@ if(!localApi.showShared())init();
 <script>
 'use strict';
 (()=>{
- if(location.hash.startsWith('#demo='))return;
+ if(location.hash.startsWith('#demo=')||new URLSearchParams(location.search).has('demo'))return;
  function attach(){
   const tg=window.Telegram?.WebApp;
   if(!tg||(!tg.initData&&tg.platform==='unknown'))return;
