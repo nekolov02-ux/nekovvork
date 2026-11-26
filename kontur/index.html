@@ -332,6 +332,9 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .owner-report .ai-messengers .btn{padding-inline:8px;min-height:40px;font-size:.82rem;white-space:normal;line-height:1.2}
 .owner-report .ai-messengers small{font-size:.76rem}
 .owner-report .ai-messengers .wrap{gap:4px}
+.call-verification{background:var(--surface);gap:8px;min-width:0}
+.call-verification p{line-height:1.48}
+.call-verification .btn{text-decoration:none;min-height:44px}
 .owner-form-section form{padding-top:5px}
 .owner-form-section .confirmation{display:flex;gap:10px;align-items:center;min-height:44px;cursor:pointer}
 .owner-form-section .confirmation input{width:22px;height:22px;flex:none}
@@ -1581,6 +1584,21 @@ function aiMessengerLinks(contacts,coverage){
   return `<li><b>${label}</b>${body}</li>`;
  }).join('')}</ul></div>`;
 }
+function aiCallVerification(contacts, coverage){
+ const numbers=[...new Map(contacts.flatMap(item=>{
+  const source=workflow.https(item.url);
+  return item.channel==='phone'&&source&&/^tel:\+[1-9]\d{8,14}$/.test(item.href)?
+   [[item.href,{href:item.href,source,label:item.contact||item.href.slice(4)}]]:[];
+ })).values()].slice(0,2);
+ const map=workflow.yandexPlace(model.selected?.map_url);
+ const registry=coverage.find(pass=>pass.label==='Юрлицо и руководитель');
+ return `<div class="sheet stack call-verification"><strong>Требуется звонок для сверки</strong>
+  <p class="muted">${numbers.length?'Позвоните в заведение и уточните, кто отвечает за сотрудничество и куда ему можно написать.':'Рабочий канал и номер пока не подтверждены. Если номер указан в карточке заведения, позвоните и уточните контакт для сотрудничества.'}</p>
+  ${numbers.map(number=>`<div class="wrap"><a class="btn primary" href="${esc(number.href)}">Позвонить · ${esc(number.label)}</a>
+   <small><a href="${esc(number.source)}" target="_blank" rel="noopener noreferrer" data-a="open-ai-channel">Источник номера</a></small></div>`).join('')}
+  ${!numbers.length&&map?`<a href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-a="open-ai-channel">Открыть карточку на карте</a>`:''}
+  ${registry?.error?`<small>${esc(registry.error)}</small>`:''}</div>`;
+}
 function aiShow(result,mode,node){
  const sources=(Array.isArray(result.sources)?result.sources:[]).map(s=>({...s,url:workflow.https(s.url)})).filter(s=>s.url);
  const links=sources.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title||new URL(s.url).hostname)}</a>${s.cited?'':' <small>· проверьте ссылку из ответа ИИ</small>'}</li>`).join('');
@@ -1615,6 +1633,7 @@ function aiShow(result,mode,node){
  const phones=contactList(contacts.filter(item=>item.channel==='phone'));
  const website=workflow.https(result.website?.site);
  const passes=Array.isArray(result.coverage)?result.coverage:[];
+ const needsCall=mode==='owner'&&!aiOwnerOptions(result,model.selected).length;
  const coverage=passes.map(pass=>
   `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}${Array.isArray(pass.platforms)?`<small> · ${esc(pass.platforms.length?pass.platforms.join(', '):'поисковик не указал площадки') }</small>`:''}</li>`).join('');
  const warnings=(Array.isArray(result.warnings)?result.warnings:[]).filter(warning=>typeof warning==='string');
@@ -1622,11 +1641,12 @@ function aiShow(result,mode,node){
  node.innerHTML=`<section class="sheet stack ${mode==='owner'?'owner-report':''}">
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
   ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
-  ${candidate}
+  ${!needsCall||person?candidate:''}
+  ${needsCall?aiCallVerification(contacts,passes):''}
   ${own?`<details data-key="contact-proof"><summary>Подтверждение контакта</summary><small>${esc(own.evidence)}</small>
   ${workflow.https(own.url)?`<p><a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Страница с контактом</a></p>`:''}</details>`:''}
   ${reviewable?btn(aiOwnerSelection()?.key==='person'?'Контакт владельца выбран':'Выбрать контакт владельца','ai-pick-contact','tint','data-v="person"'):''}
-  ${aiMessengerLinks(contacts,passes)}
+  ${needsCall?`<details data-key="messenger-checks"><summary>Проверка мессенджеров</summary>${aiMessengerLinks(contacts,passes)}</details>`:aiMessengerLinks(contacts,passes)}
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
   ${phones?`<details data-key="phones"><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
   ${legal}
