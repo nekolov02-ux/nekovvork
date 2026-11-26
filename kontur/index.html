@@ -310,6 +310,8 @@ select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
 .owner-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;align-content:start;padding:3px 2px 8px}
 .owner-dialog-footer{border-top:1px solid var(--line);padding-top:10px}
 .owner-dialog-footer .btn{width:100%;justify-content:center;min-height:46px}
+.owner-dialog-footer small{display:block;margin-bottom:6px}
+.owner-dialog-footer small:empty{display:none}
 .owner-context{display:flex;align-items:center;gap:12px;min-width:0}
 .owner-context .venue-media{width:54px;height:54px;flex:none;border-radius:12px}
 .owner-context .venue-media>svg{width:21px;height:21px}
@@ -400,7 +402,8 @@ const workflow=(()=>{
  function owner(card,b){
   if(card.fixture&&b.sample===true)return {name:'Алексей (учебный контакт)',channel:'test',href:'#test-chat',source:'',checkedAt:new Date().toISOString()};
   if(card.fixture)throw new Error('Используйте учебный контакт или добавьте реальное заведение вручную.');
-  const name=string(b.name,140), source=https(b.source), channel=b.channel;
+  const scope=b.scope==='venue'?'venue':'person';
+  const name=string(scope==='venue'?card.name:b.name,140), source=https(b.source), channel=b.channel;
   if(!name)throw ownerField('name','Укажите имя или ФИО из источника.');
   if(!source)throw ownerField('source','Укажите полный HTTPS-адрес публичной страницы.');
   let href='';
@@ -412,7 +415,7 @@ const workflow=(()=>{
     const url=https(value);
     if(url){
      const u=new URL(url);
-     if(u.hostname==='t.me'&&/^\/[a-z][a-z0-9_]{3,31}\/?$/i.test(u.pathname)&&!u.search&&!u.hash)href=u.origin+u.pathname;
+     if(u.hostname==='t.me'&&/^\/(?:[a-z][a-z0-9_]{3,31}|m\/[a-z0-9_-]+)\/?$/i.test(u.pathname)&&!u.search&&!u.hash)href=u.origin+u.pathname;
     }
    }
   }
@@ -430,11 +433,17 @@ const workflow=(()=>{
    if(u&&['vk.com','vk.ru','vk.me'].includes(u.hostname)&&/^\/[a-z0-9_.-]+\/?$/i.test(u.pathname)&&
       !/^\/(?:help|feed|wall[-\d_]+|share|login|search|video[-\d_]+)\/?$/i.test(u.pathname))href=u.origin+u.pathname;
   }
+  if(channel==='max'&&scope==='venue'){
+   const link=https(value);
+   const u=link?new URL(link):null;
+   if(u?.hostname==='max.ru'&&/^\/(?:(?:u|j)\/)?[a-z\d_-]+\/?$/i.test(u.pathname)&&
+      !/^\/(?:help|feed|share|login|search)\/?$/i.test(u.pathname))href=u.origin+u.pathname;
+  }
   if(channel==='email'&&/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(value))href='mailto:'+value;
   if(!href)throw ownerField('contact','Укажите рабочий контакт в формате выбранного канала.');
   if(b.confirmed!==true)throw ownerField('confirmed','Сверьте контакт с источником и отметьте подтверждение.');
   const photo=https(b.photo),photoSource=https(b.photoSource);
-  return {name,channel,href,source,checkedAt:new Date().toISOString(),...(photo&&photoSource?{photo,photoSource}:{})};
+  return {name,channel,href,source,checkedAt:new Date().toISOString(),...(scope==='venue'?{scope}:{}),...(photo&&photoSource?{photo,photoSource}:{})};
  }
  function analysis(card,b){
   const result=Object.fromEntries(researchFields.map(([key])=>[key,string(b[key],key==='publicCopy'?1000:2200)]));
@@ -727,7 +736,7 @@ const localApi=(()=>{
  }
  function generateDraft(s,c,url,variant){
   const cfg=s.settings, en=cfg.lang==='en';
-  const name=c.owner.name.replace(/\s*\(учебный контакт\)$/u,'');
+  const name=c.owner.scope==='venue'?'команда «'+c.name+'»':c.owner.name.replace(/\s*\(учебный контакт\)$/u,'');
   const idea=text(c.analysis.opportunity,155);
   const hi=en?`Hello, ${name}. I put together a demo website for ${c.name}. Could I show you how visitors could use it?`:
    Math.abs(variant||0)%2?`Добрый день, ${name}! Собрал демосайт для «${c.name}». Идея: ${idea}
@@ -749,8 +758,8 @@ const localApi=(()=>{
   const write=(kind,content='')=>event(c,kind,content,b.request);
   if(action==='owner'){
    const updated=workflow.owner(c,b);
-   if(c.owner&&['name','channel','href','source'].every(k=>c.owner[k]===updated[k]))updated.checkedAt=c.owner.checkedAt;
-   c.owner=updated;write('owner_confirmed',c.owner.name);
+   if(c.owner&&['name','channel','href','source','scope'].every(k=>c.owner[k]===updated[k]))updated.checkedAt=c.owner.checkedAt;
+   c.owner=updated;write(c.owner.scope==='venue'?'venue_contact_confirmed':'owner_confirmed',c.owner.name);
   }
   else if(action==='analysis'){
    if(!c.owner)throw issue('Сначала подтвердите контакт владельца.');
@@ -801,19 +810,21 @@ const localApi=(()=>{
   if(!name||!city)throw issue('Укажите название и город.');
   const map_url=workflow.yandexPlace(b.map_url);
   const photo=map_url&&workflow.venuePhoto(b.photo);
+  const network=map_url&&workflow.https(b.network_url);
   if(b.map_url&&!map_url)throw issue('Укажите прямую ссылку на карточку организации на Яндекс Картах.');
   const mapId=url=>url?.match(/\/(\d+)\/$/)?.[1];
   const found=s.cards.find(c=>!c.fixture&&((map_url&&mapId(c.map_url)===mapId(map_url))||
     (c.name===name&&c.city===city&&c.address===address)));
-  if(found&&((map_url&&!found.map_url)||(site&&b.siteStatus==='own'&&!found.site)||(photo&&photo!==found.photo))){
+  if(found&&((map_url&&!found.map_url)||(site&&b.siteStatus==='own'&&!found.site)||(photo&&photo!==found.photo)||network&&network!==found.network_url)){
    if(map_url&&!found.map_url)found.map_url=map_url;
    if(site&&b.siteStatus==='own'&&!found.site){found.site=site;found.own='own';}
    if(photo)found.photo=photo;
+   if(network){found.network=true;found.network_url=network;}
    change(found);
   }
   if(found)return publicCard(found,true);
   const contact=Object.fromEntries(['telegram','phone','email','whatsapp','vk'].map(k=>[k,text(b[k],300)]).filter(([,v])=>v));
-  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,photo,own:b.siteStatus==='own'&&site?'own':site||map_url?'unknown':'none',contact},'base');
+  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,photo,network:!!network,network_url:network,own:b.siteStatus==='own'&&site?'own':site||map_url?'unknown':'none',contact},'base');
   event(c,'claimed',map_url?'Добавлено из Яндекс Карт':'Добавлено вручную',b.request);
   return publicCard(c,true);
  }
@@ -1083,6 +1094,20 @@ const localApi=(()=>{
   let m=path.match(/^job\/(\d+)\/(stop|all|portion|forget)$/);
   if(m)return jobAction(s,m[1],m[2]);
   if(path==='card/manual')return manual(s,b);
+  if(path==='card/sync-sites'){
+   for(const place of b.places||[]){
+    const map=workflow.yandexPlace(place.map_url),site=workflow.https(place.network_url);
+    if(!map||!site)continue;
+    const id=value=>value?.match(/\/(\d+)\/$/)?.[1];
+    for(const card of s.cards.filter(card=>!card.fixture&&id(card.map_url)===id(map))){
+     card.network=true;card.network_url=site;
+     if(place.siteStatus==='network'&&card.site&&new URL(card.site).hostname===new URL(site).hostname){
+      card.site='';card.own='unknown';
+     }
+    }
+   }
+   return true;
+  }
   if(path==='card/photo'){
    const c=getCard(s,b.pid);
    if(c.map_url&&c.map_url===workflow.yandexPlace(b.map))c.photo||=workflow.venuePhoto(b.photo);
@@ -1225,6 +1250,34 @@ function rememberOwnerForm(form){
 }
 const messengerNames={telegram:'Telegram',max:'MAX',vk:'ВКонтакте',whatsapp:'WhatsApp'};
 const messengerHosts={telegram:['t.me'],max:['max.ru'],vk:['vk.me','vk.com','vk.ru'],whatsapp:['wa.me','api.whatsapp.com']};
+function aiOwnerOptions(result,card){
+ if(!result||!card)return [];
+ const options=[];
+ const person=result.owner;
+ if(person){
+  try{workflow.owner(card,{...person,source:person.url,confirmed:true});options.push({key:'person',...person});}catch{}
+ }
+ for(const [index,item] of (Array.isArray(result.venueContacts)?result.venueContacts:[]).entries()){
+  if(!['telegram','whatsapp','vk','email','max'].includes(item.channel))continue;
+  const option={key:'venue-'+index,scope:'venue',name:card.name,channel:item.channel,
+   contact:item.channel==='email'?item.contact:item.href,url:workflow.https(item.url),confirmed:true};
+  try{workflow.owner(card,{...option,source:option.url});options.push(option);}catch{}
+ }
+ return options;
+}
+function aiOwnerSelection(modal=model.modal){
+ const options=aiOwnerOptions(modal?.aiResult?.result,model.selected);
+ return options.find(option=>option.key===modal.aiContactKey)||options[0];
+}
+function aiOwnerFooter(){
+ const footer=el('[data-owner-selection]');
+ if(!footer)return;
+ const selected=aiOwnerSelection();
+ footer.textContent=selected?selected.scope==='venue'?(messengerNames[selected.channel]||'Почта')+' заведения · '+selected.name:selected.name:'';
+ const submit=el('.owner-dialog-footer button');
+ if(submit)submit.textContent=model.modal?.aiResult&&!selected&&!model.selected?.owner?
+  'Добавить контакт вручную':'Подтвердить контакт и продолжить';
+}
 function aiMessengerLinks(contacts,coverage){
  const phones=[...new Set(contacts.filter(item=>item.channel==='phone'&&workflow.https(item.url)&&
   /^tel:\+[1-9][0-9]{8,14}$/.test(item.href)).map(item=>item.href.slice(4)))].slice(0,2);
@@ -1242,6 +1295,11 @@ function aiMessengerLinks(contacts,coverage){
    const page=channel==='vk'&&new URL(contact.href).hostname!=='vk.me';
    body=`<div class="wrap">${link(contact.href,page?'Открыть страницу':'Открыть')}`
     + `<small><a href="${esc(contact.url)}" target="_blank" rel="noopener noreferrer">Источник</a></small></div>`;
+   const key='venue-'+contacts.indexOf(contact);
+   if(aiOwnerOptions(model.modal?.aiResult?.result,model.selected).some(option=>option.key===key)){
+    const selected=aiOwnerSelection()?.key===key;
+    body+=btn(selected?'Выбран':'Выбрать','ai-pick-contact','ghost',`data-v="${key}" aria-pressed="${selected}"`);
+   }
   }else if(phones.length&&['telegram','whatsapp'].includes(channel)){
    body=`<small>Аккаунт не подтверждён</small><div class="wrap">${phones.map(number=>
     link(channel==='telegram'?'https://t.me/'+number:'https://wa.me/'+number.slice(1),
@@ -1280,8 +1338,11 @@ function aiShow(result,mode,node){
  const contactList=items=>items.map(item=>{
   const href=safeLink(item.href,['https:','mailto:','tel:']), source=workflow.https(item.url);
   const labels={phone:'Телефон',email:'Почта',telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',max:'MAX',ok:'Одноклассники'};
+  const key='venue-'+contacts.indexOf(item);
+  const pick=item.channel==='email'&&mode==='owner'&&aiOwnerOptions(result,model.selected).some(option=>option.key===key);
   return href&&source&&labels[item.channel]?`<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${labels[item.channel]} · ${esc(item.contact)}</a>
-  <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small></li>`:'';
+  <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small>
+  ${pick?btn(aiOwnerSelection()?.key===key?'Выбран':'Выбрать','ai-pick-contact','ghost',`data-v="${key}"`):''}</li>`:'';
  }).join('');
  const contactItems=contactList(contacts.filter(item=>item.channel!=='phone'&&!messengerNames[item.channel]));
  const phones=contactList(contacts.filter(item=>item.channel==='phone'));
@@ -1297,7 +1358,7 @@ function aiShow(result,mode,node){
   ${candidate}
   ${own?`<details data-key="contact-proof"><summary>Подтверждение контакта</summary><small>${esc(own.evidence)}</small>
   ${workflow.https(own.url)?`<p><a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Страница с контактом</a></p>`:''}</details>`:''}
-  ${reviewable?btn('Подставить для проверки','ai-apply','tint','data-v="owner"'):''}
+  ${reviewable?btn(aiOwnerSelection()?.key==='person'?'Контакт владельца выбран':'Выбрать контакт владельца','ai-pick-contact','tint','data-v="person"'):''}
   ${aiMessengerLinks(contacts,passes)}
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
   ${phones?`<details data-key="phones"><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
@@ -1322,15 +1383,21 @@ async function aiStart(mode){
  if(mode!=='review'&&(!card||card.fixture))throw new Error('Анализ ИИ доступен для реальных заведений.');
  modal.aiPending=mode;
  delete modal.aiResult;
+ delete modal.aiContactKey;
  delete modal.aiError;
+ aiOwnerFooter();
  node.textContent=aiPendingText(mode);
  const venue=card?{name:card.name,city:card.city,address:card.address,category:card.category,site:card.site,map:workflow.yandexPlace(card.map_url)}:null;
  try{
   const result=await aiRequest(mode==='review'?{mode,brief:modal.brief}:{mode,venue});
   if(model.modal!==modal||mode!=='review'&&model.selected?.pid!==card.pid)return;
   modal.aiResult={mode,result};
+  if(mode==='owner'&&aiOwnerSelection()&&!modal.ownerScratch){
+   const fields=el('.owner-form-section');if(fields)fields.open=false;
+  }
   const current=el('[data-ai-result]');
   if(current)aiShow(result,mode,current);
+  if(mode==='owner')aiOwnerFooter();
  }catch(error){
   if(model.modal!==modal)return;
   modal.aiError=error.message;
@@ -1522,22 +1589,23 @@ function venueMedia(place,css=''){
 }
 function liveSearch(){
  const state=model.mapSearch;
- const groups={not_found:[],unknown:[],own:[]};
+ const groups={not_found:[],unknown:[],own:[],network:[]};
  for(const [index,place] of (state.result||[]).entries()){
-  const kind=place.siteStatus==='own'&&safeLink(place.site)?'own':place.siteStatus==='not_found'?'not_found':'unknown';
-  const heading={own:'Сайт найден',not_found:'Сайт не найден при проверке',unknown:'Сайт ещё не проверен'}[kind];
+  const kind=place.siteStatus==='own'&&safeLink(place.site)?'own':safeLink(place.network_url)?'network':place.siteStatus==='not_found'?'not_found':'unknown';
+  const heading={own:'Сайт найден',network:'Есть сайт сети',not_found:'Сайт не найден при проверке',unknown:'Сайт ещё не проверен'}[kind];
   groups[kind].push(`<article class="place place-card">${venueMedia(place)}
   <div class="place-card-body"><div class="spread"><h3>${esc(place.name)}</h3>${tag(heading,kind==='own'?'green':'gray')}</div>
   <p class="muted">${esc(place.category)} · ${esc(place.address)}</p>
   <div class="foot wrap">${btn('+ В базу','map-save','tint',`data-id="${index}"`)}
   <a class="btn ghost" data-a="open-ai-channel" href="${esc(workflow.yandexPlace(place.map_url))}" rel="noopener noreferrer" target="_blank">Карточка на карте</a>
-  ${kind==='own'?`<a class="btn ghost" data-a="open-ai-channel" href="${esc(safeLink(place.site))}" rel="noopener noreferrer" target="_blank">Открыть сайт</a>`:''}</div></div></article>`);
+  ${kind==='own'?`<a class="btn ghost" data-a="open-ai-channel" href="${esc(safeLink(place.site))}" rel="noopener noreferrer" target="_blank">Открыть сайт</a>`:''}
+  ${place.network_url&&safeLink(place.network_url)?`<a class="btn ghost" data-a="open-ai-channel" href="${esc(safeLink(place.network_url))}" rel="noopener noreferrer" target="_blank">Сайт сети</a>`:''}</div></div></article>`);
  }
  const other=(kind,label)=>groups[kind].length?`<details class="search-card"><summary>${label} · ${groups[kind].length}</summary><div class="cards">${groups[kind].join('')}</div></details>`:'';
  const results=state.result?`<div class="group-head"><h2>${groups.not_found.length?'Кандидаты без найденного сайта':'Кандидатов без найденного сайта пока нет'}</h2></div>
   <div class="cards">${groups.not_found.join('')}</div>
   ${state.incomplete?'<p class="muted">Проверку сайтов не удалось закончить. Непроверенные карточки доступны ниже.</p>':''}
-  ${other('unknown','Нужно проверить сайт')}${other('own','Уже есть сайт')}`:'';
+  ${other('network','Есть сайт сети')}${other('unknown','Нужно проверить сайт')}${other('own','Уже есть сайт')}`:'';
  return title('Поиск заведений','Яндекс Карты')+`<section class="search-card"><form data-form="maps-search" class="stack">
   <div class="form-grid">${field('Город','city',state.city||model.cities[0]||'','text','required maxlength="80"')}
   ${field('Название или категория','query',state.query,'text','required maxlength="160" placeholder="Например, пиццерия"')}</div>
@@ -1620,14 +1688,14 @@ function boardResults(){
 function channels(c){
  const o=c.owner;
  if(!o)return [];
- const labels={telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',email:'Рабочая почта',test:'Тестовый чат'};
+ const labels={telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',max:'MAX',email:'Рабочая почта',test:'Тестовый чат'};
  return [[labels[o.channel],o.href]];
 }
 function placeTile(c){
  const d=`data-id="${c.pid}"`;
  const kind={none:'red',own:'green',social:'',directory:'gray',template:'orange',down:'red',unknown:'gray'};
  return `<article class="place place-card">${c.photo?venueMedia(c):''}<div class="place-card-body">
- <div class="spread"><div class="wrap">${tag(KINDS[c.own],kind[c.own])}${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div>
+ <div class="spread"><div class="wrap">${!c.network_url||c.own==='own'?tag(KINDS[c.own],kind[c.own]):''}${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div>
  <span class="rating">${c.rating!=null?`<em>★</em> ${num(c.rating)} <small>· ${num(c.reviews)}</small>`:''}</span></div>
  <button class="place-name" data-a="card" ${d}>${esc(c.name)}</button>
  <p class="muted">${icon('pin')} ${esc(c.city)} · ${esc(c.category)}</p>
@@ -1671,7 +1739,7 @@ function modalView(m){
  }
  if(m.type==='ai-settings')return dialog('Подключение ИИ',aiSettings());
  if(m.type==='owner')return dialog('Контакт владельца',`<div class="owner-dialog-body stack">${ownerForm(model.selected,m)}</div>`,false,'owner-dialog',
-  `<div class="owner-dialog-footer"><button type="submit" form="owner-contact-form" class="btn primary">Подтвердить контакт и продолжить</button></div>`);
+  `<div class="owner-dialog-footer"><small data-owner-selection></small><button type="submit" form="owner-contact-form" class="btn primary">Подтвердить контакт и продолжить</button></div>`);
  if(m.type==='research')return dialog('Анализ заведения',researchForm(model.selected,m.sample),true);
  if(m.type==='quick-proposal'){
   const p=model.editor;
@@ -1720,10 +1788,10 @@ function ownerForm(c,modal){
  <details class="owner-form-section" data-key="owner-form" ${o||modal.ownerScratch?'open':''}><summary>${o?'Редактировать контакт':'Добавить контакт вручную'}</summary>
  <form id="owner-contact-form" data-form="owner" class="stack" novalidate>
   ${field('ФИО или имя из источника','name',form.name,'text','required maxlength="140" autocomplete="off"')}
-  <div class="form-grid"><label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',email:'Рабочая почта'},form.channel)}</select></label>
+  <div class="form-grid"><label class="field">Канал<select name="channel">${optMap({telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',...(o?.scope==='venue'?{max:'MAX'}:{}),email:'Рабочая почта'},form.channel)}</select></label>
   ${field('Рабочий контакт','contact',form.contact,'text','required placeholder="Имя пользователя, номер или ссылка"')}</div>
   ${field('Источник подтверждения','source',form.source,'url','required placeholder="https://…"')}
-  <label class="confirmation"><input type="checkbox" name="confirmed" required ${form.confirmed?'checked':''}> Источник связывает контакт с владельцем или руководителем</label>
+  <label class="confirmation"><input type="checkbox" name="confirmed" required ${form.confirmed?'checked':''}> Источник подтверждает ${o?.scope==='venue'?'канал заведения':'контакт владельца или руководителя'}</label>
   <p id="owner-error" data-owner-error role="alert"></p>
  </form></details>
  ${c.fixture?btn('Использовать учебный контакт','sample-owner','ghost'):
@@ -1817,7 +1885,7 @@ function cardView(c){
   const training=o?.channel==='test';
   const step=!o?1:!c.analysis?2:!published?3:4;
   const stages=`<div class="current-step"><progress max="4" value="${step}" aria-label="Готовность предложения"></progress><span>${step} из 4 · ${['Контакт','Анализ','Демо','Сообщение'][step-1]}</span></div>`;
-  const ownerInfo=o?`<div class="spread"><div class="owner-profile">${personAvatar(o)}<div><strong>${esc(o.name)}</strong><small>${training?'Учебный контакт':'Рабочий контакт подтверждён'}</small></div></div>${btn('Изменить контакт','owner','ghost')}</div>`:'';
+  const ownerInfo=o?`<div class="spread"><div class="owner-profile">${personAvatar(o)}<div><strong>${esc(o.name)}</strong><small>${training?'Учебный контакт':o.scope==='venue'?'Канал заведения подтверждён':'Рабочий контакт подтверждён'}</small></div></div>${btn('Изменить контакт','owner','ghost')}</div>`:'';
   let next;
   if(!o)next=`<div class="sheet stack next-action"><h3>Найдите рабочий контакт</h3><p class="muted">Подтвердите, с кем обсуждать сайт для заведения.</p>${btn('Найти владельца','owner','primary')}</div>`;
   else if(!c.analysis)next=`<div class="sheet stack"><h3>Разберите заведение</h3><p class="muted">Соберите факты, сравните аналоги и определите задачу сайта.</p><div class="wrap">${!training?btn('Начать анализ с ИИ','start-research','primary'):''}${btn('Заполнить анализ','research',training?'primary':'ghost')}</div></div>`;
@@ -1866,7 +1934,7 @@ function cardView(c){
   <small>${at<0?'':(at+1)+' / '+list.length}</small>${btn('›','neighbor','ghost',`data-v="1" aria-label="Следующее заведение" ${at<0||at===list.length-1?'disabled':''}`)}</div>
   ${btn(icon('close'),'close-card','ghost','aria-label="Закрыть карточку"')}</div>
  ${c.photo?venueMedia(c,'drawer-cover'):''}
- <div class="spread"><h2>${esc(c.name)}</h2>${tag(c.own==='unknown'?'Сайт не проверен':KINDS[c.own],c.own==='unknown'?'gray':'')}</div>
+ <div class="spread"><h2>${esc(c.name)}</h2>${!c.network_url||c.own==='own'?tag(c.own==='unknown'?'Сайт не проверен':KINDS[c.own],c.own==='unknown'?'gray':''):''}</div>
  ${c.network||c.opening?`<div class="wrap">${c.network?tag('Сайт у сети','orange'):''}${c.opening?tag('Открылось','green'):''}</div>`:''}
   <div class="spread"><span class="muted">${icon('pin')} ${esc(c.city)} · ${esc(c.category)}</span>${c.rating!=null?`<span class="rating"><em>★</em> ${num(c.rating)} · ${num(c.reviews)} отзывов</span>`:''}</div>
   <div class="wrap">${c.bucket==='base'?`<select id="card-status" aria-label="Статус заведения" ${active?'disabled':''}>${options(STATUS,c.effective)}</select>`:
@@ -1876,7 +1944,7 @@ function cardView(c){
  </aside></div>`;
 }
 function timeline(events){
- const names={owner_confirmed:'Контакт владельца подтверждён',analysis_saved:'Анализ сохранён',chat_opened:'Чат открыт',incoming:'Получен ответ',sent:'Пользователь отметил отправку',confirmed:'Отправка подтверждена интеграцией',draft_created:'Черновик создан',draft_saved:'Черновик сохранён',claimed:'Добавлено в Базу',status:'Статус изменён',updated:'Карточка изменена',undo:'Перенос отменён',follow_scheduled:'Напоминание запланировано'};
+ const names={owner_confirmed:'Контакт владельца подтверждён',venue_contact_confirmed:'Канал заведения подтверждён',analysis_saved:'Анализ сохранён',chat_opened:'Чат открыт',incoming:'Получен ответ',sent:'Пользователь отметил отправку',confirmed:'Отправка подтверждена интеграцией',draft_created:'Черновик создан',draft_saved:'Черновик сохранён',claimed:'Добавлено в Базу',status:'Статус изменён',updated:'Карточка изменена',undo:'Перенос отменён',follow_scheduled:'Напоминание запланировано'};
  return `<div class="timeline">${events.map(e=>{
  let message=e.text;
  if(e.kind==='chat_opened'){try{const d=JSON.parse(e.text);message=d.channel+(d.text?'\n'+d.text:'');}catch{}}
@@ -1891,6 +1959,7 @@ function renderOverlay(){
  const dialogScroll=renderedModal===model.modal?el('.owner-dialog-body, .dialog:not(.owner-dialog)',root)?.scrollTop||0:0;
  root.innerHTML=(model.selected?cardView(model.selected):'')+(model.modal?modalView(model.modal):'');
  restoreAiOutput(root,model.modal);
+ aiOwnerFooter();
  for(const d of all('.dialog details[data-key]',root))if(tabs?.has(d.dataset.key))d.open=tabs.get(d.dataset.key);
  renderedModal=model.modal;renderedCard=model.selected?.pid;
  if(el('.drawer-body',root))el('.drawer-body',root).scrollTop=drawerScroll;
@@ -2043,6 +2112,10 @@ async function searchMaps(data){
  try{
   const found=await aiRequest({mode:'places',venue:{name:query,city}});
   state.result=(Array.isArray(found.places)?found.places:[]).filter(place=>place?.name&&place?.address&&workflow.yandexPlace(place.map_url));
+  if(state.result.some(place=>place.network_url)){
+   await api('card/sync-sites',{places:state.result.filter(place=>place.network_url)});
+   await refresh(false);
+  }
   state.incomplete=found.siteCheckIncomplete===true;
  }catch(error){state.error=error.message;}
  finally{state.pending=false;if(model.section==='search'&&!model.training)render();}
@@ -2180,6 +2253,14 @@ const actions={
   notify('Заведение сохранено в Базе.');
  },
  'ai-start': n=>aiStart(n.dataset.v),
+ 'ai-pick-contact': n=>{
+  const modal=model.modal;
+  if(!aiOwnerOptions(modal?.aiResult?.result,model.selected).some(option=>option.key===n.dataset.v))return;
+  modal.aiContactKey=n.dataset.v;
+  el('.owner-form-section').open=false;
+  aiShow(modal.aiResult.result,'owner',el('[data-ai-result]'));
+  aiOwnerFooter();
+ },
  'start-research': ()=>{
   showModal('research');
   if(!aiConfig.code||!aiConfig.endpoint){
@@ -2344,8 +2425,12 @@ const forms={
  'owner': async (data,form)=>{
   const fields=form.closest('details');
   if(!fields.open){
-   if(model.modal.aiResult?.result.owner){
-    aiApply('owner');
+   const modal=model.modal;
+   if(modal.aiPending)return;
+   const selected=aiOwnerSelection(modal);
+   if(selected){
+    await updateCard('owner',{...selected,source:selected.url,confirmed:true});
+    if(model.modal===modal)closeModal();
     return;
    }
    fields.open=true;
@@ -2357,7 +2442,7 @@ const forms={
   const candidate=modal.aiResult?.result.owner||model.selected.owner;
   const match=candidate&&data.name.trim()===candidate.name&&workflow.https(data.source)===workflow.https(candidate.url||candidate.source);
   try{
-   await updateCard('owner',{...data,confirmed:data.confirmed==='on',...(match?{photo:candidate.photo,photoSource:candidate.photoSource}:{})});
+   await updateCard('owner',{...data,scope:model.selected.owner?.scope,confirmed:data.confirmed==='on',...(match?{photo:candidate.photo,photoSource:candidate.photoSource}:{})});
    if(model.modal===modal)closeModal();
   }catch(error){
    const field=form.elements[error.field];
