@@ -1167,7 +1167,9 @@ function aiShow(result,mode,node){
   ${registrySource?`<a href="${esc(registrySource)}" target="_blank" rel="noopener noreferrer">Запись по ИНН</a>`:''}
   <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer">Получить выписку ФНС по ИНН</a>
   ${business.quote?`<details><summary>Подтверждение роли</summary><p>${esc(business.quote)}</p></details>`:''}
- </div>`:'';
+ </div>`:(Object.hasOwn(result,'business')?`<div class="stack"><strong>Кто принимает решения</strong>
+  <small>Реквизиты для этой точки пока не подтверждены.</small>
+  <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer">Проверить реквизиты в ФНС</a></div>`:'');
  const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
   <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
  const contacts=Array.isArray(result.venueContacts)?result.venueContacts:[];
@@ -1189,8 +1191,8 @@ function aiShow(result,mode,node){
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
   ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
   ${legal}
-  <div><strong>Прямой контакт владельца</strong>
-  ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
+  <div><strong>Прямой рабочий контакт</strong>
+  ${candidate||'<p>Публичный рабочий контакт владельца или руководителя пока не подтверждён.</p>'}</div>
   ${aiMessengerLinks(contacts,passes)}
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
   ${phones?`<details><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
