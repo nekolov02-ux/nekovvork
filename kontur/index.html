@@ -539,6 +539,113 @@ const workflow=(()=>{
 </script>
 <script>
 'use strict';
+
+const demoSiteCSS = `
+ :root{font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+ *{box-sizing:border-box}body{margin:0;background:var(--base);color:var(--ink)}
+ .site{--base:#f5f0e6;--ink:#282821;--quiet:#57584a;--rule:#dcd3c1;--panel:#fff9ee;--night:#202b27;--light:#f8eedb;--dim:#d9d5c6;--metal:#e7bd78;--on-metal:#292117}
+ .modern{--night:#102c31;--light:#f5eee0;--dim:#d2e1db;--metal:#ecc77c}
+ .dark{--base:#1a1d24;--ink:#f5efe1;--quiet:#c1bcb6;--rule:#3d414b;--panel:#242833;--night:#121a27;--dim:#d3dbe9;--metal:#efd09a}
+ .custom{--night:#17252b;--metal:#dbeae8}
+ .layout{width:min(100% - 2 * clamp(20px,5vw,72px),1160px);margin-inline:auto}
+ a{color:inherit;text-underline-offset:3px}a:focus-visible{outline:2px solid currentColor;outline-offset:5px}
+ .top,.hero{background:var(--night);color:var(--light)}.top{border-bottom:1px solid #ffffff2b}
+ .bar{min-height:64px;display:flex;gap:14px 26px;align-items:center;justify-content:space-between}
+ .wordmark{text-decoration:none;font-weight:750;letter-spacing:-.03em;overflow-wrap:anywhere}
+ nav{display:flex;gap:clamp(12px,3vw,28px);align-items:center}
+ nav a{font-size:.86rem;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+ nav a:hover{text-decoration:underline}
+ .hero{position:relative;isolation:isolate;background-image:radial-gradient(ellipse at 84% 12%,color-mix(in srgb,var(--accent),transparent 45%),transparent 64%)}
+ .hero-in{min-height:clamp(365px,62vw,610px);display:grid;grid-template-columns:minmax(0,1fr);align-items:center;padding-block:clamp(36px,8vw,98px);gap:clamp(24px,6vw,74px)}
+ .hero-in.with-photo{grid-template-columns:minmax(0,1fr) minmax(0,.93fr)}
+ .kicker{margin:0 0 14px;color:var(--dim);font-size:.81rem;font-weight:620;letter-spacing:.06em}
+ h1,h2,h3,p{margin:0}h1,h2{font-weight:720;line-height:1;letter-spacing:-.059em;text-wrap:balance;overflow-wrap:anywhere}
+ h1{font-size:clamp(3.2rem,7.2vw,7.1rem);max-width:14ch}
+ h2{font-size:clamp(2rem,4.6vw,4.3rem)}
+ .hero-copy>p:not(.kicker){margin-top:20px;max-width:44ch;color:var(--dim)}
+ .hero-links{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;margin-top:26px}
+ .button{min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:10px 19px;gap:12px;text-decoration:none;font-weight:720;font-size:.95rem;border-radius:8px;border:1px solid transparent}
+ .hero .button{background:var(--metal);color:var(--on-metal)}
+ .secondary{font-size:.9rem;padding-block:8px}
+ .cover-photo{margin:0;min-width:0;overflow:hidden;aspect-ratio:4/3;background:#ffffff14;border-radius:14px;border:1px solid #ffffff35}
+ .cover-photo img{width:100%;height:100%;object-fit:cover;display:block}
+ .facts{background:var(--panel);border-bottom:1px solid var(--rule)}
+ .facts .layout{display:flex;flex-wrap:wrap;gap:10px 30px;padding-block:15px;font-size:.85rem;color:var(--quiet)}
+ .content{padding-block:clamp(38px,7vw,88px)}
+ .content+.content{border-top:1px solid var(--rule)}
+ .about{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1fr);gap:18px 58px}
+ .about p{font-size:clamp(1rem,1.8vw,1.25rem);max-width:55ch;white-space:pre-line;overflow-wrap:anywhere;color:var(--quiet)}
+ .menu-heading,.contact-heading{margin-bottom:clamp(20px,4vw,44px)}
+ .menu-group+.menu-group{margin-top:24px}.menu-group>h3{margin-bottom:11px;color:var(--quiet);font-size:.87rem}
+ .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+ .item{min-width:0;display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-top:1px solid var(--rule)}
+ .item>img{width:66px;height:66px;object-fit:cover;border-radius:8px;flex:none}
+ .item dl{margin:0;min-width:0;flex:1}.item dt{font-weight:720;overflow-wrap:anywhere}
+ .item dd{margin:4px 0 0;color:var(--quiet);font-size:.91rem;overflow-wrap:anywhere}
+ .price{white-space:nowrap;font-size:.9rem}.sample{font-size:.77rem;color:var(--quiet)}
+ .contact-card{padding:clamp(16px,4vw,32px);border:1px solid var(--rule);background:var(--panel);border-radius:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:15px 24px}
+ .contact-card dl{margin:0}.contact-card dt{font-size:.79rem;color:var(--quiet)}.contact-card dd{margin:5px 0 0;font-weight:660;overflow-wrap:anywhere}
+ .contact-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+ .contact-actions .button{border-color:var(--rule);background:var(--panel)}
+ footer{border-top:1px solid var(--rule);padding-block:22px;color:var(--quiet);font-size:.85rem}
+ @media(max-width:650px){
+  .bar{min-height:58px;gap:4px 12px}.hero-in.with-photo,.about,.items{grid-template-columns:1fr}
+  .hero-in{min-height:0;padding-block:34px}.cover-photo{aspect-ratio:16/10}
+  .hero-links{margin-top:19px}nav{gap:12px}nav a{font-size:.8rem}
+ }`;
+
+function renderDemoSite(site, imageURL) {
+ const photo=(value, hero=false)=>{
+  const url=imageURL(value);
+  return url?`<img src="${esc(url)}" alt="" ${hero?'fetchpriority="high"':'loading="lazy"'} decoding="async" referrerpolicy="no-referrer">`:'';
+ };
+ const has=name=>site.blocks.includes(name);
+ const hrefs={contacts:'Контакты',menu:'Меню'};
+ const sections=Object.entries(hrefs).filter(([id])=>has(id)&&(id!=='menu'||site.menu.length));
+ const primary=sections.find(([id])=>id===site.target)||sections[0];
+ const cover=photo(site.image,true);
+ const contactNumber=site.phone.replace(/[^0-9+]/g,'');
+ const phoneURL=/^\+?\d{8,15}$/.test(contactNumber)?'tel:'+contactNumber:'';
+ const maps=site.map||(site.address?'https://yandex.ru/maps/?text='+encodeURIComponent(site.address):'');
+ const grouped=new Map();
+ for(const item of site.menu){
+  const category=item.category||'Меню';
+  if(!grouped.has(category))grouped.set(category,[]);
+  grouped.get(category).push(item);
+ }
+ const blocks={
+  cover:`<section class="hero" aria-labelledby="venue-title"><div class="layout hero-in${cover?' with-photo':''}"><div class="hero-copy">
+   ${site.subtitle?`<p class="kicker">${esc(site.subtitle)}</p>`:''}<h1 id="venue-title">${esc(site.title)}</h1>
+   ${!has('about')&&site.about?`<p>${esc(site.about)}</p>`:''}
+   ${primary||maps?`<div class="hero-links">${primary?`<a class="button" href="#${primary[0]}">${esc(site.action||primary[1])} <span aria-hidden="true">↗</span></a>`:''}
+    ${maps?`<a class="secondary" href="${esc(maps)}" target="_blank" rel="noopener noreferrer">На карте</a>`:''}</div>`:''}
+   </div>${cover?`<figure class="cover-photo">${cover}</figure>`:''}</div></section>
+   ${site.address||site.hours?`<div class="facts"><div class="layout">${site.address?`<span>${esc(site.address)}</span>`:''}${site.hours?`<span>${esc(site.hours)}</span>`:''}</div></div>`:''}`,
+  about:site.about?`<section class="layout content about"><h2>О заведении</h2><p>${esc(site.about)}</p></section>`:'',
+  menu:site.menu.length?`<section id="menu" class="layout content"><h2 class="menu-heading">Меню</h2>${[...grouped].map(([category,items])=>
+   `<section class="menu-group">${grouped.size>1?`<h3>${esc(category)}</h3>`:''}<div class="items">${items.map(item=>`<article class="item">${photo(item.image)}
+    <dl><dt>${esc(item.name)}</dt>${item.description?`<dd>${esc(item.description)}</dd>`:''}${item.example?'<dd class="sample">Пример</dd>':''}</dl>
+    ${item.price?`<strong class="price">${esc(item.price)}</strong>`:''}</article>`).join('')}</div></section>`).join('')}</section>`:'',
+  contacts:`<section class="layout content" id="contacts"><h2 class="contact-heading">Контакты</h2>
+   ${site.address||site.hours||site.phone?`<div class="contact-card">
+    ${[['Адрес',site.address],['Часы работы',site.hours],['Телефон',site.phone]].filter(([,value])=>value).map(([label,value])=>`<dl><dt>${label}</dt><dd>${esc(value)}</dd></dl>`).join('')}</div>`:'<p>Контакты уточняются.</p>'}
+   ${maps||phoneURL?`<div class="contact-actions">${maps?`<a class="button" href="${esc(maps)}" target="_blank" rel="noopener noreferrer">Открыть на карте</a>`:''}
+    ${phoneURL?`<a class="button" href="${esc(phoneURL)}">Позвонить</a>`:''}</div>`:''}</section>`,
+ };
+ const theme=({'Современный':'modern','Тёмный':'dark','Свой дизайн':'custom'})[site.style]||'warm';
+ const demo=site.example||site.menu.some(item=>item.example);
+ return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src https: http: data:; base-uri 'none'; form-action 'none'">
+  <title>${esc(site.title)}</title><style>:root{--accent:${site.color}}${demoSiteCSS}</style></head><body id="top" class="site ${theme}">
+  <header class="top"><div class="layout bar"><a class="wordmark" href="#top">${esc(site.title)}</a>
+  ${sections.length?`<nav aria-label="Разделы сайта">${sections.map(([id,label])=>`<a href="#${id}">${label}</a>`).join('')}</nav>`:''}</div></header>
+  <main>${site.blocks.map(block=>blocks[block]).join('')}</main>
+  <footer><div class="layout">${esc(site.title)}${demo?' · Демонстрационная страница':''}</div></footer></body></html>`;
+}
+
+</script>
+<script>
+'use strict';
 const localApi=(()=>{
  const DB='kontur-mini-v1', KEY=DB+':data', encoder=new TextEncoder(), decoder=new TextDecoder('utf-8',{fatal:true});
  const date=()=>new Date().toISOString();
@@ -882,6 +989,7 @@ const localApi=(()=>{
   for(const k of ['title','subtitle','about','address','hours','phone','action','style'])clean[k]=text(d[k],k==='about'?2000:300);
   if(!clean.title)throw issue('Укажите название сайта.');
   clean.image=safeImage(d.image);
+  clean.map=workflow.yandexPlace(d.map);
   clean.target=d.target==='contacts'?'contacts':'menu';
   clean.color=/^#[\da-f]{6}$/i.test(d.color)?d.color:'#a74429';
   clean.blocks=Array.isArray(d.blocks)?[...new Set(d.blocks.filter(b=>Object.hasOwn(BLOCKS,b)))]:[];
@@ -895,7 +1003,7 @@ const localApi=(()=>{
   const research=workflow.requireAnalysis(c);
   const pizza=c.fixture&&c.category.toLowerCase().includes('пицц');
   const entry=(category,name,price,description,image='')=>({category,name,price,description,image,example:true});
-  const accent={'Тёплый':'#a74429','Современный':'#5441bd','Тёмный':'#795037','Свой дизайн':'#285e51'};
+  const accent={'Тёплый':'#754735','Современный':'#285755','Тёмный':'#393d64','Свой дизайн':'#355169'};
   const confirmed=String(research.verifiedItems||'').split('\n').filter(line=>line.trim()).slice(0,20).map(line=>{
    const [name,description='',price='']=line.split('|').map(x=>x.trim());
    return {category:'Предложение',name,description,price,image:'',example:false};
@@ -904,33 +1012,17 @@ const localApi=(()=>{
    entry('Пицца','Маргарита','490 ₽','Томаты, моцарелла и базилик',photoToken),
    entry('Пицца','Пепперони','590 ₽','Пепперони и моцарелла'),
    entry('Напитки','Домашний лимонад','210 ₽','Лимон и мята'),
-  ]:[entry('Предложение','Пример позиции','','Позицию нужно подтвердить перед коммерческой публикацией')];
-  return cleanSite({title:c.name,subtitle:c.category+' · '+c.city,about:research.publicCopy,
-   address:c.address,hours:c.hours,phone:c.contact?.phone,action:research.cta,target:research.target,style,image:pizza?photoToken:'',
-   color:accent[style]||accent['Тёплый'],blocks:research.target==='menu'?Object.keys(BLOCKS):['cover','about','contacts'],example:true,
-   menu:research.target==='menu'?menu:[]});
+  ]:[];
+  const menuFirst=research.target==='menu'&&menu.length>0;
+  return cleanSite({title:c.name,subtitle:[c.category,c.city].filter(Boolean).join(' · '),about:research.publicCopy,
+   address:c.address,hours:c.hours,phone:c.contact?.phone,map:c.map_url,
+   action:research.target==='menu'&&!menuFirst?'Контакты':research.cta,target:menuFirst?'menu':'contacts',
+   style,image:pizza?photoToken:workflow.venuePhoto(c.photo),
+   color:accent[style]||accent['Современный'],blocks:menuFirst?Object.keys(BLOCKS):['cover','about','contacts'],example:true,
+   menu:menuFirst?menu:[]});
  }
- const siteCss=`:root{font:16px/1.55 system-ui;color:#2b221c;background:#fdf8ef}*{box-sizing:border-box}body{margin:0;min-height:100vh}aside{padding:9px max(5vw,16px);background:#ffe9b8;color:#654017}header{min-height:clamp(290px,52vw,520px);position:relative;isolation:isolate;display:grid;align-items:center;background:var(--accent);color:white;overflow:hidden}header img{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;object-position:62% 50%}header.has-photo:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#160a07cc,#160a0740);z-index:-1}header div,section,footer{width:min(1040px,90%);margin:auto;padding:22px 0}h1{font:700 clamp(2.7rem,9vw,6.5rem)/1 Georgia,serif;margin:0 0 .35em;overflow-wrap:anywhere}h2{font:700 clamp(2rem,6vw,3rem)/1.2 Georgia,serif;margin:0 0 .65em}h3{margin:1.1em 0 .55em}p{white-space:pre-line;overflow-wrap:anywhere}section{padding-block:32px;border-bottom:1px solid #dfd0bf}.button{display:inline-block;background:white;color:#281b14;border-radius:9px;padding:12px 16px;text-decoration:none;font-weight:750}.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:12px}article{border:1px solid #e4d8ca;border-radius:13px;overflow:hidden;background:white}article div{padding:15px}article img{width:100%;height:170px;object-fit:cover;display:block}h4{font-size:1.125rem;margin:0}small{margin-left:10px;color:#745239}.modern h1,.modern h2,.custom h1,.custom h2{font-family:system-ui;letter-spacing:-.045em}.dark{background:#1c1917;color:#f8ede0}.dark article{background:#302925;border-color:#5f4d40}.dark small,.dark a:not(.button){color:#edbb9b}.dark section{border-color:#524138}@media(max-width:430px){header{min-height:310px}section{padding-block:24px}}`;
  function renderSite(d){
-  const photo=value=>{
-   if(!value)return '';
-   const url=value===photoToken?document.getElementById('demo-photo').textContent.trim():safeImage(value);
-   return url?`<img src="${esc(url)}" alt="">`:'';
-  };
-  const next=d.target==='contacts'&&d.blocks.includes('contacts')?'contacts':d.blocks.includes('menu')?'menu':'contacts';
-  const sections={
-   cover:`<header class="${d.image?'has-photo':''}">${photo(d.image)}<div><p>${esc(d.subtitle)}</p><h1>${esc(d.title)}</h1><a class="button" href="#${next}">${esc(d.action||'Меню')}</a></div></header>`,
-   about:`<section><h2>О заведении</h2><p>${esc(d.about)}</p></section>`,
-   contacts:`<section id="contacts"><h2>Контакты</h2><p>${esc(d.address)}</p><p>${esc(d.hours)}</p><p>${esc(d.phone)}</p></section>`,
-  };
-  const groups=new Map();
-  for(const m of d.menu){
-   const list=groups.get(m.category||'Меню')||[];
-   list.push(m);groups.set(m.category||'Меню',list);
-  }
-  sections.menu=`<section id="menu"><h2>Меню</h2>${[...groups].map(([name,items])=>`<h3>${esc(name)}</h3><div class="items">${items.map(m=>`<article>${photo(m.image)}<div><h4>${esc(m.name)}</h4><p>${esc(m.description)}</p><b>${esc(m.price)}</b>${m.example?'<small>Пример</small>':''}</div></article>`).join('')}</div>`).join('')}</section>`;
-  const theme=({'Современный':'modern','Тёмный':'dark','Свой дизайн':'custom'})[d.style]||'warm';
-  return `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src https: http: data:; base-uri 'none'; form-action 'none'"><title>${esc(d.title)}</title><style>:root{--accent:${d.color}}${siteCss}</style><body class="${theme}">${d.example||d.menu.some(m=>m.example)?'<aside>Демонстрационная страница. Отмеченные позиции, цены и изображения приведены для примера.</aside>':''}${d.blocks.map(b=>sections[b]).join('')}<footer>${esc(d.title)}</footer></body></html>`;
+  return renderDemoSite(d,value=>value===photoToken?document.getElementById('demo-photo').textContent.trim():safeImage(value));
  }
  const maxImport=5_000_000, maxFiles=200;
  function localPath(value){
@@ -1149,7 +1241,7 @@ const localApi=(()=>{
    const shared=readShared();
    if(!shared)throw issue('Некорректный адрес демо.');
    document.title=shared.site.title;
-   root.innerHTML='<iframe class="shared-site" title="Демосайт" sandbox=""></iframe>';
+   root.innerHTML='<iframe class="shared-site" title="Демосайт" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols"></iframe>';
    root.firstElementChild.srcdoc=renderSite(shared.site);
    if(location.origin==='https://nekovvork.ru'&&/^[a-f0-9]{32}$/.test(shared.token)){
     const key='kontur-open:'+shared.token;
@@ -1744,7 +1836,7 @@ function modalView(m){
  if(m.type==='quick-proposal'){
   const p=model.editor;
   return dialog('Подготовка предложения',`<div class="stack">
-   <div class="preview"><iframe title="Предпросмотр демо" sandbox="" srcdoc="${esc(p.preview)}"></iframe></div>
+   <div class="preview"><iframe title="Предпросмотр демо" sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols" srcdoc="${esc(p.preview)}"></iframe></div>
    ${reviewView(p)}
    ${m.pending?'<p>ИИ проверяет текст и структуру демо…</p>':m.error?`<p class="muted">${esc(m.error)}</p>`:''}
    <div class="wrap">${btn('Открыть редактор','edit-project','ghost','data-id="'+p.id+'"')}
@@ -1842,7 +1934,7 @@ function editorView(){
  const publication=p.url?`<div class="sheet stack"><div class="spread"><b>Ссылка готова · ${fmt(p.published)}</b><small>${esc(p.metric)} · ${demoStats(p).opens}</small></div><div class="wrap"><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" data-a="open-site-link" data-id="${p.id}" data-v="${p.kind}">Открыть ссылку</a>${btn(icon('copy')+' Копировать ссылку','copy-editor','ghost')}${model.selected?.pid===p.pid?btn('К сообщению','close-modal','tint'):''}</div></div>`:
  p.published?`<p class="notice">Страница сохранена. Для этого проекта доступен экспорт HTML. Ссылка на автономное демо создаётся на веб-хостинге, если адрес умещается в 3900 символов.</p>`:
  '<p class="muted">Редактор работает локально. Сохраните черновик, создайте ссылку или скачайте готовую страницу.</p>';
- const frame=()=>`<div class="preview ${model.phone?'phone':''}"><iframe class="demo-frame" title="Предпросмотр демо" sandbox="" loading="lazy"></iframe></div>`;
+ const frame=()=>`<div class="preview ${model.phone?'phone':''}"><iframe class="demo-frame" title="Предпросмотр демо" sandbox="${p.kind==='generated'?'allow-popups allow-popups-to-escape-sandbox allow-top-navigation-to-custom-protocols':''}" loading="lazy"></iframe></div>`;
  const device=`<div class="wrap">${btn('Компьютер','device',model.phone?'':'tint','data-v="desktop"')}${btn('Телефон','device',model.phone?'tint':'','data-v="phone"')}</div>`;
  if(p.kind==='external'){
   const d=p.data, i=d.inspection;
