@@ -704,10 +704,14 @@ const localApi=(()=>{
   const mapId=url=>url?.match(/\/(\d+)\/$/)?.[1];
   const found=s.cards.find(c=>!c.fixture&&((map_url&&mapId(c.map_url)===mapId(map_url))||
     (c.name===name&&c.city===city&&c.address===address)));
-  if(found&&map_url&&!found.map_url){found.map_url=map_url;change(found);}
+    if(found&&((map_url&&!found.map_url)||(site&&b.siteStatus==='own'&&!found.site))){
+   if(map_url&&!found.map_url)found.map_url=map_url;
+   if(site&&b.siteStatus==='own'&&!found.site){found.site=site;found.own='own';}
+   change(found);
+  }
   if(found)return publicCard(found,true);
   const contact=Object.fromEntries(['telegram','phone','email','whatsapp','vk'].map(k=>[k,text(b[k],300)]).filter(([,v])=>v));
-  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,own:site||map_url?'unknown':'none',contact},'base');
+  const c=makeCard(s,{name,city,address,site,category:text(b.category,80)||'заведение',source:map_url?'yandex':'manual',map_url,own:b.siteStatus==='own'&&site?'own':site||map_url?'unknown':'none',contact},'base');
   event(c,'claimed',map_url?'Добавлено из Яндекс Карт':'Добавлено вручную',b.request);
   return publicCard(c,true);
  }
@@ -1087,21 +1091,27 @@ function aiShow(result,mode,node){
  const own=result.owner;
  const candidate=own?`<div><strong>${esc(own.name)}</strong> · ${esc(own.contact)}
   <p>${esc(own.evidence)}</p>${workflow.https(own.url)?`<a href="${esc(own.url)}" target="_blank" rel="noopener noreferrer">Проверить принадлежность контакта</a>`:''}</div>`:'';
- const contactItems=(Array.isArray(result.venueContacts)?result.venueContacts:[]).map(item=>{
+ const contacts=Array.isArray(result.venueContacts)?result.venueContacts:[];
+ const contactList=items=>items.map(item=>{
   const href=safeLink(item.href,['https:','mailto:','tel:']), source=workflow.https(item.url);
-  const labels={phone:'Телефон',email:'Почта',telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте'};
+  const labels={phone:'Телефон',email:'Почта',telegram:'Telegram',whatsapp:'WhatsApp',vk:'ВКонтакте',max:'MAX',ok:'Одноклассники'};
   return href&&source&&labels[item.channel]?`<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${labels[item.channel]} · ${esc(item.contact)}</a>
   <small> · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Источник</a></small></li>`:'';
  }).join('');
+ const contactItems=contactList(contacts.filter(item=>item.channel!=='phone'));
+ const phones=contactList(contacts.filter(item=>item.channel==='phone'));
+ const website=workflow.https(result.website?.site);
  const coverage=(Array.isArray(result.coverage)?result.coverage:[]).map(pass=>
-  `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}</li>`).join('');
+  `<li>${esc(pass.label)} · ${pass.completed?'поиск завершён':esc(pass.error||'поиск не завершён')}${Array.isArray(pass.platforms)?`<small> · ${esc(pass.platforms.length?pass.platforms.join(', '):'поисковик не указал площадки') }</small>`:''}</li>`).join('');
  const warnings=(Array.isArray(result.warnings)?result.warnings:[]).filter(warning=>typeof warning==='string');
  const reviewable=mode==='owner'?own:mode==='analysis'?sources.length&&researchFields.some(([key])=>result.analysis?.[key]):result.comments;
  node.innerHTML=`<section class="sheet stack">
   ${mode!=='owner'&&result.summary?`<p>${esc(result.summary)}</p>`:''}
-  ${mode==='owner'?`<div><strong>Прямой контакт владельца</strong>
+  ${mode==='owner'?`${website?`<p>У заведения уже есть <a href="${esc(website)}" target="_blank" rel="noopener noreferrer">свой сайт</a>.</p>`:''}
+  <div><strong>Прямой контакт владельца</strong>
   ${candidate||'<p>В открытых источниках по этому заведению рабочего контакта владельца не нашли.</p>'}</div>
   ${contactItems?`<div><strong>Каналы заведения</strong><p class="muted">Здесь можно узнать, с кем обсуждать сотрудничество.</p><ul class="ai-sources">${contactItems}</ul></div>`:''}
+  ${phones?`<details><summary>Общие телефоны заведения</summary><ul class="ai-sources">${phones}</ul></details>`:''}
   ${coverage?`<details><summary>Что проверил поиск</summary><ul class="ai-sources">${coverage}</ul></details>`:''}`:''}
   ${mode==='review'?`<p class="ai-comments">${esc(result.comments)}</p><small>ИИ проверил описание и тексты проекта. Внешний вид и кнопки проверяются в предпросмотре.</small>`:''}
   ${links&&(mode!=='owner'||!candidate&&!contactItems)?`<div><strong>Источники</strong><ol class="ai-sources">${links}</ol></div>`:''}
@@ -1313,19 +1323,31 @@ function tagInput(kind,label,values,placeholder,list=''){
 }
 function liveSearch(){
  const state=model.mapSearch;
- const links=state.result?.map((place,index)=>`<article class="place">
+ const groups={not_found:[],unknown:[],own:[]};
+ for(const [index,place] of (state.result||[]).entries()){
+  const kind=place.siteStatus==='own'&&safeLink(place.site)?'own':place.siteStatus==='not_found'?'not_found':'unknown';
+  const heading={own:'Сайт найден',not_found:'Сайт не найден при проверке',unknown:'Сайт ещё не проверен'}[kind];
+  groups[kind].push(`<article class="place">
   <h3>${esc(place.name)}</h3><p class="muted">${esc(place.category)} · ${esc(place.address)}</p>
+  <small>${heading}</small>
   <div class="wrap"><a class="btn" href="${esc(workflow.yandexPlace(place.map_url))}" rel="noopener noreferrer" target="_blank">Карточка на карте</a>
-  ${btn('+ В базу','map-save','tint',`data-id="${index}"`)}</div></article>`).join('')||'';
+  ${kind==='own'?`<a class="btn" href="${esc(safeLink(place.site))}" rel="noopener noreferrer" target="_blank">Открыть сайт</a>`:''}
+  ${btn('+ В базу','map-save','tint',`data-id="${index}"`)}</div></article>`);
+ }
+ const other=(kind,label)=>groups[kind].length?`<details class="search-card"><summary>${label} · ${groups[kind].length}</summary><div class="cards">${groups[kind].join('')}</div></details>`:'';
+ const results=state.result?`<div class="group-head"><h2>${groups.not_found.length?'Кандидаты без найденного сайта':'Кандидатов без найденного сайта пока нет'}</h2></div>
+  <div class="cards">${groups.not_found.join('')}</div>
+  ${state.incomplete?'<p class="muted">Проверку сайтов не удалось закончить. Непроверенные карточки доступны ниже.</p>':''}
+  ${other('unknown','Нужно проверить сайт')}${other('own','Уже есть сайт')}`:'';
  return title('Поиск заведений','Яндекс Карты')+`<section class="search-card"><form data-form="maps-search" class="stack">
   <div class="form-grid">${field('Город','city',state.city||model.cities[0]||'','text','required maxlength="80"')}
   ${field('Название или категория','query',state.query,'text','required maxlength="160" placeholder="Например, пиццерия"')}</div>
   <div class="wrap"><button class="btn primary" ${state.pending?'disabled':''}>${icon('search')} Найти заведения</button>
   ${btn('Открыть Яндекс Карты','maps-open')}
   ${btn('Учебная выдача','training-search','ghost')}</div></form></section>
-  <div aria-live="polite">${state.pending?'<p class="job-inline"><span class="activity-dot"></span>Ищем карточки Яндекс Карт…</p>':
+  <div aria-live="polite">${state.pending?'<p class="job-inline"><span class="activity-dot"></span>Ищем заведения и проверяем, есть ли у них сайт…</p>':
   state.error?`<p class="muted">${esc(state.error)} Можно открыть поиск на Яндекс Картах.</p>`:
-  state.result?`<div class="group-head"><h2>${links?'Найденные карточки':'В выдаче нет подходящих карточек'}</h2></div><div class="cards">${links}</div>`:''}</div>`;
+  results}</div>`;
 }
 function searchPanel(){
  const job=model.state.job;
@@ -1769,13 +1791,14 @@ async function searchMaps(data){
  if(state.pending)return;
  const city=data.city.trim(),query=data.query.trim();
  if(!city||!query)throw new Error('Введите город и категорию или название заведения.');
- Object.assign(state,{city,query,error:'',result:null});
+ Object.assign(state,{city,query,error:'',result:null,incomplete:false});
  if(!aiConfig.endpoint||!aiConfig.code){render();showModal('ai-settings',{onConnect:()=>searchMaps({city,query})});return;}
  state.pending=true;
  render();
  try{
   const found=await aiRequest({mode:'places',venue:{name:query,city}});
   state.result=(Array.isArray(found.places)?found.places:[]).filter(place=>place?.name&&place?.address&&workflow.yandexPlace(place.map_url));
+  state.incomplete=found.siteCheckIncomplete===true;
  }catch(error){state.error=error.message;}
  finally{state.pending=false;if(model.section==='search'&&!model.training)render();}
 }
