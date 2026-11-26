@@ -1,5 +1,5 @@
 'use strict';
-const CACHE='kontur-mini-static-v10';
+const CACHE='kontur-mini-static-v11';
 const home=new URL('./',self.registration.scope).href;
 const index=new URL('index.html',home).href;
 self.addEventListener('install',event=>{

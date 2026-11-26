@@ -1138,6 +1138,34 @@ async function aiStart(mode){
   if(current)current.textContent=modal.aiError;
  }finally{modal.aiPending=false;}
 }
+async function generateAiDraft(){
+ const card=model.selected;
+ if(!card)return;
+ const stage=model.stage;
+ const fallback=()=>updateCard('generate',{stage,variant:++model.variant},card);
+ const url=localApi.matchingDemo(card,model.state.projects);
+ if(!url||card.fixture||!aiConfig.endpoint||!aiConfig.code)return fallback();
+ const existing=draftInput();
+ const cfg=model.state.settings;
+ notify('Gemini готовит черновик…');
+ let result;
+ try{
+  result=await aiRequest({mode:'draft',venue:{name:card.name,city:card.city,category:card.category},
+   draft:{opportunity:card.analysis.opportunity,publicCopy:card.analysis.publicCopy,offer:cfg.offer,language:cfg.lang}});
+ }catch{
+  if(model.selected?.pid===card.pid&&model.selected.version===card.version&&model.stage===stage&&draftInput()===existing){
+   if(!existing.trim())await fallback();
+   notify(existing.trim()?'Gemini недоступен. Предыдущий черновик сохранён.':'Gemini недоступен. Подставлен шаблон «Контура».');
+  }
+  return;
+ }
+ if(model.selected?.pid!==card.pid||model.selected.version!==card.version||model.stage!==stage||draftInput()!==existing)return;
+ const body=String(result.draft||'').trim();
+ if(!body)throw new Error('Gemini вернул пустой черновик.');
+ const message=localApi.requireMessage(body+'\n'+url,url);
+ await updateCard('draft',{stage,text:message},card);
+ notify('Черновик Gemini готов.');
+}
 function aiApply(mode){
  const saved=model.modal?.aiResult;
  if(!saved||saved.mode!==mode)return;
@@ -1873,7 +1901,7 @@ const actions={
   const origin={pid,version:Number(n.dataset.version)};
   await updateCard('undo',{},origin);closeCard();await navigate('search');notify('Перенос отменён.');
  },
- 'generate': ()=>updateCard('generate',{stage:model.stage,variant:++model.variant}),
+ 'generate': ()=>generateAiDraft(),
  'save-draft': async ()=>{await updateCard('draft',{stage:model.stage,text:draftInput()});notify('Черновик сохранён.');},
  'copy-draft': async ()=>{const message=localApi.requireMessage(draftInput(),localApi.matchingDemo(model.selected,model.state.projects));if(await copyText(message))notify('Сообщение с демо скопировано.');},
  'open-channel': n=>openChannel(n.dataset.v),
